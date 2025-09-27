@@ -6,6 +6,11 @@
 <p align="center"><em>A Symbolic Benchmark for Verifiable Chain-of-Thought
 Financial Reasoning</em></p>
 
+<p align="center">
+  <a href='https://arxiv.org/abs/2506.02515'><img src='https://img.shields.io/badge/paper-arXiv-red'></a> &nbsp;
+  <a href='https://huggingface.co/spaces/Usmansafder/finchain-space'><img src='https://img.shields.io/badge/demo-Spaces-yellow'></a>
+</p>
+
 ---
 
 ## 🔍 Overview
