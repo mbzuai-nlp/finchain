@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINCHAIN Interactive Leaderboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* General Body & Font Styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #343a40;
+            margin: 0;
+            padding: 2.5rem;
+        }
+
+        /* Main Container */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: auto;
+            padding-left: 2.5rem;
+            padding-right: 2.5rem;
+        }
+
+        /* Header */
+        .dashboard-header {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .dashboard-header h1 { font-size: 2.5rem; margin: 0; color: #212529; font-weight: 700; }
+        .dashboard-header p { font-size: 1.1rem; color: #6c757d; margin-top: 0.5rem; }
+
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 2rem;
+            margin-bottom: 5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .control-group-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+        .filter-icon {
+            font-size: 1.2rem; /* Make icon slightly larger */
+            color: #6c757d;   /* A softer grey color */
+            margin-right: 0.5rem;
+        }
+
+        .filter-label { font-weight: 600; font-size: 0.9rem; color: #495057; margin-right: 0.5rem; }
+
+        /* Buttons Styling */
+        .control-panel button {
+            border: 1px solid #dee2e6;
+            background-color: #fff;
+            color: #495057;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+        .control-panel button:hover {
+            background-color: #f1f3f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .control-panel button.active {
+            background-color: #363636;
+            color: white;
+            border-color: #363636;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .category-filters { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        
+        .search-bar input {
+            padding: 0.7rem 1rem;
+            border: 1px solid #ced4da;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            min-width: 250px;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: #363636;
+            box-shadow: 0 0 0 3px rgba(54, 54, 54, 0.1);
+        }
+
+        .table-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #495057;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Table Styling */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            border: 2px solid #363636;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 1.1rem 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+        }
+        .leaderboard-table th:last-child, .leaderboard-table td:last-child {
+            border-right: none;
+        }
+        .leaderboard-table thead th {
+            background-color: #f1f3f5;
+            font-weight: 700;
+            color: #363636;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        .leaderboard-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        .leaderboard-table tbody tr:hover { background-color: #e9ecef; }
+        .leaderboard-table td:first-child { text-align: center; font-weight: 700; }
+        .leaderboard-table .model-name { font-weight: 600; color: #363636; }
+        
+        /* Chart Controls & Container */
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .chart-control-group { display: flex; align-items: center; gap: 0.5rem; }
+        .chart-control-group label { font-weight: 500; color: #495057; }
+        .benchmark-toggles label { display: flex; align-items: center; gap: 0.25rem; font-weight: normal; }
+        #y-axis-select { padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid #ced4da; }
+        .chart-container { position: relative; height: 70vh; width: 100%; }
+        
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <header class="dashboard-header">
+            <h1>FINCHAIN Leaderboard</h1>
+            <p>An interactive dashboard for evaluating financial reasoning in LLMs.</p>
+        </header>
+
+        <div class="control-panel">
+            <div class="control-group-left">
+                <i class="fas fa-filter filter-icon"></i>
+                <div class="category-filters">
+                    <button class="active" data-category="all">All</button>
+                    <button data-category="Finance Specific">Finance Specific</button>
+                    <button data-category="Math Enhanced">Math Enhanced</button>
+                    <button data-category="General Purpose Open">General Purpose Open</button>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="🔍 Search models...">
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="chart-view">
+                <div class="chart-controls">
+                    <div class="chart-control-group">
+                        <label for="y-axis-select">Metric:</label>
+                        <select id="y-axis-select">
+                            <option value="chain_eval" selected>ChainEval</option>
+                            <option value="rouge_r2">ROUGE R₂</option>
+                            <option value="rouge_rl">ROUGE Rₗ</option>
+                            <option value="bertscore">BERTScore</option>
+                        </select>
+                    </div>
+                    <div class="chart-control-group benchmark-toggles">
+                        <label>Benchmarks:</label>
+                        <label><input type="checkbox" data-benchmark="gpt5" checked> GPT-5</label>
+                        <label><input type="checkbox" data-benchmark="best_open" checked> Best Open Model</label>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="leaderboard-chart"></canvas>
+                </div>
+            </div>
+            
+            <h3 class="table-header">Model Scores</h3>
+            <div id="table-view">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Model</th>
+                            <th>Size</th>
+                            <th>ChainEval ↑</th>
+                            <th>ROUGE R₂ ↑</th>
+                            <th>ROUGE Rₗ ↑</th>
+                            <th>BERTScore ↑</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
+
+    <script src="finchain_data.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="dashboard_chart.js"></script>
+
+</body>
+</html>
