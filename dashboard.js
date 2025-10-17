@@ -1,10 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- STATE MANAGEMENT ---
+    // --- STATE MANAGEMENT (Main Table) ---
     let state = {
-        // MODIFIED: Full dataset is the default
         models: finchainData,
-        // MODIFIED: Default filter is now 'all'
         activeCategory: 'all',
         searchQuery: '',
         sort: { by: 'chain_eval', order: 'desc' }
@@ -14,19 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('leaderboard-body');
     const categoryFilters = document.querySelector('.category-filters');
     const searchInput = document.getElementById('search-input');
-    const tableHeaders = document.querySelectorAll('.leaderboard-table thead th');
+    const tableHeaders = document.querySelectorAll('#table-view .leaderboard-table thead th');
 
-    // --- GLOBAL RENDER FUNCTION ---
+    // --- GLOBAL RENDER FUNCTION (Main Table & Chart) ---
     window.renderDashboard = () => {
-        let processedModels;
-
-        // --- MODIFIED: Simplified filter logic ---
-        if (state.activeCategory === 'all') {
-            processedModels = [...state.models]; // Show all models
-        } else {
-            // Show only a specific category
-            processedModels = state.models.filter(model => model.category === state.activeCategory);
-        }
+        let processedModels = state.activeCategory === 'all'
+            ? [...state.models]
+            : state.models.filter(model => model.category === state.activeCategory);
 
         if (state.searchQuery) {
             processedModels = processedModels.filter(model =>
@@ -38,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ChartController.update(processedModels, finchainData);
     };
 
-    // --- TABLE-SPECIFIC RENDER FUNCTION (Unchanged) ---
+    // --- RENDER FUNCTION (Main Table) ---
     const renderTable = (modelsToRender) => {
         modelsToRender.sort((a, b) => {
             let valA, valB;
@@ -78,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- EVENT LISTENERS (Unchanged) ---
+    // --- EVENT LISTENERS (Main Table) ---
     categoryFilters.addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON') {
             categoryFilters.querySelector('.active').classList.remove('active');
@@ -112,30 +104,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // --- MODAL FUNCTIONALITY & CSS INJECTION (Unchanged) ---
+    // --- MODAL FUNCTIONALITY (Handles both data structures) ---
     const showModal = (model) => {
         const existingModal = document.querySelector('.modal-overlay');
         if (existingModal) existingModal.remove();
+
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
         const modalContent = document.createElement('div');
         modalContent.className = 'modal-content';
+        
+        let scoresHTML = `<li><strong>ChainEval:</strong> ${model.scores.chain_eval.toFixed(2)}</li>
+                          <li><strong>ROUGE R₂:</strong> ${model.scores.rouge_r2.toFixed(2)}</li>`;
+        
+        if(model.scores.chain_eval_std !== undefined) {
+             scoresHTML = `<li><strong>ChainEval:</strong> ${model.scores.chain_eval.toFixed(2)} (±${model.scores.chain_eval_std.toFixed(2)})</li>
+                           <li><strong>ROUGE R₂:</strong> ${model.scores.rouge_r2.toFixed(2)} (±${model.scores.rouge_r2_std.toFixed(2)})</li>
+                           <li><strong>ROUGE Rₗ:</strong> ${model.scores.rouge_rl.toFixed(2)} (±${model.scores.rouge_rl_std.toFixed(2)})</li>
+                           <li><strong>BERTScore:</strong> ${model.scores.bertscore.toFixed(2)} (±${model.scores.bertscore_std.toFixed(2)})</li>`;
+        }
+
         modalContent.innerHTML = `
             <button class="modal-close">&times;</button>
             <h2>${model.model_name}</h2>
-            <p><strong>Category:</strong> ${model.category} &nbsp;|&nbsp; <strong>Size:</strong> ${model.size_display}</p>
+            <p><strong>Category:</strong> ${model.category || 'N/A'} &nbsp;|&nbsp; <strong>Size:</strong> ${model.size_display || 'N/A'}</p>
             <hr>
             <h3>Performance Scores</h3>
-            <ul>
-                <li><strong>ChainEval:</strong> ${model.scores.chain_eval.toFixed(2)} (±${model.scores.chain_eval_std.toFixed(2)})</li>
-                <li><strong>ROUGE R₂:</strong> ${model.scores.rouge_r2.toFixed(2)} (±${model.scores.rouge_r2_std.toFixed(2)})</li>
-                <li><strong>ROUGE Rₗ:</strong> ${model.scores.rouge_rl.toFixed(2)} (±${model.scores.rouge_rl_std.toFixed(2)})</li>
-                <li><strong>BERTScore:</strong> ${model.scores.bertscore.toFixed(2)} (±${model.scores.bertscore_std.toFixed(2)})</li>
-            </ul>
-            <a href="${model.source_link}" target="_blank" rel="noopener noreferrer" class="modal-link">Learn More at Source</a>
+            <ul>${scoresHTML}</ul>
+            <a href="${model.source_link || '#'}" target="_blank" rel="noopener noreferrer" class="modal-link">Learn More at Source</a>
         `;
         modalOverlay.appendChild(modalContent);
         document.body.appendChild(modalOverlay);
+
         modalOverlay.addEventListener('click', e => {
             if (e.target === modalOverlay) modalOverlay.remove();
         });
@@ -158,7 +158,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.head.appendChild(style);
     };
 
+    // --- NEW: RENDER FUNCTION FOR THE SECOND TABLE ---
+    const renderRandomSampleTable = () => {
+        const randomTableBody = document.getElementById('random-samples-body');
+        if (!randomTableBody || typeof randomSamplePerformanceData === 'undefined') return;
+
+        // Sort data by ChainEval score
+        const sortedData = [...randomSamplePerformanceData].sort((a, b) => b.scores.chain_eval - a.scores.chain_eval);
+
+        const rankEmojis = ['🥇', '🥈', '🥉'];
+        
+        randomTableBody.innerHTML = ''; // Clear previous content
+        sortedData.forEach((model, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${rankEmojis[index] || index + 1}</td>
+                <td class="model-name">${model.model_name}</td>
+                <td>${model.scores.chain_eval.toFixed(2)}</td>
+                <td>${model.scores.rouge_r2.toFixed(2)}</td>
+            `;
+            randomTableBody.appendChild(row);
+        });
+    };
+
+
     // --- INITIALIZATION ---
     injectModalCSS();
-    window.renderDashboard(); // Initial render
+    window.renderDashboard(); // Render the main dashboard
+    renderRandomSampleTable(); // Render the second table
 });
