@@ -172,7 +172,7 @@
         </div>
 
         <div class="main-content">
-            <h3 class="table-header">Model Scores</h3>
+            <h3 class="table-header">Zero-shot Model Performance Scores</h3>
             <div id="table-view">
                 <table class="leaderboard-table">
                     <thead>
@@ -187,6 +187,22 @@
                         </tr>
                     </thead>
                     <tbody id="leaderboard-body">
+                        </tbody>
+                </table>
+            </div>
+
+            <h3 class="table-header">Performance on Random Samples</h3>
+            <div>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Model</th>
+                            <th>ChainEval ↑</th>
+                            <th>ROUGE R₂ ↑</th>
+                        </tr>
+                    </thead>
+                    <tbody id="random-samples-body">
                         </tbody>
                 </table>
             </div>
@@ -226,4 +242,3 @@
 
 </body>
 </html>
-
