@@ -525,3 +525,42 @@ const finchainData = [
     }
   }
 ]
+
+const randomSamplePerformanceData = [
+  {
+    "model_name": "Grok 4 Heavy",
+    "scores": {
+      "chain_eval": 61.99,
+      "rouge_r2": 23.87
+    }
+  },
+  {
+    "model_name": "GPT-5",
+    "scores": {
+      "chain_eval": 60.60,
+      "rouge_r2": 28.37
+    }
+  },
+  {
+    "model_name": "Gemini 2.5 Pro",
+    "scores": {
+      "chain_eval": 58.47,
+      "rouge_r2": 18.85
+    }
+  },
+  {
+    "model_name": "Fin-R1",
+    "scores": {
+      "chain_eval": 57.67,
+      "rouge_r2": 5.43
+    }
+  },
+  {
+    "model_name": "Mathstral",
+    "scores": {
+      "chain_eval": 57.15,
+      "rouge_r2": 18.99
+    }
+  }
+];
+
