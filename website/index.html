@@ -198,7 +198,7 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            Multi-step symbolic reasoning is essential for robust financial analysis; yet, current benchmarks largely overlook this capability. Existing datasets such as FinQA and ConvFinQA emphasize final numerical answers while neglecting the intermediate reasoning required for transparency and verification. To address this gap, we introduce FINCHAIN, the first benchmark specifically designed for verifiable Chain-of-Thought (CoT) evaluation in finance. FINCHAIN spans 58 topics across 12 financial domains, each represented by parameterized symbolic templates with executable Python traces that enable fully machine-verifiable reasoning and scalable, contamination-free data generation. To assess reasoning capacity, we propose CHAINEVAL, a dynamic alignment metric that jointly evaluates both the final-answer correctness and the step-level reasoning consistency. Evaluating 23 leading LLMs reveals that even frontier proprietary systems exhibit clear limitations in symbolic financial reasoning, while domain-adapted and math-enhanced fine-tuned models substantially narrow this gap. Overall, FINCHAIN exposes persistent weaknesses in multi-step financial reasoning and provides a foundation for developing trustworthy, interpretable, and verifiable financial AI.
+            Multi-step symbolic reasoning is essential for robust financial analysis; yet, current benchmarks largely overlook this capability. Existing datasets such as FinQA and ConvFinQA emphasize final numerical answers while neglecting the intermediate reasoning required for transparency and verification. To address this gap, we introduce FinChain, the first benchmark specifically designed for verifiable Chain-of-Thought (CoT) evaluation in finance. FinChain spans 58 topics across 12 financial domains, each represented by parameterized symbolic templates with executable Python traces that enable fully machine-verifiable reasoning and scalable, contamination-free data generation. To assess reasoning capacity, we propose ChainEval, a dynamic alignment metric that jointly evaluates both the final-answer correctness and the step-level reasoning consistency. Evaluating 26 leading LLMs reveals that even frontier proprietary systems exhibit clear limitations in symbolic financial reasoning, while domain-adapted and math-enhanced fine-tuned models substantially narrow this gap. Overall, FinChain exposes persistent weaknesses in multi-step financial reasoning and provides a foundation for developing trustworthy, interpretable, and verifiable financial AI.
           </p>
         </div>
       </div>
@@ -276,7 +276,7 @@
             <div class="column is-four-fifths">
                 <div class="content has-text-justified">
                     <p>
-                        Our experiments on 23 LLMs reveal a clear performance hierarchy. Frontier proprietary systems like <strong>Gemini 2.5 Pro</strong> and <strong>GPT-5</strong> consistently achieve the highest accuracy, demonstrating superior and more balanced reasoning across all financial domains and difficulty levels. However, fine-tuning proves to be a highly effective strategy for smaller, open-source models. Domain-specific models like <strong>Fin-R1</strong> and math-enhanced models like <strong>Mathstral</strong> significantly narrow the performance gap, sometimes outperforming larger systems in their specialized areas. Despite these gains, all models struggle as task complexity increases, with the performance of fine-tuned models degrading more sharply than their proprietary counterparts, highlighting that a significant challenge remains in achieving robust, multi-step symbolic reasoning.
+                        Our experiments on 26 LLMs reveal a clear performance hierarchy. Frontier proprietary models like <strong>Gemini 2.5 Pro</strong>, <strong>Claude Sonnet 4.5</strong>, and <strong>Claude Sonnet 4</strong> consistently achieve the highest accuracy, demonstrating superior and more balanced reasoning across all financial domains and difficulty levels. However, fine-tuning proves to be a highly effective strategy for smaller, open-source models. Domain-specific models like <strong>Fin-R1</strong> and math-enhanced models like <strong>Mathstral</strong> significantly narrow the performance gap, sometimes outperforming larger systems in their specialized areas. Despite these gains, all models struggle as task complexity increases, with the performance of fine-tuned models degrading more sharply than their proprietary counterparts, highlighting that a significant challenge remains in achieving robust, multi-step symbolic reasoning.
                     </p>
                 </div>
             </div>
@@ -288,15 +288,16 @@
              <p class="is-size-7" style="margin-top: 8px;"><i>Table 1: Zero-shot performance across financial, mathematical, and general reasoning benchmarks.</i></p>
         </div>
         
-        <h3 class="title is-4 has-text-centered" style="margin-top: 3rem;">Domain & Difficulty Level Performance</h3>
-        <div class="columns is-vcentered">
+        <div class="columns is-vcentered" style="margin-top: 3rem;">
             <div class="column has-text-centered">
-                <img src="./static/images/domain_performance.png" alt="Radar chart showing model performance across 12 financial domains." style="max-width: 80%;">
-                 <p class="is-size-7" style="margin-top: 8px;"><i>Figure 3: Domain-level performance across financial domains.</i></p>
+                <h4 class="title is-5">Performance on Random Samples</h4>
+                <img src="./static/images/random_results_table.png" alt="Table showing performance of various LLMs over 200 random samples using ChainEval and ROUGE R₂" style="max-width: 80%;">
+                <p class="is-size-7" style="margin-top: 8px;"><i>Table 2: </i> Performance of various LLMs over 200 random samples using ChainEval and ROUGE R₂.</p>
             </div>
             <div class="column has-text-centered">
+                <h4 class="title is-5">Performance Across Difficulty Levels</h4>
                 <img src="./static/images/difficulty_performance.png" alt="Bar chart showing model performance across basic, intermediate, and advanced difficulty levels.">
-                <p class="is-size-7" style="margin-top: 8px;"><i>Figure 4: CHAINEVAL score across difficulty levels.</i></p>
+                <p class="is-size-7" style="margin-top: 8px;"><i>Figure 3: CHAINEVAL score across difficulty levels.</i></p>
             </div>
         </div>
     </div>
@@ -319,7 +320,7 @@
                   <img src="./static/images/hugging-space-preview.png" 
                       alt="Screenshot of the FINCHAIN application preview"
                       style="width: 70%; height: auto;">
-                  <p class="is-size-7" style="margin-top: 8px;"><i>Figure 5: A preview of the interactive FINCHAIN application.</i></p>
+                  <p class="is-size-7" style="margin-top: 8px;"><i>Figure 4: A preview of the interactive FINCHAIN application.</i></p>
             </div>
         </div>
         </div>
@@ -351,4 +352,5 @@
 
 </body>
 </html>
+
 
