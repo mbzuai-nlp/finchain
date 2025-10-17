@@ -125,7 +125,7 @@ const finchainData = [
       "difficulty_chart_url": "#"
     }
   },
-  {
+    {
     "model_name": "Fin-R1",
     "category": "Finance Specific",
     "size_b": 7,
@@ -188,7 +188,7 @@ const finchainData = [
       "difficulty_chart_url": "#"
     }
   },
-  {
+    {
     "model_name": "GPT-5",
     "category": "Frontier Proprietary",
     "size_b": null,
@@ -294,6 +294,27 @@ const finchainData = [
     }
   },
   {
+    "model_name": "Grok 4 Fast",
+    "category": "Frontier Proprietary",
+    "size_b": null,
+    "size_display": "N/A",
+    "source_link": "#",
+    "scores": {
+      "chain_eval": 56.73,
+      "chain_eval_std": 15.59,
+      "rouge_r2": 21.33,
+      "rouge_r2_std": 11.09,
+      "rouge_rl": 32.25,
+      "rouge_rl_std": 13.30,
+      "bertscore": 86.83,
+      "bertscore_std": 3.06
+    },
+    "performance_charts": {
+      "domain_chart_url": "#",
+      "difficulty_chart_url": "#"
+    }
+  },
+  {
     "model_name": "Llama 3.1 Instruct",
     "category": "General Purpose Open",
     "size_b": 8,
@@ -329,6 +350,27 @@ const finchainData = [
       "rouge_rl_std": 9.72,
       "bertscore": 84.39,
       "bertscore_std": 1.79
+    },
+    "performance_charts": {
+      "domain_chart_url": "#",
+      "difficulty_chart_url": "#"
+    }
+  },
+  {
+    "model_name": "DianJin-R1",
+    "category": "Finance Specific",
+    "size_b": 7,
+    "size_display": "7B",
+    "source_link": "#",
+    "scores": {
+      "chain_eval": 53.72,
+      "chain_eval_std": 7.61,
+      "rouge_r2": 6.28,
+      "rouge_r2_std": 2.95,
+      "rouge_rl": 10.79,
+      "rouge_rl_std": 4.19,
+      "bertscore": 83.12,
+      "bertscore_std": 1.32
     },
     "performance_charts": {
       "domain_chart_url": "#",
