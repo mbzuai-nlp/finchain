@@ -5,213 +5,216 @@ import json
 investor_names = ["John Doe", "Susan Lee", "Emily White", "Mark Smith", "David Brown"]
 company_names = ["Apple", "Google", "Microsoft", "Amazon", "Facebook", "Tesla", "Netflix", "Walmart", "JP Morgan", "Berkshire Hathaway"]
 
-# Basic Level Question 1: Synergy Cost Reduction via Percentage Savings
-def synergy_basic_cost_reduction():
+# Basic Level Question 1: Synergy Cost Reduction via % Savings
+def template_synergy_basic_cost_reduction():
     """1:Basic: Calculate annual cost savings from percentage cost reduction"""
-    # Select investor and two distinct companies
     investor = random.choice(investor_names)
     company_a, company_b = random.sample(company_names, 2)
-    # Randomly generate the annual cost bases (in millions)
-    cost_base_a = random.randint(50, 200)
-    cost_base_b = random.randint(50, 200)
-    # Synergy percentage savings (in %)
-    synergy_pct = random.randint(5, 20)
-    
+    cost_base_a = random.randint(50, 200)          # in $ million
+    cost_base_b = random.randint(50, 200)          # in $ million
+    synergy_pct = random.randint(5, 20)            # %
+
     question = (
         f"{investor} is evaluating a merger between {company_a} and {company_b}. "
-        f"{company_a} has an annual operating cost base of ${cost_base_a} million, and {company_b} has ${cost_base_b} million. "
-        f"It is expected that redundant operations will be eliminated, achieving a cost saving of {synergy_pct}% on the combined cost base. "
+        f"{company_a} has an annual operating cost base of ${cost_base_a} million, and "
+        f"{company_b} has ${cost_base_b} million. "
+        f"Eliminating redundant operations is expected to cut costs by {synergy_pct}% "
+        f"of the combined cost base. "
         f"Calculate the annual cost savings from the merger."
     )
-    
-    # Step-by-step solution
-    total_cost = cost_base_a + cost_base_b
-    savings = round(total_cost * (synergy_pct / 100), 2)
+
+    total_cost = cost_base_a + cost_base_b                              # $ million
+    savings = round(total_cost * synergy_pct / 100, 2)                  # $ million, 2 dp
+    savings_str = f"{savings:.2f}"
+
     solution = (
-        f"Step 1: Compute the total cost base:\n"
-        f"         Total Cost = {cost_base_a} + {cost_base_b} = {total_cost} million\n\n"
-        f"Step 2: Compute the cost savings:\n"
-        f"         Savings = Total Cost × (Synergy Percentage / 100)\n"
-        f"                 = {total_cost} × ({synergy_pct} / 100) = {savings} million\n"
-        f"Hence, the annual cost savings from the merger is {savings} million dollars."
+        "Step 1 – Compute the combined cost base:\n"
+        f"         Total Cost = ${cost_base_a} million + ${cost_base_b} million"
+        f" = ${total_cost} million\n\n"
+        "Step 2 – Compute the cost savings:\n"
+        f"         Savings = Total Cost × {synergy_pct}%"
+        f" = ${total_cost} million × {synergy_pct}% = ${savings_str} million\n\n"
+        f"Hence, the annual cost savings from the merger is ${savings_str} million."
     )
-    
+
     return question, solution
 
-# Basic Level Question 2: Fixed Cost Savings from Eliminating Redundant Expenses
-def synergy_basic_fixed_savings():
+
+# Basic Level Question 2: Fixed Cost Savings from Eliminating Redundant Expenses
+def template_synergy_basic_fixed_savings():
     """2:Basic: Calculate total fixed annual cost savings by summing individual savings"""
     investor = random.choice(investor_names)
     company_a, company_b = random.sample(company_names, 2)
-    # Each company saves a fixed amount (in millions) by reducing overlapping administrative costs
-    saving_a = random.randint(5, 20)
-    saving_b = random.randint(5, 20)
-    
+    saving_a = random.randint(5, 20)   # $ million
+    saving_b = random.randint(5, 20)   # $ million
+
     question = (
-        f"{investor} expects that the merger between {company_a} and {company_b} will cut duplicate administrative costs. "
-        f"{company_a} can save ${saving_a} million annually and {company_b} can save ${saving_b} million annually. "
+        f"{investor} expects that the merger between {company_a} and {company_b} will cut duplicate "
+        f"administrative costs. {company_a} can save ${saving_a} million annually and "
+        f"{company_b} can save ${saving_b} million annually. "
         f"Calculate the total fixed annual cost savings from the merger."
     )
-    
-    total_fixed_savings = saving_a + saving_b
+
+    total_fixed_savings = saving_a + saving_b    # $ million
+
     solution = (
-        f"Step 1: Identify the savings for each company:\n"
-        f"         Savings for {company_a} = {saving_a} million\n"
-        f"         Savings for {company_b} = {saving_b} million\n\n"
-        f"Step 2: Total fixed savings = {saving_a} + {saving_b} = {total_fixed_savings} million\n"
-        f"Thus, the merger yields a total annual fixed cost savings of {total_fixed_savings} million dollars."
+        "Step 1 – Identify the annual savings for each company:\n"
+        f"         Savings for {company_a} = ${saving_a} million\n"
+        f"         Savings for {company_b} = ${saving_b} million\n\n"
+        "Step 2 – Sum the savings:\n"
+        f"         Total Fixed Savings = ${saving_a} million + ${saving_b} million"
+        f" = ${total_fixed_savings} million\n\n"
+        f"Thus, the merger yields total annual fixed cost savings of ${total_fixed_savings} million."
     )
-    
+
     return question, solution
 
-# Intermediate Level Question 1: Operational Expense Synergy with Integration Cost
-def synergy_intermediate_operational_improvement():
-    """3:Intermediate: Calculate net annual savings from variable expense reduction and integration cost amortization"""
+# Net First‑Year Savings after Synergies and Integration Cost
+def template_synergy_complex_net_savings():
+    """3:Intermediate: calculate net first‑year cost savings (synergy % – integration cost)"""
     investor = random.choice(investor_names)
     company_a, company_b = random.sample(company_names, 2)
-    # Variable operating expenses (in millions)
-    op_exp_a = random.randint(100, 300)
-    op_exp_b = random.randint(100, 300)
-    # Synergy percentage for cost reduction (in %)
-    synergy_pct = random.randint(10, 25)
-    # Integration cost and amortization period
-    integration_cost = random.randint(20, 50)
-    amortization_years = random.randint(3, 7)
-    
+
+    # Annual operating cost bases ($ million)
+    cost_base_a = random.randint(70, 250)
+    cost_base_b = random.randint(70, 250)
+
+    # Synergy and one‑time integration assumptions
+    synergy_pct = random.randint(8, 20)            # %
+    integration_cost = random.randint(5, 30)       # $ million, paid in year 1
+
     question = (
-        f"{investor} plans a merger between {company_a} and {company_b}. "
-        f"{company_a} and {company_b} have variable operating expenses of ${op_exp_a} million and ${op_exp_b} million respectively. "
-        f"The merger is expected to reduce these expenses by {synergy_pct}% due to operational improvements. "
-        f"However, an integration cost of ${integration_cost} million is incurred, amortized over {amortization_years} years. "
-        f"Calculate the net annual savings from the merger."
+        f"{investor} is analysing a merger between {company_a} and {company_b}. "
+        f"{company_a} has an annual operating cost base of ${cost_base_a} million, while "
+        f"{company_b} has ${cost_base_b} million. Eliminating overlap is expected to cut "
+        f"{synergy_pct}% of the combined cost base, but a one‑time integration cost of "
+        f"${integration_cost} million will be incurred in the first year. "
+        f"Calculate the **net first‑year cost savings** from the merger."
     )
-    
-    # Compute total operating expense
-    total_op_exp = op_exp_a + op_exp_b
-    # Synergy savings calculation
-    synergy_savings = round(total_op_exp * (synergy_pct / 100), 2)
-    # Amortized integration cost per year
-    annual_integration_cost = round(integration_cost / amortization_years, 2)
-    # Net annual savings
-    net_savings = round(synergy_savings - annual_integration_cost, 2)
-    
+
+    # --- three‑step reasoning ---
+    total_cost   = cost_base_a + cost_base_b                        # $ million
+    gross_save   = round(total_cost * synergy_pct / 100, 2)         # $ million
+    net_save     = round(gross_save - integration_cost, 2)          # $ million
+    gross_str    = f"{gross_save:.2f}"
+    net_str      = f"{net_save:.2f}"
+
     solution = (
-        f"Step 1: Compute the total operating expenses:\n"
-        f"         Total Expenses = {op_exp_a} + {op_exp_b} = {total_op_exp} million\n\n"
-        f"Step 2: Calculate the synergy savings:\n"
-        f"         Synergy Savings = Total Expenses × ({synergy_pct} / 100) = {total_op_exp} × {synergy_pct/100:.2f} = {synergy_savings} million\n\n"
-        f"Step 3: Compute the annual integration cost:\n"
-        f"         Annual Integration Cost = Integration Cost / Amortization Years = {integration_cost} / {amortization_years} = {annual_integration_cost} million\n\n"
-        f"Step 4: Determine net annual savings:\n"
-        f"         Net Savings = Synergy Savings - Annual Integration Cost = {synergy_savings} - {annual_integration_cost} = {net_savings} million\n"
-        f"Therefore, the net annual savings from the merger is {net_savings} million dollars."
+        "Step 1 – Combined cost base:\n"
+        f"         ${cost_base_a} million + ${cost_base_b} million = ${total_cost} million\n\n"
+        "Step 2 – Gross synergy savings:\n"
+        f"         ${total_cost} million × {synergy_pct}% = ${gross_str} million\n\n"
+        "Step 3 – Net first‑year savings after integration cost:\n"
+        f"         ${gross_str} million − ${integration_cost} million "
+        f"= ${net_str} million\n\n"
+        f"The net first‑year cost savings are **${net_str} million**."
     )
-    
+
     return question, solution
 
-# Intermediate Level Question 2: Supply Chain Efficiency Synergy with Training Cost
-def synergy_intermediate_supply_chain_efficiency():
-    """4:Intermediate: Calculate net annual supply chain savings after accounting for training cost amortization"""
+# Multi‑Category Savings (Procurement % + Fixed IT Cuts)
+def template_synergy_complex_multi_category():
+    """4:Intermediate: total annual savings from two distinct synergy buckets"""
     investor = random.choice(investor_names)
     company_a, company_b = random.sample(company_names, 2)
-    # Procurement costs (in millions)
-    procurement_a = random.randint(50, 150)
-    procurement_b = random.randint(50, 150)
-    # Synergy percentage for procurement cost reduction (in %)
-    synergy_pct = random.randint(5, 15)
-    # Training cost for new supply chain system and amortization period
-    training_cost = random.randint(5, 15)
-    amortization_years = random.randint(2, 5)
-    
+
+    # Procurement spend ($ million)
+    procurement_a = random.randint(30, 120)
+    procurement_b = random.randint(30, 120)
+    procurement_pct = random.randint(7, 15)        # % saving on combined procurement
+
+    # IT rationalisation fixed saving ($ million)
+    it_fixed_save = random.randint(8, 25)
+
     question = (
-        f"{investor} anticipates that merging {company_a} and {company_b} will improve supply chain efficiency. "
-        f"{company_a} has procurement costs of ${procurement_a} million and {company_b} has ${procurement_b} million. "
-        f"The consolidation is expected to reduce procurement costs by {synergy_pct}% through better vendor negotiations. "
-        f"A training cost of ${training_cost} million for a new supply chain system will be incurred, amortized over {amortization_years} years. "
-        f"Calculate the net annual savings from the supply chain synergy."
+        f"{investor} anticipates two key synergy buckets after merging {company_a} and {company_b}: "
+        f"(1) a {procurement_pct}% reduction on their combined procurement spend, and "
+        f"(2) fixed savings of ${it_fixed_save} million annually from consolidating IT systems. "
+        f"{company_a} currently spends ${procurement_a} million on procurement and "
+        f"{company_b} spends ${procurement_b} million. "
+        f"Calculate the **total annual cost savings** once both synergy buckets are realised."
     )
-    
-    total_procurement = procurement_a + procurement_b
-    synergy_savings = round(total_procurement * (synergy_pct / 100), 2)
-    annual_training_cost = round(training_cost / amortization_years, 2)
-    net_savings = round(synergy_savings - annual_training_cost, 2)
-    
+
+    # --- three‑step reasoning ---
+    combined_procurement = procurement_a + procurement_b            # $ million
+    procurement_save     = round(combined_procurement *
+                                 procurement_pct / 100, 2)          # $ million
+    total_save           = round(procurement_save + it_fixed_save, 2)  # $ million
+    procurement_str = f"{procurement_save:.2f}"
+    total_str       = f"{total_save:.2f}"
+
     solution = (
-        f"Step 1: Compute the total procurement cost:\n"
-        f"         Total Procurement Cost = {procurement_a} + {procurement_b} = {total_procurement} million\n\n"
-        f"Step 2: Calculate the procurement savings:\n"
-        f"         Savings = Total Procurement Cost × ({synergy_pct} / 100) = {total_procurement} × {synergy_pct/100:.2f} = {synergy_savings} million\n\n"
-        f"Step 3: Determine the annual training cost:\n"
-        f"         Annual Training Cost = Training Cost / Amortization Years = {training_cost} / {amortization_years} = {annual_training_cost} million\n\n"
-        f"Step 4: Net annual savings = Procurement Savings - Annual Training Cost = {synergy_savings} - {annual_training_cost} = {net_savings} million\n"
-        f"Hence, the net annual supply chain savings is {net_savings} million dollars."
+        "Step 1 – Combined procurement spend:\n"
+        f"         ${procurement_a} million + ${procurement_b} million "
+        f"= ${combined_procurement} million\n\n"
+        "Step 2 – Procurement synergy savings:\n"
+        f"         ${combined_procurement} million × {procurement_pct}% "
+        f"= ${procurement_str} million\n\n"
+        "Step 3 – Total annual savings:\n"
+        f"         Procurement Savings ${procurement_str} million + "
+        f"IT Savings ${it_fixed_save} million = ${total_str} million\n\n"
+        f"Therefore, total annual cost savings amount to **${total_str} million**."
     )
-    
+
     return question, solution
 
-# Advanced Level Question: Full Financial Adjustment with Multiple Synergies and Tax Impact
-def synergy_advanced_full_financial_adjustment():
-    """5:Advanced: Calculate net annual synergy savings after cost synergy, revenue synergy, restructuring cost, and tax adjustment (min 5 steps)"""
+
+# Net After‑Tax Savings with Integration Amortisation
+def template_synergy_complex_after_tax():
+    """
+    5:Advanced: net annual cost savings after tax and integration amortisation
+    """
     investor = random.choice(investor_names)
     company_a, company_b = random.sample(company_names, 2)
-    # Combined operating expenses (in millions)
-    operating_expense = random.randint(200, 500)
-    # Cost synergy percentage (in %)
-    synergy_pct = random.randint(10, 20)
-    # Revenue synergy bonus (in millions)
-    revenue_synergy = random.randint(10, 50)
-    # Restructuring cost (in millions) and its amortization period (in years)
-    restructuring_cost = random.randint(50, 100)
-    amortization_years = random.randint(3, 7)
-    # Tax rate (in %)
-    tax_rate = random.randint(20, 35)
-    
+
+    # Input assumptions
+    cost_base_a      = random.randint(80, 300)            # $ million
+    cost_base_b      = random.randint(80, 300)            # $ million
+    synergy_pct      = random.randint(8, 20)              # %
+    integration_cost = random.randint(20, 80)             # $ million one‑time
+    amort_years      = random.choice([4, 5, 6])           # years
+    tax_rate         = random.choice([20, 25, 30, 35])    # %
+
     question = (
-        f"{investor} is evaluating a complex merger between {company_a} and {company_b}. "
-        f"The combined operating expenses total ${operating_expense} million, and the merger is projected to achieve a cost synergy of {synergy_pct}% on these expenses. "
-        f"In addition, revenue synergies are expected to add an extra ${revenue_synergy} million annually. "
-        f"However, the merger incurs restructuring costs of ${restructuring_cost} million, amortized over {amortization_years} years. "
-        f"Given an effective tax rate of {tax_rate}%, calculate the net annual synergy savings after accounting for integration costs and tax adjustments."
+        f"{investor} is analysing a merger between {company_a} and {company_b}. "
+        f"{company_a} has an annual operating cost base of ${cost_base_a} million, "
+        f"while {company_b} has ${cost_base_b} million. Eliminating overlaps is expected to "
+        f"save {synergy_pct}% of the combined cost base. A one‑time integration cost of "
+        f"${integration_cost} million will be amortised straight‑line over {amort_years} years. "
+        f"The combined entity faces a corporate tax rate of {tax_rate}%. "
+        f"Calculate the **net annual cost savings after tax** for the first full year."
     )
-    
-    # Step 1: Compute cost synergy savings.
-    cost_synergy = round(operating_expense * (synergy_pct / 100), 2)
-    
-    # Step 2: Identify the revenue synergy bonus.
-    # (This is given directly as revenue_synergy)
-    
-    # Step 3: Calculate the total synergy savings before integration costs.
-    total_synergy = round(cost_synergy + revenue_synergy, 2)
-    
-    # Step 4: Compute the annual restructuring (integration) cost.
-    annual_restructuring = round(restructuring_cost / amortization_years, 2)
-    
-    # Step 5: Determine the preliminary net synergy savings after subtracting integration costs.
-    preliminary_net = round(total_synergy - annual_restructuring, 2)
-    
-    # Step 6: Adjust for the tax impact to obtain the final net annual savings.
-    net_annual_savings = round(preliminary_net * (1 - tax_rate / 100), 2)
-    
+
+    # --- 4‑step reasoning ---
+    total_cost         = cost_base_a + cost_base_b
+    gross_savings      = round(total_cost * synergy_pct / 100, 2)
+    annual_integration = round(integration_cost / amort_years, 2)
+    net_after_tax      = round((gross_savings - annual_integration) *
+                               (1 - tax_rate / 100), 2)
+
+    g_str  = f"{gross_savings:.2f}"
+    a_str  = f"{annual_integration:.2f}"
+    n_str  = f"{net_after_tax:.2f}"
+
     solution = (
-        f"Step 1: Calculate cost synergy savings:\n"
-        f"         Cost Synergy = Operating Expense × (Synergy Percentage / 100)\n"
-        f"                      = {operating_expense} × ({synergy_pct} / 100) = {cost_synergy} million\n\n"
-        f"Step 2: Identify the revenue synergy bonus:\n"
-        f"         Revenue Synergy = {revenue_synergy} million\n\n"
-        f"Step 3: Compute total synergy savings before integration costs:\n"
-        f"         Total Synergy = Cost Synergy + Revenue Synergy = {cost_synergy} + {revenue_synergy} = {total_synergy} million\n\n"
-        f"Step 4: Determine the annual restructuring cost:\n"
-        f"         Annual Restructuring Cost = Restructuring Cost / Amortization Years\n"
-        f"                                = {restructuring_cost} / {amortization_years} = {annual_restructuring} million\n\n"
-        f"Step 5: Compute preliminary net savings (before tax adjustment):\n"
-        f"         Preliminary Net Savings = Total Synergy - Annual Restructuring Cost = {total_synergy} - {annual_restructuring} = {preliminary_net} million\n\n"
-        f"Step 6: Adjust for tax impact:\n"
-        f"         Net Annual Savings = Preliminary Net Savings × (1 - Tax Rate / 100)\n"
-        f"                           = {preliminary_net} × (1 - {tax_rate} / 100) = {net_annual_savings} million\n\n"
-        f"Thus, the net annual synergy savings after tax adjustments is {net_annual_savings} million dollars."
+        "Step 1 – Combined cost base:\n"
+        f"         ${cost_base_a} million + ${cost_base_b} million "
+        f"= ${total_cost} million\n\n"
+        "Step 2 – Gross synergy savings:\n"
+        f"         ${total_cost} million × {synergy_pct}% = ${g_str} million\n\n"
+        "Step 3 – Amortised integration cost and pre‑tax net:\n"
+        f"         Annual integration = ${integration_cost} million ÷ {amort_years} "
+        f"years = ${a_str} million\n"
+        f"         Pre‑tax net = ${g_str} million − ${a_str} million "
+        f"= ${float(gross_savings - annual_integration):.2f} million\n\n"
+        "Step 4 – After‑tax net savings:\n"
+        f"         (${float(gross_savings - annual_integration):.2f} million) × "
+        f"(1 − {tax_rate}%) = ${n_str} million\n\n"
+        f"Therefore, the net annual cost savings after tax are **${n_str} million**."
     )
-    
+
     return question, solution
+
 
 
 def main():
@@ -220,11 +223,11 @@ def main():
     """
     # List of template functions
     templates = [
-        synergy_basic_cost_reduction,
-        synergy_basic_fixed_savings,
-        synergy_intermediate_operational_improvement,
-        synergy_intermediate_supply_chain_efficiency,
-        synergy_advanced_full_financial_adjustment
+        template_synergy_basic_cost_reduction,
+        template_synergy_basic_fixed_savings,
+        template_synergy_complex_net_savings,
+        template_synergy_complex_multi_category,
+        template_synergy_complex_after_tax
     ]
     
     # List to store all generated problems

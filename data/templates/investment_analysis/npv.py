@@ -11,154 +11,171 @@ project_names = [
 
 # Simple ones with two steps in the solution:
 
-# Template 1: Single-Year NPV (net present value)
+# Template 1: NPV with one cash flow after 1 year
 def template_single_year_npv():
-    """1:Basic: NPV with one cash flow"""
-    investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    x = random.randint(10000, 50000)  # Initial investment
-    C = random.randint(15000, 60000)  # Cash flow after 1 year
-    r = round(random.uniform(5, 15), 2)         # Discount rate
+    """1: Basic: NPV with one cash flow after 1 year"""
+    investor = random.choice(investor_names)
+    project  = random.choice(project_names)
+
+    x = random.randint(10_000, 50_000)           # $ initial
+    C = random.randint(15_000, 60_000)           # $ after 1 yr
+    r = round(random.uniform(5, 15), 2)          # %
+
     question = (
-        f"{investor_name} spends ${x} on {project_name}, which returns ${C} after 1 year. "
-        f"If the discount rate is {r:.2f}%, what is the NPV of {project_name}?"
+        f"{investor} invests ${x} in {project} and expects ${C} in one year. "
+        f"If the discount rate is {r:.2f}%, what is the NPV?"
     )
-    PV = C / (1 + r / 100)
-    NPV = PV - x
+
+    PV  = round(C / (1 + r/100), 2)
+    NPV = round(PV - x, 2)
+
     solution = (
-        f"Step 1: Compute the present value (PV):\n"
-        f"  PV = {C} / (1 + {r / 100:.4f}) = {PV:.2f}\n\n"
-        f"Step 2: Compute the NPV:\n"
-        f"  NPV = PV - Initial Investment = {PV:.2f} - {x} = {NPV:.2f}"
+        f"Step 1: Present value of the cash flow:\n"
+        f"  PV = ${C} ÷ (1 + {r/100:.4f}) = ${PV:,.2f}\n\n"
+        f"Step 2: Net present value:\n"
+        f"  NPV = PV − initial investment = ${PV:,.2f} − ${x} = ${NPV:,.2f}"
     )
     return question, solution
 
-# Template 2: Multi-Year NPV with Fixed Cash Flows
-def template_multi_year_fixed_npv():
-    """2:Basic: NPV with fixed cash flows"""
-    investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    x = random.randint(10000, 50000)  # Initial investment
-    C = random.randint(5000, 20000)  # Annual cash flow
-    n = random.randint(3, 5)         # Number of years
-    r = round(random.uniform(5, 15), 2)        # Discount rate
+# Template 2: NPV with cash flows in years 1 & 2 (common r)
+def template_two_year_npv():
+    """2: Basic: NPV with cash flows in years 1 & 2 (common r)"""
+    investor = random.choice(investor_names)
+    project  = random.choice(project_names)
+
+    x  = random.randint(20_000, 70_000)
+    C1 = random.randint(12_000, 35_000)          # after 1 yr
+    C2 = random.randint(12_000, 35_000)          # after 2 yrs
+    r  = round(random.uniform(6, 14), 2)
+
     question = (
-        f"{investor_name} is evaluating {project_name}, which generates ${C} annually for {n} years. "
-        f"If the discount rate is {r:.2f}%, what is the NPV of {project_name}?"
+        f"{investor} invests ${x} in {project}. It will generate "
+        f"${C1} after one year and ${C2} after two years. "
+        f"Using a {r:.2f}% discount rate, calculate the NPV."
     )
-    r_frac = r / 100
-    PV = C * (1 - (1 + r_frac)**-n) / r_frac
-    NPV = PV - x
+
+    PV_total = round(C1/(1+r/100) + C2/((1+r/100)**2), 2)
+    NPV      = round(PV_total - x, 2)
+
     solution = (
-        f"Step 1: Compute the present value of an annuity:\n"
-        f"  PV = {C} × (1 - (1 + {r_frac:.4f})^{-n}) / {r_frac:.4f}\n"
-        f"     = {PV:.2f}\n\n"
-        f"Step 2: Compute the NPV:\n"
-        f"  NPV = PV - Initial Investment = {PV:.2f} - {x} = {NPV:.2f}"
+        f"Step 1: Total present value of the two cash flows:\n"
+        f"  PV₁ = ${C1}/(1 + {r/100:.4f})\n"
+        f"  PV₂ = ${C2}/(1 + {r/100:.4f})²\n"
+        f"  PV_total = PV₁ + PV₂ = ${PV_total:,.2f}\n\n"
+        f"Step 2: NPV = PV_total − initial investment = "
+        f"${PV_total:,.2f} − ${x} = ${NPV:,.2f}"
     )
     return question, solution
 
 # Medium level: three steps in the solution
 
-# Template 3: Multi-Year NPV with Variable Cash Flows
-def template_multi_year_variable_npv():
-    """3:Intermediate: NPV with variable cash flows"""
-    investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    x = random.randint(20000, 60000)  # Initial investment
-    C1 = random.randint(5000, 20000)  # Cash flow Year 1
-    C2 = random.randint(5000, 20000)  # Cash flow Year 2
-    C3 = random.randint(5000, 20000)  # Cash flow Year 3
-    r = round(random.uniform(5, 15), 2)   # Discount rate
+# Template 3: NPV: two annual inflows + salvage in year 3
+def template_three_year_with_salvage_npv():
+    """3: Intermediate: NPV: two annual inflows + salvage in year 3"""
+    investor = random.choice(investor_names)
+    project  = random.choice(project_names)
+
+    x        = random.randint(30_000, 100_000)      # $ initial
+    C1       = random.randint(12_000, 30_000)       # $ after yr 1
+    C2       = random.randint(12_000, 30_000)       # $ after yr 2
+    salvage  = random.randint(40_000, 90_000)       # $ at yr 3
+    r        = round(random.uniform(6, 14), 2)      # %
+
     question = (
-        f"{investor_name} is considering {project_name}, which generates cash flows of ${C1} in Year 1, "
-        f"${C2} in Year 2, and ${C3} in Year 3. If the discount rate is {r:.2f}%, what is the NPV of {project_name}?"
+        f"{investor} invests ${x} in {project}. It is expected to generate "
+        f"${C1} after one year, ${C2} after two years, and a salvage value of "
+        f"${salvage} at the end of year three. Using a {r:.2f}% discount rate, "
+        f"what is the NPV?"
     )
-    r_frac = r / 100
-    PV1 = C1 / (1 + r_frac)**1
-    PV2 = C2 / (1 + r_frac)**2
-    PV3 = C3 / (1 + r_frac)**3
-    TotalPV = PV1 + PV2 + PV3
-    NPV = TotalPV - x
+
+    PV_op      = round(C1/(1+r/100) + C2/((1+r/100)**2), 2)
+    PV_salvage = round(salvage/((1+r/100)**3), 2)
+    NPV        = round(PV_op + PV_salvage - x, 2)
+
     solution = (
-        f"Step 1: Compute the present value for each year:\n"
-        f"  PV1 = {C1} / (1 + {r_frac:.4f})^1 = {PV1:.2f}\n"
-        f"  PV2 = {C2} / (1 + {r_frac:.4f})^2 = {PV2:.2f}\n"
-        f"  PV3 = {C3} / (1 + {r_frac:.4f})^3 = {PV3:.2f}\n\n"
-        f"Step 2: Compute the total present value:\n"
-        f"  TotalPV = PV1 + PV2 + PV3 = {TotalPV:.2f}\n\n"
-        f"Step 3: Compute the NPV:\n"
-        f"  NPV = TotalPV - Initial Investment = {TotalPV:.2f} - {x} = {NPV:.2f}"
+        f"Step 1: Present value of operating inflows:\n"
+        f"  PV₁ = ${C1}/(1+{r/100:.4f}),  PV₂ = ${C2}/(1+{r/100:.4f})²\n"
+        f"  PV_op = PV₁ + PV₂ = ${PV_op:,.2f}\n\n"
+        f"Step 2: Present value of the year‑3 salvage:\n"
+        f"  PV_salvage = ${salvage}/(1+{r/100:.4f})³ = ${PV_salvage:,.2f}\n\n"
+        f"Step 3: Net present value:\n"
+        f"  NPV = PV_op + PV_salvage − initial investment\n"
+        f"      = ${PV_op:,.2f} + ${PV_salvage:,.2f} − ${x} = ${NPV:,.2f}"
     )
     return question, solution
 
-# Template 4: NPV with Variable Discount Rates
-def template_variable_discount_npv():
-    """4:Intermediate: NPV with variable discount rates"""
-    investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    x = random.randint(20000, 60000)  # Initial investment
-    C1 = random.randint(5000, 20000)  # Cash flow Year 1
-    C2 = random.randint(5000, 20000)  # Cash flow Year 2
-    C3 = random.randint(5000, 20000)  # Cash flow Year 3
-    r1 = round(random.uniform(5, 10), 2)        # Discount rate Year 1
-    r2 = round(random.uniform(10, 15), 2)       # Discount rate Year 2
-    r3 = random.uniform(15, 20)       # Discount rate Year 3
-    
+# Template 4: NPV: 4‑year annuity of savings + salvage
+def template_annuity_plus_salvage_npv():
+    """4: Intermediate: NPV: 4‑year annuity of savings + salvage"""
+    investor = random.choice(investor_names)
+    project  = random.choice(project_names)
+
+    x            = random.randint(40_000, 120_000)
+    annual_save  = random.randint(10_000, 22_000)
+    salvage      = random.randint(20_000, 45_000)   # at end of yr 4
+    r            = round(random.uniform(4, 10), 2)
+    n            = 4
+
     question = (
-        f"{investor_name} is analyzing {project_name}, which has cash flows of ${C1} in Year 1, ${C2} in Year 2, "
-        f"and ${C3} in Year 3. The discount rates are {r1:.2f}% for Year 1, {r2:.2f}% for Year 2, and {r3:.2f}% for Year 3. "
-        f"What is the NPV of {project_name}?"
+        f"{investor} can invest ${x} in {project}. It will save "
+        f"${annual_save} each year for {n} years and then be sold for "
+        f"${salvage}. If the discount rate is {r:.2f}%, find the NPV."
     )
-    
-    # Corrected PV calculations using cumulative discount factors
-    PV1 = C1 / (1 + r1/100)
-    PV2 = C2 / ((1 + r1/100) * (1 + r2/100))
-    PV3 = C3 / ((1 + r1/100) * (1 + r2/100) * (1 + r3/100))
-    
-    TotalPV = PV1 + PV2 + PV3
-    NPV = TotalPV - x
-    
+
+    annuity_factor  = (1 - 1/((1+r/100)**n))/(r/100)
+    PV_annuity = round(annual_save * annuity_factor, 2)
+    PV_salvage = round(salvage / ((1+r/100)**n), 2)
+    NPV        = round(PV_annuity + PV_salvage - x, 2)
+
     solution = (
-        f"Step 1: Compute the present value for each year with cumulative discount rates:\n"
-        f"  PV1 = {C1} / (1 + {r1/100:.4f}) = {PV1:.2f}\n"
-        f"  PV2 = {C2} / ((1 + {r1/100:.4f}) × (1 + {r2/100:.4f})) = {PV2:.2f}\n"
-        f"  PV3 = {C3} / ((1 + {r1/100:.4f}) × (1 + {r2/100:.4f}) × (1 + {r3/100:.4f})) = {PV3:.2f}\n\n"
-        f"Step 2: Compute the total present value:\n"
-        f"  TotalPV = PV1 + PV2 + PV3 = {TotalPV:.2f}\n\n"
-        f"Step 3: Compute the NPV:\n"
-        f"  NPV = TotalPV - Initial Investment = {TotalPV:.2f} - {x} = {NPV:.2f}"
+        f"Step 1: Present value of the annual savings (annuity):\n"
+        f"  PV_annuity = ${annual_save} × [(1 − 1/(1+{r/100:.4f})^{n}) / ({r/100:.4f})]\n"
+        f"            = ${PV_annuity:,.2f}\n\n"
+        f"Step 2: Present value of the year‑{n} salvage:\n"
+        f"  PV_salvage = ${salvage}/(1+{r/100:.4f})^{n} = ${PV_salvage:,.2f}\n\n"
+        f"Step 3: Net present value:\n"
+        f"  NPV = PV_annuity + PV_salvage − initial investment\n"
+        f"      = ${PV_annuity:,.2f} + ${PV_salvage:,.2f} − ${x} = ${NPV:,.2f}"
     )
     return question, solution
 
-# Template 5: NPV with Salvage Value
-def template_npv_with_salvage_value():
-    """5:Advanced: NPV with salvage value"""
-    investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    x = random.randint(30000, 70000)  # Initial investment
-    C = random.randint(10000, 30000)  # Annual cash flow
-    n = random.randint(3, 5)          # Number of years
-    SV = random.randint(10000, 30000) # Salvage value at the end of the project
-    r = round(random.uniform(5, 15), 2)         # Discount rate
+def template_annuity_salvage_cleanup_npv():
+    """5: Advanced: 4‑step: 4‑yr savings annuity, salvage & cleanup cost at yr 4"""
+    investor = random.choice(investor_names)
+    project  = random.choice(project_names)
+
+    x           = random.randint(60_000, 140_000)
+    annual_save = random.randint(12_000, 25_000)
+    salvage     = random.randint(30_000, 65_000)
+    cleanup     = random.randint(15_000, 35_000)     # env. cleanup
+    r           = round(random.uniform(4, 9), 2)
+    n           = 4
+
+    pv_factor   = (1 - 1/((1+r/100)**n)) / (r/100)
+    PV_annuity  = round(annual_save * pv_factor, 2)
+    PV_salvage  = round(salvage / ((1+r/100)**n), 2)
+    PV_cleanup  = round(cleanup / ((1+r/100)**n), 2)
+    NPV         = round(PV_annuity + PV_salvage - PV_cleanup - x, 2)
+
     question = (
-        f"{investor_name} is considering {project_name}, which generates ${C} annually for {n} years and has a salvage "
-        f"value of ${SV} at the end of Year {n}. If the discount rate is {r:.2f}%, what is the NPV of {project_name}?"
+        f"{investor} can invest ${x} in {project}. The project will save "
+        f"${annual_save} per year for {n} years, after which it can be sold for "
+        f"${salvage} but will incur an environmental cleanup cost of ${cleanup}. "
+        f"Given a discount rate of {r:.2f}%, what is the NPV?"
     )
-    r_frac = r / 100
-    PV_annuity = C * (1 - (1 + r_frac)**-n) / r_frac
-    PV_salvage = SV / (1 + r_frac)**n
-    TotalPV = PV_annuity + PV_salvage
-    NPV = TotalPV - x
+
     solution = (
-        f"Step 1: Compute the present value of the cash flows (annuity):\n"
-        f"  PV_annuity = {C} × (1 - (1 + {r_frac:.4f})^{-n}) / {r_frac:.4f} = {PV_annuity:.2f}\n\n"
-        f"Step 2: Compute the present value of the salvage value:\n"
-        f"  PV_salvage = {SV} / (1 + {r_frac:.4f})^{n} = {PV_salvage:.2f}\n\n"
-        f"Step 3: Compute the total present value:\n"
-        f"  TotalPV = PV_annuity + PV_salvage = {PV_annuity:.2f} + {PV_salvage:.2f} = {TotalPV:.2f}\n\n"
-        f"Step 4: Compute the NPV:\n"
-        f"  NPV = TotalPV - Initial Investment = {TotalPV:.2f} - {x} = {NPV:.2f}"
+        f"Step 1 – PV of the annual savings (annuity):\n"
+        f"  PV_annuity = ${annual_save} × [(1 − 1/(1+{r/100:.4f})^{n})/({r/100:.4f})] "
+        f"= ${PV_annuity:,.2f}\n\n"
+        f"Step 2 – PV of the salvage value:\n"
+        f"  PV_salvage = ${salvage}/(1+{r/100:.4f})^{n} = ${PV_salvage:,.2f}\n\n"
+        f"Step 3 – PV of the cleanup cost:\n"
+        f"  PV_cleanup = ${cleanup}/(1+{r/100:.4f})^{n} = ${PV_cleanup:,.2f}\n\n"
+        f"Step 4 – Net present value:\n"
+        f"  NPV = PV_annuity + PV_salvage − PV_cleanup − initial\n"
+        f"      = ${PV_annuity:,.2f} + ${PV_salvage:,.2f} − ${PV_cleanup:,.2f} − ${x} "
+        f"= ${NPV:,.2f}"
     )
     return question, solution
 
@@ -171,10 +188,10 @@ def main():
     # List of template functions
     templates = [
         template_single_year_npv,
-        template_multi_year_fixed_npv,
-        template_multi_year_variable_npv,
-        template_variable_discount_npv,
-        template_npv_with_salvage_value
+        template_two_year_npv,
+        template_three_year_with_salvage_npv,
+        template_annuity_plus_salvage_npv,
+        template_annuity_salvage_cleanup_npv
     ]
     
     # List to store all generated problems

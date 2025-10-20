@@ -11,7 +11,7 @@ company_names = [
 # -----------------------------------------------------------------------------
 # Basic Question 1: Green Bond Yield Calculation
 # -----------------------------------------------------------------------------
-def green_bond_basic_yield_calculation():
+def template_green_bond_basic_yield_calculation():
     """1:Basic: Green Bond Yield Calculation (2 steps)"""
     # Randomly select investor and company
     investor = random.choice(investor_names)
@@ -47,7 +47,7 @@ def green_bond_basic_yield_calculation():
 # -----------------------------------------------------------------------------
 # Basic Question 2: Green Bond Tax Incentive Calculation
 # -----------------------------------------------------------------------------
-def green_bond_basic_tax_incentive():
+def template_green_bond_basic_tax_incentive():
     """2:Basic: Green Bond Tax Incentive Calculation (3 steps)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -88,7 +88,7 @@ def green_bond_basic_tax_incentive():
 # -----------------------------------------------------------------------------
 # Intermediate Question 1: Green Bond Synergy Benefit Calculation
 # -----------------------------------------------------------------------------
-def green_bond_intermediate_synergy_benefit():
+def template_green_bond_intermediate_synergy_benefit():
     """3:Intermediate: Green Bond Synergy Benefit Calculation (4 steps)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -134,7 +134,7 @@ def green_bond_intermediate_synergy_benefit():
 # -----------------------------------------------------------------------------
 # Intermediate Question 2: Green Bond Financing Cost Reduction Calculation
 # -----------------------------------------------------------------------------
-def green_bond_intermediate_financing_cost_reduction():
+def template_green_bond_intermediate_financing_cost_reduction():
     """4:Intermediate: Green Bond Financing Cost Reduction Calculation (4 steps)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -180,7 +180,7 @@ def green_bond_intermediate_financing_cost_reduction():
 # -----------------------------------------------------------------------------
 # Advanced Question: Comprehensive Benefit Analysis of a Green Bond Investment
 # -----------------------------------------------------------------------------
-def green_bond_advanced_comprehensive_analysis():
+def template_green_bond_advanced_comprehensive_analysis():
     """5:Advanced: Comprehensive Benefit Analysis of a Green Bond Investment (5+ steps)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -262,11 +262,11 @@ def main():
     """
     # List of template functions
     templates = [
-        green_bond_basic_yield_calculation,
-        green_bond_basic_tax_incentive,
-        green_bond_intermediate_synergy_benefit,
-        green_bond_intermediate_financing_cost_reduction,
-        green_bond_advanced_comprehensive_analysis
+        template_green_bond_basic_yield_calculation,
+        template_green_bond_basic_tax_incentive,
+        template_green_bond_intermediate_synergy_benefit,
+        template_green_bond_intermediate_financing_cost_reduction,
+        template_green_bond_advanced_comprehensive_analysis
     ]
     
     # List to store all generated problems

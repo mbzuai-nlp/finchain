@@ -10,7 +10,7 @@ company_names = [
 
 # ---------------- Basic Level Questions (2-3 steps) ----------------
 
-def basic_energy_efficiency_savings():
+def template_energy_efficiency_savings():
     """1:Basic: Calculate Annual Energy Cost Savings from an Energy Efficiency Upgrade"""
     investor_name = random.choice(investor_names)
     company_name = random.choice(company_names)
@@ -22,7 +22,7 @@ def basic_energy_efficiency_savings():
     question = (
         f"{investor_name} invested in an energy efficiency upgrade at {company_name} to reduce energy costs. "
         f"The project is expected to reduce the annual energy expenditure by {saving_percentage}% from a current cost of ${original_cost}. "
-        f"Calculate the annual cost savings."
+        f"Calculate the new annual cost."
     )
     
     # Step 1: Compute the savings amount.
@@ -33,14 +33,14 @@ def basic_energy_efficiency_savings():
         f"Step 1: Compute the cost savings:\n"
         f"  Savings = Original Cost × (Saving Percentage / 100)\n"
         f"          = {original_cost} × ({saving_percentage} / 100) = {savings}\n\n"
-        f"Step 2: (Optional) Compute the new annual cost:\n"
+        f"Step 2: Compute the new annual cost:\n"
         f"  New Cost = Original Cost - Savings\n"
         f"           = {original_cost} - {savings} = {new_cost}\n\n"
-        f"Thus, the annual energy cost savings are ${savings}."
+        f"Thus, the new annual energy cost is ${new_cost}."
     )
     return question, solution
 
-def basic_financing_cost_reduction():
+def template_financing_cost_reduction():
     """2:Basic: Calculate New Financing Rate after a Reduction in Basis Points"""
     investor_name = random.choice(investor_names)
     company_name = random.choice(company_names)
@@ -71,7 +71,7 @@ def basic_financing_cost_reduction():
 
 # ---------------- Intermediate Level Questions (3-4 steps) ----------------
 
-def intermediate_supply_chain_integration():
+def template_supply_chain_integration():
     """3:Intermediate: Calculate Annual Savings from Sustainable Supply Chain Integration"""
     investor_name = random.choice(investor_names)
     company_name = random.choice(company_names)
@@ -111,7 +111,7 @@ def intermediate_supply_chain_integration():
     )
     return question, solution
 
-def intermediate_combined_cost_tax_savings():
+def template_combined_cost_tax_savings():
     """4:Intermediate: Calculate Net Savings from Operational Cost Reduction and Tax Incentives"""
     investor_name = random.choice(investor_names)
     company_name = random.choice(company_names)
@@ -151,7 +151,7 @@ def intermediate_combined_cost_tax_savings():
 
 # ---------------- Advanced Level Question (5+ steps) ----------------
 
-def advanced_multiphase_social_impact_investment():
+def template_multiphase_social_impact_investment():
     """5:Advanced: Calculate Overall Net Impact from a Multi-Phase Social Impact Investment"""
     investor_name = random.choice(investor_names)
     company_name = random.choice(company_names)
@@ -175,29 +175,24 @@ def advanced_multiphase_social_impact_investment():
     
     # Step 1: Calculate the savings from Phase 1.
     phase1_savings = round(initial_op_cost * (phase1_reduction_percent / 100), 2)
-    # Step 2: Compute the adjusted operating cost after Phase 1.
-    adjusted_op_cost = initial_op_cost - phase1_savings
-    # Step 3: Calculate the total additional savings from Phase 2.
+    # Step 2: Calculate the total additional savings from Phase 2.
     phase2_savings = round(fixed_saving_per_unit * annual_production, 2)
-    # Step 4: Compute the government subsidy (Phase 3).
+    # Step 3: Compute the government subsidy (Phase 3).
     phase3_subsidy = round(total_project_cost * (subsidy_percent / 100), 2)
-    # Step 5: Sum all savings to get the overall net impact.
+    # Step 4: Sum all savings to get the overall net impact.
     overall_net_impact = phase1_savings + phase2_savings + phase3_subsidy
-    # Step 6: (Optional) Present each component clearly.
+    # Step 5: (Optional) Present each component clearly.
     solution = (
         f"Step 1: Calculate Phase 1 savings (cost reduction):\n"
         f"  Phase 1 Savings = Initial Operating Cost × (Reduction Percentage / 100)\n"
         f"                  = {initial_op_cost} × ({phase1_reduction_percent} / 100) = {phase1_savings}\n\n"
-        f"Step 2: Determine the adjusted operating cost (for clarity):\n"
-        f"  Adjusted Cost = Initial Operating Cost - Phase 1 Savings\n"
-        f"                = {initial_op_cost} - {phase1_savings} = {adjusted_op_cost}\n\n"
-        f"Step 3: Calculate Phase 2 savings from efficiency improvements:\n"
+        f"Step 2: Calculate Phase 2 savings from efficiency improvements:\n"
         f"  Phase 2 Savings = Fixed Saving per Unit × Annual Production\n"
         f"                  = {fixed_saving_per_unit} × {annual_production} = {phase2_savings}\n\n"
-        f"Step 4: Compute Phase 3 subsidy:\n"
+        f"Step 3: Compute Phase 3 subsidy:\n"
         f"  Phase 3 Subsidy = Total Project Cost × (Subsidy Percentage / 100)\n"
         f"                  = {total_project_cost} × ({subsidy_percent} / 100) = {phase3_subsidy}\n\n"
-        f"Step 5: Sum all three components to find the overall net impact:\n"
+        f"Step 4: Sum all three components to find the overall net impact:\n"
         f"  Overall Net Impact = Phase 1 Savings + Phase 2 Savings + Phase 3 Subsidy\n"
         f"                     = {phase1_savings} + {phase2_savings} + {phase3_subsidy} = {overall_net_impact}\n\n"
         f"Step 6: Thus, the overall net financial impact of the project is ${overall_net_impact}."
@@ -212,11 +207,11 @@ def main():
     """
     # List of template functions (2 basic, 2 intermediate, 1 advanced)
     templates = [
-        basic_energy_efficiency_savings,
-        basic_financing_cost_reduction,
-        intermediate_supply_chain_integration,
-        intermediate_combined_cost_tax_savings,
-        advanced_multiphase_social_impact_investment
+        template_energy_efficiency_savings,
+        template_financing_cost_reduction,
+        template_supply_chain_integration,
+        template_combined_cost_tax_savings,
+        template_multiphase_social_impact_investment
     ]
     
     # List to store all generated problems

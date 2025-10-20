@@ -1,45 +1,45 @@
 import random
 import json
-import math   # used for a few percentage‑rate calculations
+import math   # used for a few percentage-rate calculations
 
 ###############################################################################
 # Data Pools
 ###############################################################################
-user_names      = ["Alice Wu", "Brad Johnson", "Carla Simmons", "Daniel Craig", "Eva Gonzalez"]
-merchant_names  = ["Cafe Aroma", "TechZone", "FashionHub", "BookNook", "GreenGrocer"]
+user_names = ["Alice Wu", "Brad Johnson", "Carla Simmons", "Daniel Craig", "Eva Gonzalez"]
+merchant_names = ["Cafe Aroma", "TechZone", "FashionHub", "BookNook", "GreenGrocer"]
 payment_platforms = ["PayWave", "QuickPay", "TapX", "FlexiPay", "ZenoPay"]
 
 ###############################################################################
-# BASIC TEMPLATES (2 Steps)
+# BASIC TEMPLATES (2 steps, single numeric answer)
 ###############################################################################
 
 def template_pt_easy1():
     """
-    1:Basic: Card Processing Fee for a Single Sale
+    1:Basic: Card Processing Net Amount (single answer)
     Variables:
       • Sale amount (A)
       • Merchant discount rate (m)
-    Steps (2):
+    Steps (2):
       1) Fee = A × m
-      2) Net amount merchant receives = A − Fee
+      2) Net amount merchant receives = A − Fee  (answer)
     """
     merchant = random.choice(merchant_names)
     platform = random.choice(payment_platforms)
     amount   = round(random.uniform(20, 500), 2)
-    mdr      = round(random.uniform(0.015, 0.03), 4)   # 1.5 %–3 %
+    mdr      = round(random.uniform(0.015, 0.03), 4)   # 1.5 %–3 %
 
     fee = amount * mdr
     net = amount - fee
 
     question = (
         f"{merchant} processes a ${amount:.2f} card payment through {platform}. "
-        f"The platform charges a merchant discount rate of {mdr*100:.2f}%. "
-        f"How much is the fee, and how much does {merchant} receive net of the fee?"
+        f"The platform charges a merchant-discount rate of {mdr*100:.2f}%. "
+        f"How much money does {merchant} receive **after** the fee is deducted?"
     )
 
     solution = (
-        f"Step 1: Fee = ${amount:.2f} × {mdr:.4f} = ${fee:.2f}\n\n"
-        f"Step 2: Net amount = ${amount:.2f} − ${fee:.2f} = ${net:.2f}"
+        f"Step 1: Fee = ${amount:.2f} × {mdr:.4f} = ${fee:.2f}\n\n"
+        f"Step 2 (answer): Net amount = ${amount:.2f} − ${fee:.2f} = ${net:.2f}"
     )
 
     return question, solution
@@ -47,57 +47,57 @@ def template_pt_easy1():
 
 def template_pt_easy2():
     """
-    2:Basic: Buy‑Now‑Pay‑Later Equal Installments
+    2:Basic: Buy-Now-Pay-Later Equal Installments (single answer)
     Variables:
       • Purchase price (P)
       • Number of installments (n)
-      • Service fee rate (f) on total purchase
-    Steps (2):
+      • Service fee rate (f)
+    Steps (2):
       1) Total due = P × (1 + f)
-      2) Installment payment = Total due ÷ n
+      2) Installment payment = Total due ÷ n  (answer)
     """
     user      = random.choice(user_names)
     merchant  = random.choice(merchant_names)
     platform  = random.choice(payment_platforms)
     purchase  = round(random.uniform(100, 2000), 2)
     n_inst    = random.choice([4, 6, 12])
-    fee_rate  = round(random.uniform(0.00, 0.08), 3)   # 0 %–8 % service fee
+    fee_rate  = round(random.uniform(0.00, 0.08), 3)   # 0 %–8 %
 
     total_due = purchase * (1 + fee_rate)
     installment = total_due / n_inst
 
     question = (
-        f"{user} uses {platform}'s Buy‑Now‑Pay‑Later option at {merchant} to purchase "
+        f"{user} uses {platform}'s Buy-Now-Pay-Later option at {merchant} to purchase "
         f"items totaling ${purchase:.2f}. The service fee is {fee_rate*100:.2f}% of the purchase price, "
         f"spread evenly over {n_inst} installments. What is each installment amount?"
     )
 
     solution = (
-        f"Step 1: Total amount owed = ${purchase:.2f} × (1 + {fee_rate:.3f}) = ${total_due:.2f}\n\n"
-        f"Step 2: Installment = ${total_due:.2f} ÷ {n_inst} = ${installment:.2f}"
+        f"Step 1: Total amount owed = ${purchase:.2f} × (1 + {fee_rate:.3f}) = ${total_due:.2f}\n\n"
+        f"Step 2 (answer): Installment = ${total_due:.2f} ÷ {n_inst} = ${installment:.2f}"
     )
 
     return question, solution
 
 ###############################################################################
-# INTERMEDIATE TEMPLATES (3 Steps)
+# INTERMEDIATE TEMPLATES (3 steps, single numeric answer)
 ###############################################################################
 
 def template_pt_medium1():
     """
-    3:Intermediate: Total Fees on Multiple Small Transactions
+    3:Intermediate: Effective Fee Rate on Batch (single answer)
     Scenario:
-      • Platform charges fixed fee (c) per transaction + percentage fee (p)
+      • Platform charges $0.30 + 2.5 % per transaction
       • Several transaction amounts provided
-    Steps (3):
+    Steps (3):
       1) Compute fee for each transaction
       2) Sum all fees and total sales
-      3) Calculate effective fee rate = Total fees ÷ Total sales
+      3) Effective fee rate = Total fees ÷ Total sales  (answer)
     """
     merchant = random.choice(merchant_names)
     platform = random.choice(payment_platforms)
-    per_tx_fee = 0.30                                 # flat $0.30
-    pct_fee    = 0.025                                # 2.5 %
+    per_tx_fee = 0.30
+    pct_fee    = 0.025
     num_tx = random.randint(4, 7)
     tx_amounts = [round(random.uniform(5, 120), 2) for _ in range(num_tx)]
 
@@ -108,19 +108,20 @@ def template_pt_medium1():
 
     tx_lines = "\n".join([f"  • ${amt:.2f}" for amt in tx_amounts])
     question = (
-        f"{merchant} processes these transactions via {platform} (flat fee $0.30 + 2.5% of amount):\n"
+        f"{merchant} processes these amounts via {platform} ($0.30 + 2.5% each):\n"
         f"{tx_lines}\n\n"
-        f"1) What are the fees for each transaction?\n"
-        f"2) What is the total fee paid?\n"
-        f"3) What is the effective fee rate on the batch?"
+        f"What is the **effective fee rate** (percentage of total sales taken as fees) for this batch?"
     )
 
-    fee_lines = "\n".join([f"  • Fee on ${amt:.2f} = $0.30 + 2.5% × ${amt:.2f} = ${fee:.2f}"
-                           for amt, fee in zip(tx_amounts, fees)])
+    fee_lines = "\n".join(
+        [f"  • Fee on ${amt:.2f} = $0.30 + 2.5% × ${amt:.2f} = ${fee:.2f}"
+         for amt, fee in zip(tx_amounts, fees)]
+    )
     solution = (
-        f"Step 1:\n{fee_lines}\n\n"
-        f"Step 2: Total fees = ${total_fees:.2f}; Total sales = ${total_sales:.2f}\n\n"
-        f"Step 3: Effective rate = ${total_fees:.2f} ÷ ${total_sales:.2f} = {eff_rate*100:.2f}%"
+        f"Step 1:\n{fee_lines}\n\n"
+        f"Step 2: Totals ⇒ Fees ${total_fees:.2f}, Sales ${total_sales:.2f}\n\n"
+        f"Step 3 (answer): Effective rate = ${total_fees:.2f} ÷ ${total_sales:.2f} "
+        f"= {eff_rate*100:.2f}%"
     )
 
     return question, solution
@@ -128,22 +129,22 @@ def template_pt_medium1():
 
 def template_pt_medium2():
     """
-    4:Intermediate: Cross‑Border Payment Conversion and Fees
+    4:Intermediate: Cross-Border Payment Conversion and Fees (single answer)
     Variables:
       • Sale amount in EUR (E)
-      • Mid‑market EUR/USD rate (R)
+      • Mid-market EUR/USD rate (R)
       • Platform spread (s)
       • Fixed processing fee (f)
-    Steps (3):
+    Steps (3):
       1) Platform conversion rate = R × (1 − s)
       2) Convert amount to USD
-      3) Subtract fixed fee to get net USD received
+      3) Net USD received after fee  (answer)
     """
     merchant = random.choice(merchant_names)
     platform = random.choice(payment_platforms)
     amount_eur = round(random.uniform(50, 1000), 2)
     mid_rate   = round(random.uniform(1.10, 1.20), 4)
-    spread     = round(random.uniform(0.015, 0.03), 4)   # 1.5 %–3 %
+    spread     = round(random.uniform(0.015, 0.03), 4)   # 1.5 %–3 %
     fixed_fee  = round(random.uniform(0, 5), 2)
 
     conv_rate = mid_rate * (1 - spread)
@@ -152,36 +153,36 @@ def template_pt_medium2():
 
     question = (
         f"{merchant} receives a €{amount_eur:.2f} payment through {platform}. "
-        f"The mid‑market EUR/USD rate is {mid_rate}. {platform} applies a "
+        f"The mid-market EUR/USD rate is {mid_rate}. {platform} applies a "
         f"{spread*100:.2f}% spread and charges a ${fixed_fee:.2f} fixed fee. "
-        f"How many USD will {merchant} receive after conversion and fees?"
+        f"How many USD will {merchant} receive **after** conversion and fees?"
     )
 
     solution = (
-        f"Step 1: Conversion rate = {mid_rate} × (1 − {spread:.4f}) = {conv_rate:.4f}\n\n"
-        f"Step 2: USD before fee = €{amount_eur:.2f} × {conv_rate:.4f} = ${usd_before_fee:.2f}\n\n"
-        f"Step 3: Net USD = ${usd_before_fee:.2f} − ${fixed_fee:.2f} = ${net_usd:.2f}"
+        f"Step 1: Conversion rate = {mid_rate} × (1 − {spread:.4f}) = {conv_rate:.4f}\n\n"
+        f"Step 2: USD before fee = €{amount_eur:.2f} × {conv_rate:.4f} = ${usd_before_fee:.2f}\n\n"
+        f"Step 3 (answer): Net USD = ${usd_before_fee:.2f} − ${fixed_fee:.2f} = ${net_usd:.2f}"
     )
 
     return question, solution
 
 ###############################################################################
-# ADVANCED TEMPLATE (4 Steps)
+# ADVANCED TEMPLATE (4 steps, single numeric answer)
 ###############################################################################
 
 def template_pt_hard1():
     """
-    5:Advanced: Tiered Interchange + Subscription Model
+    5:Advanced: Effective Monthly Fee Rate (single answer)
     Scenario:
-      • Platform charges monthly subscription (S)
-      • Variable percentage fee: 1.7% on first $10,000 sales, then 1.4% on excess
-      • Flat per‑transaction fee (c)
-      • Merchant has N transactions, each averaging A dollars
-    Steps (4):
-      1) Compute total sales and split into tiers
-      2) Calculate variable percentage fees for each tier
-      3) Add flat per‑transaction fees and subscription
-      4) Derive effective blended fee rate on total sales
+      • $50 subscription
+      • 1.7 % on first $10 000 sales, 1.4 % thereafter
+      • $0.08 per transaction
+      • N transactions averaging A dollars
+    Steps (4):
+      1) Compute total sales and tier split
+      2) Calculate variable percentage fees
+      3) Add flat per-transaction fees and subscription
+      4) Effective fee rate = Total fees ÷ Total sales  (answer)
     """
     merchant = random.choice(merchant_names)
     platform = random.choice(payment_platforms)
@@ -203,27 +204,23 @@ def template_pt_hard1():
     eff_rate = total_fees / total_sales
 
     question = (
-        f"{merchant} uses {platform}'s tiered pricing plan:\n"
-        f"  • Monthly subscription: ${sub_fee:.2f}\n"
-        f"  • 1.7% on first $10,000 in monthly sales, 1.4% thereafter\n"
+        f"{merchant} uses {platform}'s pricing:\n"
+        f"  • $50 monthly subscription\n"
+        f"  • 1.7% on first $10 000 sales, 1.4% thereafter\n"
         f"  • $0.08 per transaction\n\n"
-        f"This month they processed {n_tx} transactions averaging ${avg_tx:.2f} each.\n"
-        f"1) What are total monthly sales?\n"
-        f"2) How much variable percentage fee is owed?\n"
-        f"3) What are total fees including flat and subscription charges?\n"
-        f"4) What is the effective fee rate for the month?"
+        f"In a month with {n_tx} sales averaging ${avg_tx:.2f}, "
+        f"what is the **effective fee rate** on total sales?"
     )
 
     solution = (
-        f"Step 1: Total sales = {n_tx} × ${avg_tx:.2f} = ${total_sales:,.2f}\n"
-        f"        Tier split → First ${tier_cap:,}: ${tier1_sales:,.2f}; Excess: ${tier2_sales:,.2f}\n\n"
-        f"Step 2: Variable fees = 1.7% × ${tier1_sales:,.2f} + 1.4% × ${tier2_sales:,.2f}\n"
-        f"        = ${tier1_sales * tier1_rate:,.2f} + ${tier2_sales * tier2_rate:,.2f} "
-        f"= ${var_fee:,.2f}\n\n"
-        f"Step 3: Flat fees = {n_tx} × $0.08 = ${flat_total:,.2f}\n"
-        f"        Total fees = Subscription ${sub_fee:.2f} + Variable ${var_fee:,.2f} + Flat ${flat_total:,.2f} "
-        f"= ${total_fees:,.2f}\n\n"
-        f"Step 4: Effective fee rate = ${total_fees:,.2f} ÷ ${total_sales:,.2f} "
+        f"Step 1: Total sales = {n_tx} × ${avg_tx:.2f} = ${total_sales:,.2f}\n"
+        f"        Tiered split ⇒ ${tier1_sales:,.2f} at 1.7%, ${tier2_sales:,.2f} at 1.4%\n\n"
+        f"Step 2: Variable fees = 1.7% × ${tier1_sales:,.2f} + 1.4% × ${tier2_sales:,.2f}\n"
+        f"        = ${tier1_sales * tier1_rate:,.2f} + ${tier2_sales * tier2_rate:,.2f}"
+        f" = ${var_fee:,.2f}\n\n"
+        f"Step 3: Flat fees = {n_tx} × $0.08 = ${flat_total:,.2f}; "
+        f"Add subscription ${sub_fee:.2f} ⇒ Total fees ${total_fees:,.2f}\n\n"
+        f"Step 4 (answer): Effective rate = ${total_fees:,.2f} ÷ ${total_sales:,.2f} "
         f"= {eff_rate*100:.2f}%"
     )
 
@@ -235,7 +232,7 @@ def template_pt_hard1():
 
 def main():
     """
-    Generate 10 instances of each Payment‑Technologies template and save to JSONL.
+    Generate 10 instances of each Payment-Technologies template and save to JSONL.
     """
     templates = [
         template_pt_easy1,
@@ -247,7 +244,7 @@ def main():
 
     problems = []
     for template_func in templates:
-        id = template_func.__doc__.split(':')[0].strip()
+        id_ = template_func.__doc__.split(':')[0].strip()
         level = template_func.__doc__.split(':')[1].strip()
         for _ in range(10):
             seed = random.randint(1_000_000_000, 4_000_000_000)
@@ -255,12 +252,12 @@ def main():
             q, a = template_func()
             problems.append({
                 "seed": seed,
-                "id": id,
+                "id": id_,
                 "level": level,
                 "question": q,
                 "solution": a
             })
-            random.seed()  # reset
+            random.seed()  # reset RNG state
 
     random.shuffle(problems)
     outfile = "../../testset/fintech/payment_technologies.jsonl"
@@ -269,7 +266,7 @@ def main():
             f.write(json.dumps(p))
             f.write("\n")
 
-    print(f"Successfully generated {len(problems)} problems and saved to {outfile}")
+    print(f"Successfully generated {len(problems)} problems → {outfile}")
 
 
 if __name__ == "__main__":

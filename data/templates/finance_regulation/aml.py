@@ -7,197 +7,228 @@ company_names = [
 ]
 
 # BASIC SCENARIOS (1–2 steps)
-def aml_basic_threshold_violation():
-    """1:Basic: Detect cash transaction above AML threshold"""
+def template_aml_basic_threshold_violation():
+    """1:Basic: Detect whether a cash transaction violates the AML threshold (above or below)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    amount = random.randint(10001, 25000)
     threshold = 10000
+
+    # Decide whether to generate above or below threshold amount
+    if random.random() < 0.5:
+        amount = random.randint(threshold + 1, threshold + 5000)  # Above threshold
+        should_report = True
+    else:
+        amount = random.randint(threshold - 5000, threshold - 1)  # Below threshold
+        should_report = False
+
     question = (
         f"{investor} deposited ${amount} in cash into their account at {company}. "
         f"Given the AML threshold for cash reporting is ${threshold}, should this transaction be reported?"
     )
-    solution = (
-        f"Step 1: Compare the cash deposit (${amount}) with the AML threshold (${threshold}).\n"
-        f"Since ${amount} > ${threshold}, the transaction exceeds the threshold.\n\n"
-        f"Step 2: Conclusion:\n"
-        f"This transaction should be reported under AML regulations."
-    )
+
+    if should_report:
+        solution = (
+            f"Step 1: Compare the cash deposit (${amount}) with the AML threshold (${threshold}).\n"
+            f"Since ${amount} > ${threshold}, the transaction exceeds the threshold.\n\n"
+            f"Step 2: Conclusion: This transaction **should be reported** under AML regulations."
+        )
+    else:
+        solution = (
+            f"Step 1: Compare the cash deposit (${amount}) with the AML threshold (${threshold}).\n"
+            f"Since ${amount} < ${threshold}, the transaction does not exceed the threshold.\n\n"
+            f"Step 2: Conclusion: This transaction does not need to be reported under AML regulations."
+        )
+
     return question, solution
 
 
-def aml_basic_structuring_detection():
-    """2:Basic: Detect structuring by splitting deposits"""
+
+def template_aml_basic_structuring_detection():
+    """2:Basic: Detect possible structuring by splitting deposits (above or below threshold)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    amounts = [random.randint(4000, 6000) for _ in range(2)]
-    total = sum(amounts)
     threshold = 10000
+
+    # Randomly decide whether the total should exceed or not exceed the threshold
+    if random.random() < 0.5:
+        # Case: likely structuring (total just over threshold using two deposits)
+        while True:
+            amounts = [random.randint(4500, 6000), random.randint(4500, 6000)]
+            total = sum(amounts)
+            if total > threshold:
+                likely_structuring = True
+                break
+    else:
+        # Case: not structuring (total well below threshold)
+        while True:
+            amounts = [random.randint(3000, 4500), random.randint(3000, 4500)]
+            total = sum(amounts)
+            if total < threshold:
+                likely_structuring = False
+                break
+
     question = (
         f"{investor} made two consecutive cash deposits of ${amounts[0]} and ${amounts[1]} into an account at {company}. "
         f"The AML reporting threshold is ${threshold}. Is this an example of structuring?"
     )
-    solution = (
-        f"Step 1: Add the two deposits: ${amounts[0]} + ${amounts[1]} = ${total}\n"
-        f"Step 2: Since ${total} > ${threshold}, and the deposits are split to avoid detection, this indicates structuring.\n\n"
-        f"Conclusion: Yes, this is likely an attempt to evade reporting and constitutes structuring."
-    )
+
+    if likely_structuring:
+        solution = (
+            f"Step 1: Add the two deposits: ${amounts[0]} + ${amounts[1]} = ${total}\n"
+            f"Step 2: Since the total ${total} > ${threshold}, and the amounts were split into smaller deposits, "
+            f"this may indicate an attempt to avoid triggering reporting requirements.\n\n"
+            f"Conclusion: Yes, this is likely structuring under AML regulations."
+        )
+    else:
+        solution = (
+            f"Step 1: Add the two deposits: ${amounts[0]} + ${amounts[1]} = ${total}\n"
+            f"Step 2: Since the total ${total} < ${threshold}, and the amounts are small, "
+            f"this does not indicate an attempt to avoid reporting.\n\n"
+            f"Conclusion: No, this is unlikely to be structuring under AML regulations."
+        )
+
     return question, solution
 
+
+
 # INTERMEDIATE SCENARIOS (3–4 steps)
-def aml_intermediate_beneficial_ownership_check():
-    """3:Intermediate: Verify disclosure of beneficial ownership"""
+def template_aml_intermediate_beneficial_ownership_check():
+    """3:Intermediate: Verify whether beneficial ownership disclosure is required (above or below threshold)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    ownerships = [random.randint(20, 45) for _ in range(2)]
-    final_ownership = sum(ownerships)
     threshold = 25
+
+    # Randomly choose whether to exceed or stay below the threshold
+    if random.random() < 0.5:
+        # Above threshold case: requires disclosure
+        while True:
+            ownerships = [random.randint(15, 30), random.randint(10, 30)]
+            final_ownership = sum(ownerships)
+            if final_ownership > threshold:
+                requires_disclosure = True
+                break
+    else:
+        # Below threshold case: does not require disclosure
+        while True:
+            ownerships = [random.randint(5, 15), random.randint(5, 15)]
+            final_ownership = sum(ownerships)
+            if final_ownership <= threshold:
+                requires_disclosure = False
+                break
+
     question = (
         f"{investor} owns {ownerships[0]}% of a shell company and an additional {ownerships[1]}% via a trust. "
         f"The shell company is opening an account at {company}. Must the beneficial ownership be disclosed?"
     )
-    solution = (
-        f"Step 1: Add ownership percentages: {ownerships[0]}% + {ownerships[1]}% = {final_ownership}%\n"
-        f"Step 2: Compare with AML disclosure threshold of {threshold}%.\n"
-        f"Since {final_ownership}% > {threshold}%, beneficial ownership disclosure is required.\n\n"
-        f"Conclusion: Yes, the beneficial ownership must be disclosed to comply with AML regulations."
-    )
+
+    if requires_disclosure:
+        solution = (
+            f"Step 1: Add ownership percentages: {ownerships[0]}% + {ownerships[1]}% = {final_ownership}%\n"
+            f"Step 2: Compare with AML disclosure threshold of {threshold}%.\n"
+            f"Since {final_ownership}% > {threshold}%, disclosure is required.\n\n"
+            f"Conclusion: Yes, the beneficial ownership must be disclosed under AML regulations."
+        )
+    else:
+        solution = (
+            f"Step 1: Add ownership percentages: {ownerships[0]}% + {ownerships[1]}% = {final_ownership}%\n"
+            f"Step 2: Compare with AML disclosure threshold of {threshold}%.\n"
+            f"Since {final_ownership}% ≤ {threshold}%, disclosure is not required.\n\n"
+            f"Conclusion: No, beneficial ownership does not need to be disclosed in this case."
+        )
+
     return question, solution
 
 
-# def aml_intermediate_transaction_layering_analysis():
-#     """Intermediate: Identify layering across international transfers"""
-#     investor = random.choice(investor_names)
-#     company = random.choice(company_names)
-#     steps = random.randint(3, 4)
-#     question = (
-#         f"{investor} transferred funds through {steps} different international entities before finally depositing them in an account at {company}. "
-#         f"Each step obscured the origin of the funds. What AML stage does this represent?"
-#     )
-#     solution = (
-#         f"Step 1: Review the behavior — multiple transfers to obscure origin.\n"
-#         f"Step 2: AML processes define 'layering' as the stage involving movement of funds to hide origin.\n"
-#         f"Step 3: {steps} transfers indicates classic layering tactics.\n\n"
-#         f"Conclusion: This represents the 'Layering' stage of money laundering."
-#     )
-#     return question, solution
 
-def aml_intermediate_multiple_entities_with_ownership():
-    """4:Intermediate: Trace ownership across multiple shell companies"""
+def template_aml_intermediate_multiple_entities_with_ownership():
+    """4:Intermediate: Trace indirect beneficial ownership through randomized layered entities (above/below threshold)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    layers = [
-        {"layer": 1, "ownership": 60},
-        {"layer": 2, "ownership": 50},
-        {"layer": 3, "ownership": 40},
-    ]
-    effective_ownership = round(1.0, 2)
-    for l in layers:
-        effective_ownership *= (l["ownership"] / 100)
-    effective_ownership_percent = round(effective_ownership * 100, 2)
     threshold = 25
+
+    def generate_layers(above_threshold=True):
+        # Try generating until the effective ownership matches the goal
+        for _ in range(100):
+            layers = [
+                {"layer": 1, "ownership": random.randint(30, 90)},
+                {"layer": 2, "ownership": random.randint(30, 90)},
+                {"layer": 3, "ownership": random.randint(30, 90)},
+            ]
+            effective_ownership = 1.0
+            for l in layers:
+                effective_ownership *= (l["ownership"] / 100)
+            effective_percent = round(effective_ownership * 100, 2)
+            if (above_threshold and effective_percent > threshold) or (not above_threshold and effective_percent <= threshold):
+                return layers, effective_percent
+        # fallback in case of bad luck
+        return layers, effective_percent
+
+    # Randomly choose to generate an above or below threshold case
+    above_threshold = random.random() < 0.5
+    layers, effective_ownership_percent = generate_layers(above_threshold)
+
     question = (
         f"{investor} indirectly owns shares in an entity opening an account at {company} via 3 layered shell companies with "
         f"{layers[0]['ownership']}%, {layers[1]['ownership']}%, and {layers[2]['ownership']}% ownership at each level.\n"
         f"Does this exceed the beneficial ownership threshold of {threshold}%?"
     )
+
     solution = (
         f"Step 1: Multiply ownership at each layer:\n"
         f"  Effective Ownership = ({layers[0]['ownership']}% × {layers[1]['ownership']}% × {layers[2]['ownership']}%)\n"
         f"                     = {effective_ownership_percent:.2f}%\n\n"
-        f"Step 2: Compare with threshold: {effective_ownership_percent:.2f}% {'>' if effective_ownership_percent > threshold else '<='} {threshold}%\n"
-        f"Step 3: Conclusion: {'Yes' if effective_ownership_percent > threshold else 'No'}, disclosure {'is' if effective_ownership_percent > threshold else 'is not'} required."
+        f"Step 2: Compare with threshold: {effective_ownership_percent:.2f}% "
+        f"{'>' if effective_ownership_percent > threshold else '≤'} {threshold}%\n"
+        f"Step 3: Conclusion: {'Yes' if effective_ownership_percent > threshold else 'No'}, disclosure "
+        f"{'is' if effective_ownership_percent > threshold else 'is not'} required under AML regulations."
     )
+
     return question, solution
 
-# def aml_intermediate_transaction_monitoring_volume():
-#     """Intermediate: Trigger flag based on transaction volume in short time"""
-#     investor = random.choice(investor_names)
-#     company = random.choice(company_names)
-#     txns = [random.randint(1500, 2500) for _ in range(5)]
-#     total = sum(txns)
-#     threshold = 10000
-#     question = (
-#         f"{investor} made the following 5 transfers to an account at {company} within 3 days: {', '.join(f'${t}' for t in txns)}. "
-#         f"If the total exceeds ${threshold}, a Suspicious Activity Report (SAR) is triggered. Should a SAR be filed?"
-#     )
-#     solution = (
-#         f"Step 1: Add all transfers: {' + '.join(str(t) for t in txns)} = ${total}\n"
-#         f"Step 2: Compare with the threshold: ${total} > ${threshold}\n\n"
-#         f"Conclusion: A SAR should be filed due to unusual activity exceeding the reportable threshold in a short period."
-#     )
-#     return question, solution
-
-# DIFFICULT SCENARIOS (>4 steps)
-# def aml_Advanced_risk_weighting_customer_risk_score():
-#     """Advanced: Calculate customer risk score using weighted attributes"""
-#     investor = random.choice(investor_names)
-#     company = random.choice(company_names)
-#     weights = {"jurisdiction": 0.4, "transaction_volume": 0.3, "business_type": 0.3}
-#     scores = {
-#         "jurisdiction": random.randint(1, 5),
-#         "transaction_volume": random.randint(1, 5),
-#         "business_type": random.randint(1, 5)
-#     }
-#     risk_score = sum(weights[k] * scores[k] for k in weights)
-#     question = (
-#         f"{investor} is being onboarded at {company}. The AML risk factors are:\n"
-#         f"Jurisdiction Risk: {scores['jurisdiction']}/5\n"
-#         f"Transaction Volume Risk: {scores['transaction_volume']}/5\n"
-#         f"Business Type Risk: {scores['business_type']}/5\n"
-#         f"The weights are 40%, 30%, and 30% respectively.\n"
-#         f"What is the overall AML risk score for the customer?"
-#     )
-#     solution = (
-#         f"Step 1: Multiply each risk factor by its weight:\n"
-#         f"  Jurisdiction: {weights['jurisdiction']} × {scores['jurisdiction']} = {weights['jurisdiction'] * scores['jurisdiction']:.2f}\n"
-#         f"  Transaction Volume: {weights['transaction_volume']} × {scores['transaction_volume']} = {weights['transaction_volume'] * scores['transaction_volume']:.2f}\n"
-#         f"  Business Type: {weights['business_type']} × {scores['business_type']} = {weights['business_type'] * scores['business_type']:.2f}\n\n"
-#         f"Step 2: Add the results:\n"
-#         f"  Risk Score = {risk_score:.2f}"
-#     )
-#     return question, solution
 
 
+def template_aml_advanced_sar_decision_based_on_risk_score_and_flags():
+    """5:Advanced: File SAR based on risk score, number and nature of red flags (multi-step)"""
 
-def aml_Advanced_sar_decision_based_on_risk_score_and_flags():
-    """5:Advanced: File SAR based on score and high-risk flags"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    score = random.randint(70, 95)
-    flags = random.sample(["PEP", "Unusual transaction", "Offshore entity"], k=2)
-    threshold = 75
+    score = random.randint(65, 95)
+    all_flags = ["PEP", "Unusual transaction", "Offshore entity", "High cash activity", "Unverified source of funds"]
+    k = random.randint(0, len(all_flags))  # choose 0–5 flags
+    flags = random.sample(all_flags, k=k)
+
+    threshold_score = 75
+    threshold_flags = 2
+
     question = (
-        f"{investor} has a risk score of {score} at {company}. The system also flagged the customer as: {', '.join(flags)}.\n"
-        f"If a SAR is triggered when risk score exceeds {threshold} and more than one red flag is present, should a SAR be filed?"
+        f"{investor} is being reviewed at {company}.\n"
+        f"- Risk Score: {score}\n"
+        f"- Flags Raised: {', '.join(flags) if flags else 'None'}\n"
+        f"A Suspicious Activity Report (SAR) must be filed if:\n"
+        f"(1) Risk Score exceeds {threshold_score}, **and**\n"
+        f"(2) More than {threshold_flags - 1} red flags are present, **or** certain flags such as 'PEP' or 'Unverified source of funds' are present.\n"
+        f"Should a SAR be filed?"
     )
-    decision = score > threshold and len(flags) > 1
+
+    # Evaluate conditions
+    critical_flags = {"PEP", "Unverified source of funds"}
+    has_critical_flag = any(f in critical_flags for f in flags)
+    sufficient_flags = len(flags) >= threshold_flags
+    high_score = score > threshold_score
+    decision = high_score and (sufficient_flags or has_critical_flag)
+
     solution = (
-        f"Step 1: Evaluate risk score: {score} {'>' if score > threshold else '<='} {threshold}\n"
-        f"Step 2: Count red flags: {len(flags)} {'>' if len(flags) > 1 else '<='} 1\n"
-        f"Step 3: Both conditions are {'met' if decision else 'not met'}.\n\n"
-        f"Step 4: Conclusion: {'File' if decision else 'Do not file'} a Suspicious Activity Report."
+        f"Step 1: Risk Score = {score} → {'Exceeds' if high_score else 'Does not exceed'} threshold of {threshold_score}.\n"
+        f"Step 2: Number of red flags = {len(flags)} → {'Sufficient' if sufficient_flags else 'Insufficient'} (Need ≥ {threshold_flags}).\n"
+        f"Step 3: Check for critical flags (PEP, Unverified source of funds) → "
+        f"{'Present' if has_critical_flag else 'None present'}.\n"
+        f"Step 4: Regulatory logic: SAR is filed if score is high **and** (flags are sufficient **or** critical flag is present).\n"
+        f"Step 5: Final evaluation → All conditions {'met' if decision else 'not met'}.\n"
+        f"Conclusion: {'File' if decision else 'Do not file'} a Suspicious Activity Report."
     )
+
     return question, solution
 
-
-# def aml_Advanced_compare_transactions_across_time():
-#     """Advanced: Detect trend in transaction volume increase"""
-#     investor = random.choice(investor_names)
-#     company = random.choice(company_names)
-#     txns_week1 = random.randint(2000, 4000)
-#     txns_week2 = random.randint(5000, 8000)
-#     increase = txns_week2 - txns_week1
-#     question = (
-#         f"{investor} at {company} had total transfers of ${txns_week1} in Week 1 and ${txns_week2} in Week 2. "
-#         f"Calculate the increase and determine if this rapid change is an AML red flag."
-#     )
-#     solution = (
-#         f"Step 1: Subtract to find increase: ${txns_week2} - ${txns_week1} = ${increase}\n"
-#         f"Step 2: A sharp increase in short time suggests potential structuring or laundering.\n\n"
-#         f"Conclusion: Yes, this is a red flag and should trigger enhanced monitoring."
-#     )
-#     return question, solution
 
 
 def main():
@@ -210,11 +241,11 @@ def main():
 
     # List of template functions
     templates = [
-        aml_basic_threshold_violation,
-        aml_basic_structuring_detection,
-        aml_intermediate_beneficial_ownership_check,
-        aml_intermediate_multiple_entities_with_ownership,
-        aml_Advanced_sar_decision_based_on_risk_score_and_flags
+        template_aml_basic_threshold_violation,
+        template_aml_basic_structuring_detection,
+        template_aml_intermediate_beneficial_ownership_check,
+        template_aml_intermediate_multiple_entities_with_ownership,
+        template_aml_advanced_sar_decision_based_on_risk_score_and_flags
     ]
 
     # List to store all generated problems

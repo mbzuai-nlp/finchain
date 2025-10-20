@@ -10,7 +10,7 @@ company_names = [
 # -----------------------------------------
 # Basic Question 1: Energy Cost Savings
 # Two-step basic calculation: a percentage reduction on energy costs.
-def basic_energy_cost_savings():
+def template_energy_cost_savings():
     """1:Basic: Energy Cost Savings Calculation"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -38,7 +38,7 @@ def basic_energy_cost_savings():
 # -----------------------------------------
 # Basic Question 2: Waste Management Cost Savings
 # Two or three steps: a fixed percentage decrease in waste disposal cost.
-def basic_waste_management_savings():
+def template_waste_management_savings():
     """2:Basic: Waste Management Cost Savings Calculation"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -65,7 +65,7 @@ def basic_waste_management_savings():
 # -----------------------------------------
 # Intermediate Question 1: Dual-Operational Savings
 # Three to four steps: total savings from both energy and waste reductions.
-def intermediate_dual_operational_savings():
+def template_dual_operational_savings():
     """3:Intermediate: Dual Operational Savings from Energy and Waste Management"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -101,7 +101,7 @@ def intermediate_dual_operational_savings():
 # -----------------------------------------
 # Intermediate Question 2: Supply Chain Sustainability Savings
 # Four steps: fixed cost saving plus an additional percentage saving on the remaining cost.
-def intermediate_supply_chain_savings():
+def template_supply_chain_savings():
     """4:Intermediate: Supply Chain Cost Savings from Sustainable Logistics"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -138,7 +138,7 @@ def intermediate_supply_chain_savings():
 # -----------------------------------------
 # Advanced Question: Sustainability ROI Analysis
 # Advanced with 6 reasoning steps: multiple savings, tax credit, and operational cost reduction lead to ROI calculation.
-def advanced_sustainability_roi_analysis():
+def template_sustainability_roi_analysis():
     """5:Advanced: ROI Analysis for a Sustainability Reporting Initiative"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -196,11 +196,11 @@ def main():
     """
     # List of template functions (2 basic, 2 intermediate, 1 advanced)
     templates = [
-        basic_energy_cost_savings,               # Basic
-        basic_waste_management_savings,          # Basic
-        intermediate_dual_operational_savings,   # Intermediate
-        intermediate_supply_chain_savings,       # Intermediate
-        advanced_sustainability_roi_analysis     # Advanced
+        template_energy_cost_savings,               # Basic
+        template_waste_management_savings,          # Basic
+        template_dual_operational_savings,   # Intermediate
+        template_supply_chain_savings,       # Intermediate
+        template_sustainability_roi_analysis     # Advanced
     ]
     
     # List to store all generated problems

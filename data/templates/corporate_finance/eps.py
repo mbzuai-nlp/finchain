@@ -1,304 +1,259 @@
 import random
 from misc import companies, currencies
 
-def basic_eps():
+# 1) EPS with weighted-average shares
+def template_eps_weighted_average():
     """
-    1:Basic: Calculate earnings per share given the net income, and the number of shares.
-
-    Generate a basic Earnings Per Share (EPS) calculation problem and its solution.
-    The function creates a randomized EPS problem using:
-    - A randomly selected currency and company (with its industry)
-    - Random values for net income, and outstanding shares
-    Returns:
-        tuple: Contains two elements:
-            - question (str): A formatted problem statement with company details and financial information
-            - solution (str): A step-by-step solution showing the EPS calculation
+    1:Basic: Compute EPS with weighted-average shares.
+    Scenario: new shares issued during the year.
+    Returns (question_str, solution_str)
     """
+    company, industry = random.choice(companies)
 
-    currency = random.choice(currencies)
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
+    net_income  = random.randint(200_000, 12_000_000)       # $
+    beg_shares  = random.randint(200_000, 900_000)          # shares on Jan 1
+    new_shares  = random.randint(20_000, 250_000)           # shares issued
+    issue_month = random.randint(2, 10)                     # Feb–Oct
+    months_out  = 12 - issue_month + 1
 
-    net_income = random.randint(100000, 10000000)
-    shares = random.randint(100000, 1000000)
+    # Step 1: weighted-average shares
+    wtd_shares = round(beg_shares + new_shares * (months_out / 12), 2)
 
-    question = f'''{company_name}, operating in the {industry} industry, reported the following financial information:
+    # Step 2: EPS
+    eps = round(net_income / wtd_shares, 2)
 
-        - Net Income: {currency}{net_income}
-        - Common Shares Outstanding: {shares}
+    question = (
+        f"{company}, operating in the {industry} industry, reported:\n\n"
+        f"Net Income: ${net_income:,.0f}\n"
+        f"Common Shares Outstanding on January 1: {beg_shares:,}\n"
+        f"{new_shares:,} additional shares were issued on "
+        f"{calendar.month_name[issue_month]} 1 and remained outstanding for the rest of the year.\n\n"
+        "What is the company’s Earnings Per Share (EPS)?"
+    )
 
-    Calculate the company's Earnings Per Share (EPS).'''
-
-    eps = net_income / shares
-
-    solution = f'''Step 1: Apply the EPS formula: Net Income / Number of Common Shares Outstanding
-    EPS = {currency}{net_income} / {shares}
-        = {currency}{eps} per share'''
-
-    return question, solution
-
-def basic_eps_preferred_dividends():
-    """
-    2:Basic: Calculate earnings per share given the net income, preferred dividends and the number of shares.
-
-    Generate a basic Earnings Per Share (EPS) calculation problem and its solution.
-    The function creates a randomized EPS problem using:
-    - A randomly selected currency and company (with its industry)
-    - Random values for net income, preferred dividends, and outstanding shares
-    Returns:
-        tuple: Contains two elements:
-            - question (str): A formatted problem statement with company details and financial information
-            - solution (str): A step-by-step solution showing the EPS calculation
-    """
-
-    currency = random.choice(currencies)
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
-
-    net_income = random.randint(100000, 10000000)
-    preferred_dividends = round(random.uniform(10000, 100000), 2)
-    shares = random.randint(100000, 1000000)
-
-    question = f'''{company_name}, operating in the {industry} industry, reported the following financial information:
-
-        - Net Income: {currency}{net_income}
-        - Preferred Dividends: {currency}{preferred_dividends}
-        - Common Shares Outstanding: {shares}
-
-    Calculate the company's Earnings Per Share (EPS).'''
-
-    eps = (net_income - preferred_dividends) / shares
-
-    solution = f'''Step 1: Apply the EPS formula: (Net Income - Preferred Dividends) / Number of Common Shares Outstanding
-    EPS = ({currency}{net_income} - {currency}{preferred_dividends}) / {shares}
-        = {currency}{eps} per share'''
+    solution = (
+        "Step 1  Compute weighted-average shares\n"
+        f"Weighted shares = {beg_shares:,} + {new_shares:,} × ({months_out}/12)\n"
+        f"               = {wtd_shares:,.2f}\n\n"
+        "Step 2  Compute EPS\n"
+        f"EPS = ${net_income:,.0f} ÷ {wtd_shares:,.2f} = ${eps:,.2f} per share"
+    )
 
     return question, solution
 
 
-def intermediate_weighted_eps():
+# 2) EPS with quarterly preferred-dividend rate
+def template_eps_quarterly_pref_div():
     """
-    3:Intermediate: Calculate the weighted Earnings Per Share (EPS) for a randomly selected company.
-    
-    This function generates a financial scenario with random values for:
-    - A company and its industry
-    - Net income
-    - Preferred dividends 
-    - Initial number of shares outstanding
-    - Number of shares repurchased during the year
-    - Month when share repurchase occurred
-    The function calculates the weighted average shares outstanding based on the timing
-    of share repurchases and computes the EPS using:
-    EPS = (Net Income - Preferred Dividends) / Weighted Average Shares
-    Returns:
-        tuple: A pair containing:
-            - question (str): Problem statement with the financial scenario
-            - solution (str): Detailed step-by-step solution showing the EPS calculation
+    2:Basic: Compute EPS with quarterly preferred dividends.
+    Scenario: preferred dividends stated per share per quarter.
+    Returns (question_str, solution_str)
     """
+    company, industry = random.choice(companies)
 
-    currency = random.choice(currencies)
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
+    net_income     = random.randint(300_000, 15_000_000)    # $
+    pref_shares    = random.randint(10_000, 60_000)         # preferred shares
+    quarterly_rate = round(random.uniform(0.25, 2.00), 2)   # $/share/quarter
+    common_shares  = random.randint(250_000, 1_200_000)     # common shares
 
-    net_income = random.randint(500000, 5000000)
-    preferred_dividends = round(random.uniform(50000, 200000), 2)
-    initial_shares = random.randint(200000, 1000000)
-    repurchased_shares = random.randint(20000, 100000)
-    repurchase_month = random.randint(1, 11)
+    # Step 1: annual preferred dividends
+    annual_pref_div = round(pref_shares * quarterly_rate * 4, 2)
 
-    question = f'''{company_name}, operating in the {industry} industry, has the following financial details for the year:
+    # Step 2: EPS
+    eps = round((net_income - annual_pref_div) / common_shares, 2)
 
-        - Net Income: {currency}{net_income}
-        - Preferred Dividends: {currency}{preferred_dividends}
-        - Common Shares Outstanding at the Beginning of the Year: {initial_shares}
-        - The Company Repurchased {repurchased_shares} Shares in the {repurchase_month}th month of the year
+    question = (
+        f"{company}, operating in the {industry} industry, reported:\n\n"
+        f"Net Income: ${net_income:,.0f}\n"
+        f"Preferred Stock: {pref_shares:,} shares paying ${quarterly_rate:,.2f} per share each quarter\n"
+        f"Common Shares Outstanding: {common_shares:,}\n\n"
+        "What is the company’s Earnings Per Share (EPS)?"
+    )
 
-    Calculate the Earnings Per Share (EPS) for the year.'''
-
-    weighted_shares = initial_shares * (repurchase_month/12) + (initial_shares - repurchased_shares) * ((12-repurchase_month)/12)
-    eps = (net_income - preferred_dividends) / weighted_shares
-
-    weighted_shares = round(weighted_shares, 2)
-    eps = round(eps, 2)
-
-    solution = f'''Step 1: Calculate the weighted average number of shares outstanding:
-    - Shares for first {repurchase_month} months: {initial_shares}
-    - Shares for remaining {12-repurchase_month} months: {initial_shares} - {repurchased_shares} = {initial_shares-repurchased_shares}
-    Weighted Average Shares = {initial_shares} × ({repurchase_month}/12) + {initial_shares-repurchased_shares} × ({12-repurchase_month}/12) = {weighted_shares}
-
-    Step 2: Apply the EPS formula: (Net Income - Preferred Dividends) / Weighted Average Shares
-    EPS = ({currency}{net_income} - {currency}{preferred_dividends}) / {weighted_shares}
-        = {currency}{eps} per share'''
+    solution = (
+        "Step 1  Annualize preferred dividends\n"
+        f"Annual preferred dividends = {pref_shares:,} × ${quarterly_rate:,.2f} × 4\n"
+        f"                           = ${annual_pref_div:,.2f}\n\n"
+        "Step 2  Compute EPS\n"
+        f"EPS = (${net_income:,.0f} – ${annual_pref_div:,.2f}) ÷ {common_shares:,}\n"
+        f"    = ${eps:,.2f} per share"
+    )
 
     return question, solution
 
-def intermediate_diluted_eps():
+# 1) EPS with preferred dividends AND weighted-average shares
+def template_eps_pref_div_weighted():
     """
-    4:Intermediate: Calculate diluted Earnings Per Share (EPS) with convertible securities.
-    
-    This function generates a financial scenario with random values for:
-    - Net income and preferred dividends
-    - Common shares outstanding
-    - Convertible bonds with tax-deductible interest
-    - Convertible preferred shares
-    Returns:
-        tuple: Contains:
-            - question (str): Problem with company financials and convertible securities
-            - solution (str): Step-by-step solution showing diluted EPS calculation
+    3:Intermediate: Compute EPS with preferred dividends and weighted-average shares.
+    3-step reasoning:
+      1. Subtract preferred dividends from net income
+      2. Compute weighted-average common shares (new shares issued mid-year)
+      3. Divide to get EPS
+    Returns (question, solution)
     """
-    
-    currency = random.choice(currencies)
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
+    company, industry = random.choice(companies)
 
-    net_income = random.randint(1000000, 8000000)
-    shares = random.randint(200000, 800000)
-    preferred_dividends = round(random.uniform(50000, 150000), 2)
-    
-    convertible_bonds = random.randint(5000, 15000)
-    bond_interest_rate = round(random.uniform(5, 8), 2)
-    conversion_ratio = random.randint(20, 40)
-    tax_rate = 0.30
-    
-    convertible_preferred = random.randint(10000, 30000)
-    preferred_dividend_rate = round(random.uniform(4, 7), 2)
-    preferred_conversion_ratio = random.randint(2, 5)
+    net_income          = random.randint(400_000, 15_000_000)
+    preferred_dividends = round(random.uniform(20_000, 150_000), 2)
 
-    question = f'''{company_name}, operating in the {industry} industry, reports:
+    beg_shares  = random.randint(300_000, 900_000)        # shares on Jan 1
+    new_shares  = random.randint(30_000, 200_000)         # issued later
+    issue_month = random.randint(2, 10)                   # Feb–Oct
+    months_out  = 12 - issue_month + 1
 
-        - Net Income: {currency}{net_income}
-        - Common Shares Outstanding: {shares}
-        - Preferred Dividends: {currency}{preferred_dividends}
-        
-        Convertible Securities:
-        - {convertible_bonds} bonds at {bond_interest_rate}% interest (tax rate: 30%)
-            Each bond converts to {conversion_ratio} common shares
-        - {convertible_preferred} preferred shares paying {preferred_dividend_rate}%
-            Each preferred share converts to {preferred_conversion_ratio} common shares
+    # Step 1: earnings available to common
+    earnings_common = round(net_income - preferred_dividends, 2)
 
-    Calculate the Basic and Diluted EPS.'''
+    # Step 2: weighted-average shares
+    wtd_shares = round(beg_shares + new_shares * (months_out / 12), 2)
 
-    bond_interest = convertible_bonds * (bond_interest_rate/100)
-    tax_savings = bond_interest * tax_rate
-    net_bond_effect = bond_interest - tax_savings
-    
-    preferred_adjustment = convertible_preferred * (preferred_dividend_rate/100)
-    
-    basic_eps = (net_income - preferred_dividends) / shares
-    
-    diluted_shares = shares + (convertible_bonds * conversion_ratio) + (convertible_preferred * preferred_conversion_ratio)
-    diluted_eps = (net_income - preferred_dividends + net_bond_effect + preferred_adjustment) / diluted_shares
-    
-    basic_eps = round(basic_eps, 2)
-    diluted_eps = round(diluted_eps, 2)
+    # Step 3: EPS
+    eps = round(earnings_common / wtd_shares, 2)
 
-    solution = f'''Step 1: Calculate Basic EPS
-    Basic EPS = (Net Income - Preferred Dividends) / Shares
-                = ({currency}{net_income} - {currency}{preferred_dividends}) / {shares}
-                = {currency}{basic_eps}
+    question = (
+        f"{company}, operating in the {industry} industry, reported the following:\n\n"
+        f"Net Income: ${net_income:,.0f}\n"
+        f"Preferred Dividends: ${preferred_dividends:,.2f}\n"
+        f"Common Shares Outstanding on January 1: {beg_shares:,}\n"
+        f"{new_shares:,} additional shares were issued on {calendar.month_name[issue_month]} 1 and remained outstanding for the rest of the year.\n\n"
+        "What is the company’s Earnings Per Share (EPS)?"
+    )
 
-    Step 2: Adjust for convertible securities
-    - Additional shares from bonds: {convertible_bonds} × {conversion_ratio} = {convertible_bonds * conversion_ratio}
-    - Additional shares from preferred: {convertible_preferred} × {preferred_conversion_ratio} = {convertible_preferred * preferred_conversion_ratio}
-    - Net bond interest after tax: {currency}{round(net_bond_effect, 2)}
-    - Preferred dividends saved: {currency}{round(preferred_adjustment, 2)}
-
-    Step 3: Calculate Diluted EPS
-    Diluted EPS = {currency}{diluted_eps}'''
+    solution = (
+        "Step 1  Earnings available to common\n"
+        f"Earnings = ${net_income:,.0f} – ${preferred_dividends:,.2f} = ${earnings_common:,.2f}\n\n"
+        "Step 2  Weighted-average shares\n"
+        f"Weighted shares = {beg_shares:,} + {new_shares:,} × ({months_out}/12) = {wtd_shares:,.2f}\n\n"
+        "Step 3  EPS\n"
+        f"EPS = ${earnings_common:,.2f} ÷ {wtd_shares:,.2f} = ${eps:,.2f} per share"
+    )
 
     return question, solution
 
-def advanced_eps_stock_splits():
+
+# 2) EPS with quarterly preferred rate AND year-end share buyback
+def template_eps_quarterly_pref_buyback():
     """
-    5:Advanced: Calculate EPS considering stock splits, reverse splits, and complex securities.
-    
-    Generates an EPS problem involving:
-    - Stock splits and reverse splits during the year
-    - Convertible securities with contingent conditions
-    - Multiple classes of preferred stock
-    Returns:
-        tuple: Contains:
-            - question (str): Complex EPS scenario with stock splits
-            - solution (str): Detailed step-by-step solution
+    4:Intermediate: Compute EPS with quarterly preferred dividends and year-end buyback.
+    3-step reasoning:
+      1. Annualize preferred dividends from a quarterly rate
+      2. Compute weighted-average shares after a buyback using day-weighting (365-day year)
+      3. Divide to get EPS
+    Returns (question, solution)
     """
+
+    import calendar
+
+    company, industry = random.choice(companies)
+
+    net_income       = random.randint(500_000, 18_000_000)
+    pref_shares      = random.randint(15_000, 70_000)
+    quarterly_rate   = round(random.uniform(0.30, 2.50), 2)  # $ per share per quarter
+
+    beg_shares  = random.randint(400_000, 1_100_000)
+    buyback_shr = random.randint(20_000, 120_000)
+    buyback_month = random.randint(1, 12)                    # Jan–Dec
     
-    currency = random.choice(currencies)
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
+    days_in_month = [31,28,31,30,31,30,31,31,30,31,30,31]
+    max_day = days_in_month[buyback_month - 1]
+    buyback_day = random.randint(1, max_day)
+    day_of_year = sum(days_in_month[:buyback_month - 1]) + buyback_day
+    days_in_year = 365
+    days_remaining = days_in_year - day_of_year + 1  # inclusive NOT outstanding
 
-    # Financial data
-    net_income = random.randint(2000000, 10000000)
-    initial_shares = random.randint(1000000, 3000000)
-    
-    # Stock split data
-    split_ratio = random.choice([2, 3, 4])
-    split_month = random.randint(3, 9)
-    
-    # Preferred stock data
-    class_a_preferred = random.randint(20000, 50000)
-    class_b_preferred = random.randint(10000, 30000)
-    class_a_rate = round(random.uniform(5, 8), 2)
-    class_b_rate = round(random.uniform(6, 9), 2)
-    
-    # Convertible bonds
-    bonds = random.randint(2000, 5000)
-    conversion_ratio = random.randint(20, 40)
-    bond_rate = round(random.uniform(4, 7), 2)
-    tax_rate = 0.30
+    # Step 1: annual preferred dividends
+    annual_pref_div = round(pref_shares * quarterly_rate * 4, 2)
 
-    question = f'''{company_name}, operating in the {industry} industry, has the following financial scenario:
+    # Step 2: weighted-average shares (buyback reduces count)
+    wtd_shares = round(beg_shares - buyback_shr * (days_remaining / 365), 2)
 
-        Financial Information:
-        - Net Income: {currency}{net_income}
-        - Initial Common Shares: {initial_shares}
-        - {split_ratio}-for-1 stock split in month {split_month}
-        
-        Preferred Stock:
-        - Class A: {class_a_preferred} shares at {class_a_rate}% dividend rate
-        - Class B: {class_b_preferred} shares at {class_b_rate}% dividend rate
-        
-        Convertible Securities:
-        - {bonds} Convertible Bonds at {bond_rate}% interest
-        - Each bond convertible to {conversion_ratio} common shares
-        
-        Calculate the Basic and Diluted EPS, adjusting for the stock split.'''
+    # Step 3: EPS
+    eps = round((net_income - annual_pref_div) / wtd_shares, 2)
 
-    # Calculations
-    adjusted_shares = initial_shares * (split_month/12) + (initial_shares * split_ratio) * ((12-split_month)/12)
-    preferred_dividends = (class_a_preferred * class_a_rate/100) + (class_b_preferred * class_b_rate/100)
-    bond_interest_savings = bonds * (bond_rate/100) * (1 - tax_rate)
-    adjusted_shares = round(adjusted_shares, 2)
-    preferred_dividends = round(preferred_dividends, 2)
-    bond_interest_savings = round(bond_interest_savings, 2)
-    
-    basic_eps = round((net_income - preferred_dividends) / adjusted_shares, 2)
-    diluted_shares = adjusted_shares + (bonds * conversion_ratio)
-    diluted_eps = round((net_income - preferred_dividends + bond_interest_savings) / diluted_shares, 2)
-    diluted_shares = round(diluted_shares, 2)
+    question = (
+        f"{company}, operating in the {industry} industry, reported the following:\n\n"
+        f"Net Income: ${net_income:,.0f}\n"
+        f"Preferred Stock: {pref_shares:,} shares paying ${quarterly_rate:,.2f} per share each quarter\n"
+        f"Common Shares Outstanding on January 1: {beg_shares:,}\n"
+        f"The company repurchased {buyback_shr:,} shares on {calendar.month_name[buyback_month]} {buyback_day}.\n\n"
+        "What is the company’s Earnings Per Share (EPS)?"
+    )
 
-    solution = f'''Step 1: Calculate split-adjusted weighted average shares
-    - Pre-split ({split_month} months): {initial_shares} × ({split_month}/12)
-    - Post-split ({12-split_month} months): {initial_shares * split_ratio} × ({12-split_month}/12)
-    Adjusted Weighted Shares = {adjusted_shares}
-
-    Step 2: Calculate preferred dividends
-    - Class A: {currency}{round(class_a_preferred * class_a_rate/100, 2)}
-    - Class B: {currency}{round(class_b_preferred * class_b_rate/100, 2)}
-    Total Preferred Dividends = {currency}{preferred_dividends}
-
-    Step 3: Calculate Basic EPS
-    Basic EPS = ({currency}{net_income} - {currency}{preferred_dividends}) / {adjusted_shares}
-                = {currency}{basic_eps}
-
-    Step 4: Calculate Diluted EPS with convertible bonds
-    Diluted EPS = {currency}{diluted_eps}'''
+    solution = (
+        "Step 1  Annualize preferred dividends\n"
+        f"Annual preferred dividends = {pref_shares:,} × ${quarterly_rate:,.2f} × 4 = ${annual_pref_div:,.2f}\n\n"
+        "Step 2  Weighted-average shares\n"
+        f"Weighted shares = {beg_shares:,} – {buyback_shr:,} × ({days_remaining}/365) = {wtd_shares:,.2f}\n\n"
+        "Step 3  EPS\n"
+        f"EPS = (${net_income:,.0f} – ${annual_pref_div:,.2f}) ÷ {wtd_shares:,.2f} = ${eps:,.2f} per share"
+    )
 
     return question, solution
+
+def template_eps_pref_div_split_weighted():
+    """
+    5:Advanced: Compute EPS with preferred dividends, stock split, and weighted-average shares.
+    Four reasoning steps:
+      1. Annualize preferred dividends from a quarterly rate.
+      2. Compute earnings available to common shareholders.
+      3. Derive weighted-average common shares after a 2-for-1 split in mid-year.
+      4. Divide to obtain EPS.
+    Returns (question, solution)
+    """
+    company, industry = random.choice(companies)
+
+    net_income       = random.randint(600_000, 20_000_000)
+    pref_shares      = random.randint(12_000, 60_000)
+    quarterly_rate   = round(random.uniform(0.30, 2.50), 2)     # $ per share per quarter
+
+    beg_shares       = random.randint(300_000, 800_000)
+    split_month      = 6                                         # June 30 split, 2-for-1
+    months_pre_split = split_month
+    months_post_split = 12 - months_pre_split
+
+    # Step 1  annual preferred dividends
+    annual_pref_div = round(pref_shares * quarterly_rate * 4, 2)
+
+    # Step 2  earnings available to common
+    earnings_common = round(net_income - annual_pref_div, 2)
+
+    # Step 3  weighted-average shares (pre-split shares count once, post-split count double)
+    #   Pre-split equivalent shares
+    pre_eq = beg_shares * (months_pre_split / 12)
+    #   Post-split shares (2 × beg_shares) for remaining months
+    post_eq = (beg_shares * 2) * (months_post_split / 12)
+    wtd_shares = round(pre_eq + post_eq, 2)
+
+    # Step 4  EPS
+    eps = round(earnings_common / wtd_shares, 2)
+
+    question = (
+        f"{company}, operating in the {industry} industry, reported the following financial data.\n\n"
+        f"Net Income $ {net_income:,.0f}\n"
+        f"Preferred Stock {pref_shares:,} shares paying $ {quarterly_rate:,.2f} per share each quarter\n"
+        f"Common Shares Outstanding on January 1 {beg_shares:,}\n"
+        f"A 2-for-1 stock split occurred on June 30 and the split shares remained outstanding through year-end.\n\n"
+        "Calculate the company’s Earnings Per Share (EPS)."
+    )
+
+    solution = (
+        "Step 1  Annualize preferred dividends\n"
+        f"Annual preferred dividends = {pref_shares:,} × $ {quarterly_rate:,.2f} × 4 = $ {annual_pref_div:,.2f}\n\n"
+        "Step 2  Earnings available to common\n"
+        f"Earnings = $ {net_income:,.0f} − $ {annual_pref_div:,.2f} = $ {earnings_common:,.2f}\n\n"
+        "Step 3  Weighted-average shares\n"
+        f"Pre-split equivalent = {beg_shares:,} × ({months_pre_split}/12) = {pre_eq:,.2f}\n"
+        f"Post-split equivalent = {beg_shares*2:,} × ({months_post_split}/12) = {post_eq:,.2f}\n"
+        f"Weighted-average shares = {wtd_shares:,.2f}\n\n"
+        "Step 4  EPS\n"
+        f"EPS = $ {earnings_common:,.2f} ÷ {wtd_shares:,.2f} = $ {eps:,.2f} per share"
+    )
+
+    return question, solution
+
+
+
+
 
 def main():
     """
@@ -308,11 +263,11 @@ def main():
     import json
     # List of template functions
     templates = [
-        basic_eps,
-        basic_eps_preferred_dividends,
-        intermediate_weighted_eps,
-        intermediate_diluted_eps,
-        advanced_eps_stock_splits
+        template_eps_weighted_average,
+        template_eps_quarterly_pref_div,
+        template_eps_pref_div_weighted,
+        template_eps_quarterly_pref_buyback,
+        template_eps_pref_div_split_weighted
     ]
     
     # List to store all generated problems

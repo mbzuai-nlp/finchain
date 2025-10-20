@@ -1,285 +1,208 @@
 import random
 from misc import companies, currencies
 
-def basic_dividend_stable_policy():
+def template_dividend_target_payout_policy():
     """
-    1:Basic: Calculate the total dividend payable given the number of shares outstanding and the dividend per share.
-
-    Generates a question and solution about calculating total dividend payment under a stable dividend policy.
-    This function creates a problem scenario where a randomly selected company follows a stable dividend
-    policy with a fixed dividend per share. It calculates the total dividend payment based on the number
-    of shares outstanding.
-    Returns:
-        tuple: A pair of strings where:
-            - First element is the question text describing the dividend calculation scenario
-            - Second element is the detailed solution showing the step-by-step calculation
+    1:Basic: Compute total dividend when the firm applies a target payout ratio to EPS.
     """
+    company = random.choice(companies)[0]
+    currency = "$"
 
-    company = random.choice(companies)
-    company_name = company[0]
-    currency = random.choice(currencies)
-    
-    dividend_per_share = round(random.uniform(1, 10), 2)
-    shares_outstanding = random.randint(500000, 5000000)
-    
-    question = f'''{company_name} follows a stable dividend policy and pays a fixed dividend of {currency}{dividend_per_share} per share annually. If {company_name} has {shares_outstanding:,} shares outstanding, how much total dividend will the company pay to its shareholders?'''
-    
-    total_dividend = round(dividend_per_share * shares_outstanding, 2)
-    
-    solution = f'''Step 1: Calculate total dividend using the formula:
-    Total Dividend = Dividend per Share × Number of Shares Outstanding
-                    = {currency}{dividend_per_share} × {shares_outstanding:,}
-                    = {currency}{total_dividend:,.2f}'''
-    
-    return question, solution
-    
-def basic_residual_dividend_policy():
-    """
-    2:basic: Calculate the total dividend payable using the residual dividend policy given net income, and capital expenditure.
+    eps = round(random.uniform(2, 8), 2)                      # earnings per share
+    payout_ratio = round(random.uniform(0.3, 0.7), 2)         # 30-70 %
+    shares = random.randint(800_000, 4_000_000)
 
-    Generates a question and solution about residual dividend policy calculation.
-    This function creates a scenario where a company follows a residual dividend policy.
-    It randomly selects company details and financial parameters to construct a problem
-    about calculating dividend payments based on net income, capital expenditure, and
-    target equity ratio.
-    Returns:
-        tuple: A pair containing:
-            - question (str): A word problem describing the scenario and asking for dividend calculation
-            - solution (str): Step-by-step solution showing equity funding and dividend calculations
-    """
+    question = (
+        f"{company} follows a target-payout policy.  With forecasted earnings of "
+        f"{currency}{eps:,.2f} per share and a payout ratio of {payout_ratio*100:.0f} %, "
+        f"the company has {shares:,} shares outstanding.  "
+        f"How much total dividend will it pay this year?"
+    )
 
-    company = random.choice(companies)
-    company_name = company[0]
-    currency = random.choice(currencies)
-    
-    equity_ratio = round(random.uniform(0.4, 0.6), 2)
-    capex = random.randint(2000000, 6000000)
-    
-    equity_funding_needed = round(capex * equity_ratio, 2)
-    
-    while True:
-        net_income = random.randint(5000000, 10000000)
-        if net_income > equity_funding_needed:
-            break
-            
-    available_for_dividend = round(net_income - equity_funding_needed, 2)
-    
-    question = f'''{company_name} follows a residual dividend policy. The company expects to generate {currency}{net_income} in net income this year and has capital expenditure (CapEx) plans of {currency}{capex}. The company wants to maintain a capital structure where {equity_ratio*100}% of its funding comes from equity and the remaining {(1-equity_ratio)*100}% comes from debt. How much total dividend will {company_name} pay to its shareholders this year?'''
-    
-    solution = f'''Step 1: Calculate required equity funding
-    Equity Funding = CapEx × Equity Ratio
-                    = {currency}{capex} × {equity_ratio}
-                    = {currency}{equity_funding_needed}
-    
-    Step 2: Calculate residual dividend amount
-    Dividend = Net Income - Required Equity Funding
-                = {currency}{net_income} - {currency}{equity_funding_needed}
-                = {currency}{available_for_dividend}'''
-    
+    dps = round(eps * payout_ratio, 2)
+    total = round(dps * shares, 2)
+
+    solution = (
+        "Step 1  Calculate the dividend per share (DPS):\n"
+        f"        DPS = EPS × Payout Ratio = {currency}{eps:,.2f} × {payout_ratio:.2f}\n"
+        f"            = {currency}{dps:,.2f}\n\n"
+        "Step 2  Calculate the total dividend:\n"
+        f"        Total = {currency}{dps:,.2f} × {shares:,}\n"
+        f"              = {currency}{total:,.2f}"
+    )
+
     return question, solution
 
-def intermediate_dividend_constant_payout_ratio_policy():
+
+def template_dividend_stable_growth_policy():
     """
-    3:Intermediate: Calculate the total dividend payable next year based on a stable policy and an expected net income.
-
-    Generates a dividend policy problem involving constant payout ratio calculation.
-    This function creates a scenario where a company maintains a constant dividend payout 
-    ratio while dealing with changes in shares outstanding and projected net income. It 
-    randomly selects company details and financial figures to create a realistic problem.
-    Returns:
-        tuple: A pair containing:
-            - question (str): A word problem describing the dividend policy scenario
-            - solution (str): A detailed step-by-step solution showing calculations for:
-                1. Current total dividend payment
-                2. Current dividend payout ratio
-                3. Expected dividend payment for next year
+    2:Basic: Compute total dividend given a stable growth rate and last year's DPS.
     """
+    company = random.choice(companies)[0]
+    currency = "$"
 
-    company = random.choice(companies)
-    company_name = company[0]
-    currency = random.choice(currencies)
-    
-    dividend_per_share = round(random.uniform(2, 10), 2)
-    current_shares = random.randint(500000, 2000000)
-    share_increase = round(random.uniform(5, 20), 2)
-    
-    new_shares = round(current_shares * (1 + share_increase/100), 0)
-    current_total_dividend = round(dividend_per_share * current_shares, 2)
+    last_dps = round(random.uniform(0.5, 3.0), 2)
+    growth_rate = round(random.uniform(0.03, 0.12), 3)        # 3-12 %
+    shares = random.randint(1_000_000, 6_000_000)
 
-    while True:
-        net_income = random.randint(2000000, 50000000)
-        if net_income > current_total_dividend:
-            break
-    
-    # Add next year's net income with some random growth
-    income_growth = round(random.uniform(0, 20),2)
-    next_year_income = round(net_income * (1 + income_growth/100), 2)
-    
-    current_payout_ratio = current_total_dividend / net_income
-    expected_dividend_next_year = current_payout_ratio * next_year_income
+    question = (
+        f"{company} has committed to increasing its dividend per share by "
+        f"{growth_rate*100:.1f}% annually.  Last year it paid "
+        f"{currency}{last_dps:,.2f} per share and now has {shares:,} shares outstanding.  "
+        f"What total dividend will it pay this year?"
+    )
 
-    current_payout_ratio = round(current_payout_ratio, 2)
-    expected_dividend_next_year = round(expected_dividend_next_year, 2)
-    
-    question = f'''{company_name} follows a stable dividend policy and has been paying a dividend of {currency}{dividend_per_share} per share annually. The company currently has {current_shares} shares outstanding and expects a net income of {currency}{net_income} this year. For next year, the company projects a net income of {currency}{next_year_income}. {company_name} plans to issue {share_increase}% more shares next year, which will increase the total number of shares outstanding to {new_shares}. If {company_name} wants to maintain the same dividend payout ratio as this year, what will be the total dividend payment next year?'''
-    
-    solution = f'''Step 1: Calculate current total dividend payment:
-    Current Total Dividend = Current Dividend per Share × Current Number of Shares
-                            = {currency}{dividend_per_share} × {current_shares}
-                            = {currency}{current_total_dividend}
-    
-    Step 2: Calculate current dividend payout ratio:
-    Current Payout Ratio = Current Total Dividend / Net Income
-                        = {currency}{current_total_dividend} / {currency}{net_income}
-                        = {current_payout_ratio}
-    
-    Step 3: Calculate expected dividend payment for next year:
-    Next Year's Total Dividend = Current Payout Ratio × Next Year's Net Income
-                                = {current_payout_ratio} × {currency}{next_year_income}
-                                = {currency}{expected_dividend_next_year}'''
-    
+    new_dps = round(last_dps * (1 + growth_rate), 2)
+    total = round(new_dps * shares, 2)
+
+    solution = (
+        "Step 1  Find the new dividend per share:\n"
+        f"        New DPS = Last DPS × (1 + g)\n"
+        f"                = {currency}{last_dps:,.2f} × (1 + {growth_rate:.3f})\n"
+        f"                = {currency}{new_dps:,.2f}\n\n"
+        "Step 2  Find the total dividend:\n"
+        f"        Total = {currency}{new_dps:,.2f} × {shares:,}\n"
+        f"              = {currency}{total:,.2f}"
+    )
+
     return question, solution
 
-def intermediate_residual_dividend_policy_capex():
+
+# ------------------------------------------------------------------
+#  Lintner Smoothing Model  (target-payout with partial adjustment)
+#    Steps:
+#      1) Target DPS  = EPS × Target Payout Ratio
+#      2) New DPS     = Last-year DPS + c · (Target DPS – Last-year DPS)
+#      3) Total Cash  = New DPS × Shares Outstanding
+# ------------------------------------------------------------------
+def template_dividend_lintner_smoothing():
     """
-    4:Intermediate: Calculate the total dividend payable using the residual dividend policy given net income, capital expenditure, and debt repayment amount.
-
-    Generates a finance problem and solution related to residual dividend policy with capital expenditure.
-    The function creates a scenario where a randomly selected company follows a residual dividend policy
-    and needs to determine its dividend payment based on:
-    - Expected net income
-    - Capital expenditure requirements
-    - Debt repayment obligations
-    - Target capital structure (equity ratio)
-    Returns:
-        tuple: A pair containing:
-            - question (str): A detailed problem statement with the company's financial data
-            - solution (str): Step-by-step solution showing calculations for:
-                1. Total funding needed
-                2. Required equity funding
-                3. Residual dividend amount
+    3:Intermediate: Compute total dividend using Lintner's smoothing model.
     """
+    company = random.choice(companies)[0]
+    currency = "$"
 
-    company = random.choice(companies)
-    company_name = company[0]
-    currency = random.choice(currencies)
-    
-    capex = random.randint(4000000, 8000000)
-    debt_repayment = random.randint(1000000, 3000000)
-    equity_ratio = round(random.uniform(0.4, 0.6), 2)
-    
-    total_funding_needed = capex + debt_repayment
-    equity_funding_needed = round(total_funding_needed * equity_ratio, 2)
+    eps = round(random.uniform(2, 8), 2)
+    payout_ratio = round(random.uniform(0.35, 0.65), 2)    # 35-65 %
+    last_dps = round(random.uniform(0.5, 3), 2)
+    adj_factor = round(random.uniform(0.3, 0.6), 2)        # 30-60 % speed of adjustment
+    shares = random.randint(1_000_000, 6_000_000)
 
-    while True:
-        net_income = random.randint(10000000, 20000000)
-        if net_income > equity_funding_needed:
-            break
+    question = (
+        f"{company} follows Lintner’s dividend-smoothing model.  Earnings per share are "
+        f"{currency}{eps:,.2f}.  The target payout ratio is {payout_ratio*100:.0f} %, "
+        f"and last year’s dividend was {currency}{last_dps:,.2f} per share.  "
+        f"The board adjusts dividends toward the target at a speed of {adj_factor*100:.0f} %.  "
+        f"With {shares:,} shares outstanding, how much total cash dividend will be paid this year?"
+    )
 
-    available_for_dividend = round(net_income - equity_funding_needed, 2)
-    
-    question = f'''{company_name} follows a residual dividend policy. The company expects to generate {currency}{net_income} in net income this year. {company_name} has the following financial needs:
-    • Capital expenditures (CapEx): {currency}{capex}
-    • Debt repayment: {currency}{debt_repayment}
-    • Target capital structure: {equity_ratio*100}% equity, {(1-equity_ratio)*100}% debt (i.e., the company wants to finance {equity_ratio*100}% of its capital requirements with equity and {(1-equity_ratio)*100}% with debt).
+    target_dps = round(eps * payout_ratio, 2)
+    new_dps = round(last_dps + adj_factor * (target_dps - last_dps), 2)
+    total_div = round(new_dps * shares, 2)
 
-Given the company's capital expenditure and debt repayment plans, how much total dividend will {company_name} pay to its shareholders this year?'''
-    
-    solution = f'''Step 1: Calculate total funding needed
-    Total Funding = CapEx + Debt Repayment
-                    = {currency}{capex} + {currency}{debt_repayment}
-                    = {currency}{total_funding_needed}
+    solution = (
+        "Step 1  Target DPS = EPS × Payout Ratio\n"
+        f"             = {currency}{eps:,.2f} × {payout_ratio:.2f}\n"
+        f"             = {currency}{target_dps:,.2f}\n\n"
+        "Step 2  Apply Lintner adjustment:\n"
+        f"        New DPS = Last DPS + c·(Target – Last)\n"
+        f"                = {currency}{last_dps:,.2f} + {adj_factor:.2f}"
+        f"×({currency}{target_dps:,.2f} – {currency}{last_dps:,.2f})\n"
+        f"                = {currency}{new_dps:,.2f}\n\n"
+        "Step 3  Total cash dividend:\n"
+        f"        {currency}{new_dps:,.2f} × {shares:,} = {currency}{total_div:,.2f}"
+    )
 
-Step 2: Calculate required equity funding
-    Equity Funding = Total Funding × Equity Ratio
-                    = {currency}{total_funding_needed} × {equity_ratio}
-                    = {currency}{equity_funding_needed}
-
-Step 3: Calculate residual dividend amount
-    Dividend = Net Income - Required Equity Funding
-                = {currency}{net_income} - {currency}{equity_funding_needed}
-                = {currency}{available_for_dividend}'''
-    
     return question, solution
 
-def advanced_hybrid_dividend_policy():
+
+# ------------------------------------------------------------------
+#  Stock-Dividend Effect + DPS Growth
+#    Steps:
+#      1) New Shares = Old Shares × (1 + Stock-Dividend %)
+#      2) New DPS    = Last DPS × (1 + Growth g)
+#      3) Total Cash = New DPS × New Shares
+# ------------------------------------------------------------------
+def template_dividend_stock_plus_growth():
     """
-    5:Advanced: Calculate total dividend payment under a hybrid dividend policy.
-
-    This function generates a finance problem and its solution related to hybrid dividend policy,
-    which combines both residual dividend policy and constant payout ratio policy. It randomly
-    selects a company and currency, and generates realistic financial figures to create a
-    scenario where a company needs to determine its dividend payment.
-    The function considers:
-    - Company's net income
-    - Capital expenditure needs
-    - Debt repayment requirements
-    - Target capital structure (equity ratio)
-    - Constant payout ratio
-    Returns:
-        tuple: A tuple containing two strings:
-            - question (str): A detailed problem statement describing the company's financial
-              situation and dividend policy.
-            - solution (str): A step-by-step solution showing the calculation of the final
-              dividend payment, considering both residual and constant payout approaches.
+    4:Intermediate: Compute total cash dividend with stock dividend and DPS growth.
     """
+    company = random.choice(companies)[0]
+    currency = "$"
 
-    company = random.choice(companies)
-    company_name = company[0]
-    currency = random.choice(currencies)
-    
-    capex = random.randint(4000000, 8000000)
-    debt_repayment = random.randint(1000000, 3000000)
-    equity_ratio = round(random.uniform(0.4, 0.6), 2)
-    payout_ratio = round(random.uniform(0.3, 0.5), 2)
-    
-    total_funding_needed = capex + debt_repayment
-    equity_funding_needed = round(total_funding_needed * equity_ratio, 2)
+    shares_old = random.randint(2_000_000, 8_000_000)
+    stock_pct = round(random.uniform(0.05, 0.20), 2)       # 5-20 % stock dividend
+    last_dps = round(random.uniform(0.4, 2.0), 2)
+    growth = round(random.uniform(0.04, 0.12), 3)          # 4-12 % DPS growth
 
-    while True:
-        net_income = random.randint(10000000, 20000000)
-        if net_income > equity_funding_needed:
-            break
+    question = (
+        f"{company} declares a {stock_pct*100:.0f}% stock dividend and also commits to raise "
+        f"its cash dividend per share by {growth*100:.1f}% over last year’s "
+        f"{currency}{last_dps:,.2f}.  Before the stock dividend the firm had {shares_old:,} shares outstanding.  "
+        f"How much cash will the firm distribute this year?"
+    )
 
-    residual_dividend = round(net_income - equity_funding_needed, 2)
-    constant_payout_dividend = round(net_income * payout_ratio, 2)
-    final_dividend = min(residual_dividend, constant_payout_dividend)
-    
-    question = f'''{company_name} is evaluating its dividend policy for the current year. The company expects to generate {currency}{net_income} in net income and has the following financial needs:
-    • Capital expenditures (CapEx): {currency}{capex}
-    • Debt repayment: {currency}{debt_repayment}
-    • Target capital structure: {equity_ratio*100}% equity, {(1-equity_ratio)*100}% debt
+    shares_new = round(shares_old * (1 + stock_pct))
+    new_dps = round(last_dps * (1 + growth), 2)
+    total_cash = round(new_dps * shares_new, 2)
 
-{company_name} follows a constant payout ratio policy, where the company pays {payout_ratio*100}% of its net income as dividends. However, if the residual dividend based on the capital expenditure and debt repayment needs is lower than the dividend implied by the constant payout ratio, {company_name} will pay the lower of the two amounts.
+    solution = (
+        "Step 1  New shares after stock dividend:\n"
+        f"        {shares_old:,} × (1 + {stock_pct:.2f}) = {shares_new:,}\n\n"
+        "Step 2  New DPS after planned growth:\n"
+        f"        {currency}{last_dps:,.2f} × (1 + {growth:.3f}) = {currency}{new_dps:,.2f}\n\n"
+        "Step 3  Total cash dividend:\n"
+        f"        {currency}{new_dps:,.2f} × {shares_new:,} = {currency}{total_cash:,.2f}"
+    )
 
-What will be the total dividend payment for {company_name} this year, considering both the constant payout ratio policy and the residual dividend policy?'''
-    
-    solution = f'''Step 1: Calculate total funding needed
-    Total Funding = CapEx + Debt Repayment
-                    = {currency}{capex} + {currency}{debt_repayment}
-                    = {currency}{total_funding_needed}
-
-Step 2: Calculate required equity funding
-    Equity Funding = Total Funding × Equity Ratio
-                    = {currency}{total_funding_needed} × {equity_ratio}
-                    = {currency}{equity_funding_needed}
-
-Step 3: Calculate residual dividend amount
-    Residual Dividend = Net Income - Required Equity Funding
-                    = {currency}{net_income} - {currency}{equity_funding_needed}
-                    = {currency}{residual_dividend}
-
-Step 4: Calculate constant payout ratio dividend
-    Constant Payout Dividend = Net Income × Payout Ratio
-                    = {currency}{net_income} × {payout_ratio}
-                    = {currency}{constant_payout_dividend}
-
-Step 5: Determine final dividend (lower of the two)
-    Final Dividend = min(Residual Dividend, Constant Payout Dividend)
-                    = min({currency}{residual_dividend}, {currency}{constant_payout_dividend})
-                    = {currency}{final_dividend}'''
-    
     return question, solution
+
+
+def template_dividend_lintner_three_year_avg():
+    """
+    5:Advanced: Compute total cash dividend with stock dividend and DPS growth.
+    """
+    company = random.choice(companies)[0]
+    currency = "$"
+
+    eps = [round(random.uniform(1.5, 4.5), 2) for _ in range(3)]
+    payout_ratio = round(random.uniform(0.35, 0.65), 2)      # 35–65 %
+    last_dps = round(random.uniform(0.4, 2.0), 2)
+    adj_factor = round(random.uniform(0.3, 0.6), 2)          # speed of adjustment 30–60 %
+    shares = random.randint(1_000_000, 6_000_000)
+
+    question = (
+        f"{company} follows Lintner’s smoothing model based on a three-year average of "
+        f"earnings per share (EPS).  EPS over the past three years were "
+        f"{currency}{eps[0]:,.2f}, {currency}{eps[1]:,.2f}, and {currency}{eps[2]:,.2f}.  "
+        f"The target payout ratio is {payout_ratio*100:.0f} %, and last year’s dividend was "
+        f"{currency}{last_dps:,.2f} per share.  The board moves {adj_factor*100:.0f} % of the way "
+        f"toward the target each year.  With {shares:,} shares outstanding, how much total cash "
+        f"dividend will be paid this year?"
+    )
+
+    avg_eps   = round(sum(eps) / 3, 2)                                    # Step 1
+    target_dps = round(avg_eps * payout_ratio, 2)                         # Step 2
+    new_dps    = round(last_dps + adj_factor * (target_dps - last_dps), 2) # Step 3
+    total_div  = round(new_dps * shares, 2)                               # Step 4
+
+    solution = (
+        "Step 1  Three-year average EPS:\n"
+        f"        ({currency}{eps[0]:,.2f} + {currency}{eps[1]:,.2f} + {currency}{eps[2]:,.2f}) ÷ 3 "
+        f"= {currency}{avg_eps:,.2f}\n\n"
+        "Step 2  Target dividend per share (DPS):\n"
+        f"        {currency}{avg_eps:,.2f} × {payout_ratio:.2f} = {currency}{target_dps:,.2f}\n\n"
+        "Step 3  Apply Lintner adjustment:\n"
+        f"        New DPS = {currency}{last_dps:,.2f} + {adj_factor:.2f}"
+        f"×({currency}{target_dps:,.2f} – {currency}{last_dps:,.2f})\n"
+        f"                = {currency}{new_dps:,.2f}\n\n"
+        "Step 4  Total cash dividend:\n"
+        f"        {currency}{new_dps:,.2f} × {shares:,} = {currency}{total_div:,.2f}"
+    )
+
+    return question, solution
+
+
 
 def main():
     """
@@ -289,11 +212,11 @@ def main():
     import json
     # List of template functions
     templates = [
-        basic_dividend_stable_policy,
-        basic_residual_dividend_policy,
-        intermediate_dividend_constant_payout_ratio_policy,
-        intermediate_residual_dividend_policy_capex,
-        advanced_hybrid_dividend_policy
+        template_dividend_target_payout_policy,
+        template_dividend_stable_growth_policy,
+        template_dividend_lintner_smoothing,
+        template_dividend_stock_plus_growth,
+        template_dividend_lintner_three_year_avg
     ]
     
     # List to store all generated problems

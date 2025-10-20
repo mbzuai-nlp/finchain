@@ -12,26 +12,42 @@ def random_entities():
 
 ### BASIC LEVEL (1-2 steps) ###
 
-def basic_disclosure_threshold():
-    """1:Basic: Determine if disclosure is required based on threshold"""
+def template_security_basic_disclosure_threshold():
+    """1:Basic: Determine disclosure obligation based on investor type and threshold rules"""
     investor, company = random_entities()
-    threshold = 5  # 5% SEC reporting threshold
-    ownership = round(random.uniform(1, 10), 2)
-    
+
+    # Different investor types
+    investor_type = random.choice(["individual investor", "institutional investor", "passive investor"])
+
+    # Ownership percentage
+    ownership = round(random.uniform(1, 15), 2)
+
+    # Define thresholds based on investor type
+    if investor_type == "passive investor":
+        threshold = 10.0  # 13G
+        form = "Schedule 13G"
+    else:
+        threshold = 5.0   # 13D
+        form = "Schedule 13D"
+
     question = (
-        f"{investor} has recently acquired a stake in {company}. They now own {ownership:.2f}% of the company's shares.\n"
-        f"SEC rules require filing a Schedule 13D form if ownership exceeds {threshold}%. "
-        f"Does {investor} need to file a disclosure?"
+        f"{investor}, a {investor_type}, has acquired {ownership:.2f}% of {company}'s shares.\n"
+        f"According to SEC rules, a {form} must be filed if ownership exceeds {threshold:.1f}%.\n"
+        f"Is disclosure required in this case?"
     )
+
+    disclosure_required = ownership > threshold
 
     solution = (
-        f"Step 1: Compare the ownership percentage to the disclosure threshold.\n"
-        f"{ownership:.2f}% {'>' if ownership > threshold else '<='} {threshold}%\n\n"
-        f"Step 2: {'Yes, disclosure is required.' if ownership > threshold else 'No, disclosure is not required.'}"
+        f"Step 1: Identify investor type: {investor_type} → Threshold = {threshold}% → Required form: {form}\n"
+        f"Step 2: Compare ownership: {ownership:.2f}% {'>' if disclosure_required else '<='} {threshold}%\n"
+        f"Conclusion: {'Yes' if disclosure_required else 'No'}, disclosure {'is' if disclosure_required else 'is not'} required under SEC rules."
     )
+
     return question, solution
 
-def basic_insider_trading_gain():
+
+def template_security_basic_insider_trading_gain():
     """2:Basic: Calculate gain from insider trading"""
     investor, company = random_entities()
     buy_price = round(random.uniform(80, 100), 2)
@@ -51,104 +67,120 @@ def basic_insider_trading_gain():
 
 ### INTERMEDIATE LEVEL (3-4 steps) ###
 
-def intermediate_reg_a_investment_limit():
-    """3:Intermediate: Check if investment exceeds Reg A+ Tier 2 limit"""
+def template_security_intermediate_reg_a_investment_limit():
+    """3:Intermediate: Check if investment exceeds Reg A+ Tier 2 limit (4 reasoning steps)"""
+
     investor, company = random_entities()
-    annual_income = random.randint(50000, 150000)
-    investment = random.randint(20000, 70000)
-    limit_ratio = 0.1
+    annual_income = random.randint(50_000, 150_000)
+    investment = random.randint(20_000, 70_000)
+    is_audited = random.choice([True, False])
+    limit_ratio = 0.10
     limit = round(annual_income * limit_ratio, 2)
 
     question = (
-        f"{investor} wants to invest ${investment} in a Regulation A+ Tier 2 offering from {company}.\n"
-        f"The SEC limits investments to 10% of the investor's annual income if unaudited. "
-        f"Their income is ${annual_income}. Can {investor} legally make this investment?"
+        f"{investor} wants to invest ${investment:,} in a Regulation A+ Tier 2 offering from {company}.\n"
+        f"Their reported annual income is ${annual_income:,}. "
+        f"The offering is {'audited' if is_audited else 'unaudited'}.\n"
+        f"Under SEC rules, unaudited offerings are subject to a 10% income cap. "
+        f"Can {investor} legally make this investment?"
     )
 
+    # Determine if limit applies and assess legality
     solution = (
-        f"Step 1: Calculate 10% of the investor's income: 10% × ${annual_income} = ${limit:.2f}\n"
-        f"Step 2: Compare investment with the limit: ${investment} {'>' if investment > limit else '<='} ${limit:.2f}\n\n"
-        f"Step 3: {'No, the investment exceeds the limit.' if investment > limit else 'Yes, the investment is within the limit.'}"
+        f"Step 1: Identify audit status → Offering is {'audited' if is_audited else 'unaudited'}.\n"
+        f"Step 2: Determine if 10% income cap applies → "
+        f"{'No cap for audited offerings.' if is_audited else f'Cap applies → 10% of ${annual_income:,} = ${limit:,.2f}'}\n"
+        f"Step 3: {'No comparison needed (✓)' if is_audited else f'Compare investment ${investment:,} to limit ${limit:,.2f} → ' + ('Within limit (✓)' if investment <= limit else 'Exceeds limit (✗)')}\n"
+        f"Step 4: Conclusion → " +
+        (
+            "Yes, the investment is allowed because the offering is audited."
+            if is_audited else (
+                "Yes, investment is within the permitted cap."
+                if investment <= limit else
+                "No, investment exceeds the allowable limit for unaudited offerings."
+            )
+        )
     )
+
     return question, solution
 
-def intermediate_multiple_reporting_thresholds():
-    """4:Intermediate: Calculate combined ownership across entities for reporting requirement"""
+
+def template_security_intermediate_multiple_reporting_thresholds():
+    """4:Intermediate: Calculate combined ownership across entities for SEC 5% reporting rule (fixed 4-step reasoning)"""
+    
     investor, company = random_entities()
     direct = round(random.uniform(2, 4), 2)
     trust = round(random.uniform(1, 3), 2)
     spouse = round(random.uniform(1, 4), 2)
-    total = direct + trust + spouse
+    total = round(direct + trust + spouse, 2)
+    threshold = 5.0
 
     question = (
-        f"{investor} holds shares in {company} through three sources:\n"
-        f"- Direct ownership: {direct:.2f}%\n"
-        f"- A family trust: {trust:.2f}%\n"
-        f"- Their spouse: {spouse:.2f}%\n"
-        f"The SEC requires disclosure when beneficial ownership exceeds 5%.\n"
-        f"Does {investor} need to file a report?"
+        f"{investor} holds ownership in {company} through three sources:\n"
+        f"- Direct: {direct:.2f}%\n"
+        f"- Family trust: {trust:.2f}%\n"
+        f"- Spouse: {spouse:.2f}%\n"
+        f"Under SEC rules, beneficial ownership exceeding {threshold}% requires a public disclosure filing.\n"
+        f"Does {investor} need to report their ownership?"
     )
 
     solution = (
-        f"Step 1: Total beneficial ownership = {direct:.2f}% + {trust:.2f}% + {spouse:.2f}% = {total:.2f}%\n"
-        f"Step 2: Compare with threshold (5%) → {total:.2f}% {'>' if total > 5 else '<='} 5%\n\n"
-        f"Step 3: {'Yes, disclosure is required.' if total > 5 else 'No, disclosure is not required.'}"
+        f"Step 1: Identify all forms of indirect and direct ownership.\n"
+        f"         → Direct = {direct:.2f}%, Trust = {trust:.2f}%, Spouse = {spouse:.2f}%\n"
+        f"Step 2: Aggregate total beneficial ownership = {direct:.2f}% + {trust:.2f}% + {spouse:.2f}% = {total:.2f}%\n"
+        f"Step 3: Compare total ownership with the SEC threshold (5.00%) → {total:.2f}% {'>' if total > threshold else '<='} 5.00%\n"
+        f"Step 4: Conclusion → "
+        f"{'Yes, disclosure is required because total ownership exceeds 5%.' if total > threshold else 'No, disclosure is not required.'}"
     )
+
     return question, solution
+
 
 
 ### ADVANCED LEVEL (>4 steps) ###
-def advanced_merger_announcement_timing():
-    """5:Advanced: Evaluate gains from timed trades around a merger announcement with SEC penalty logic"""
+def template_security_advanced_merger_announcement_timing():
+    """5:Advanced: Evaluate insider trading gains and determine SEC penalty under variable enforcement rules"""
     investor, company = random_entities()
+
+    # Price movement before and after announcement
     pre_price = round(random.uniform(50, 70), 2)
-    post_price = round(pre_price * random.uniform(1.2, 1.5), 2)
+    multiplier = random.uniform(0.8, 1.5)  # price may rise or fall
+    post_price = round(pre_price * multiplier, 2)
     shares = random.randint(500, 2000)
 
-    question = (
-        f"{investor} traded {shares} shares of {company} the day before a confidential merger announcement.\n"
-        f"The price went from ${pre_price:.2f} to ${post_price:.2f} after the announcement. "
-        f"The SEC is investigating for insider trading. What is the illicit gain and possible penalty?"
+    # Calculate gain or loss
+    gain_per_share = round(post_price - pre_price, 2)
+    total_gain = round(gain_per_share * shares, 2)
+
+    # Penalty logic — maximum of 3× gain or fixed statutory fine
+    statutory_penalty = 200_000
+    penalty = max(3 * abs(total_gain), statutory_penalty)
+
+    # Determine whether it's a profit or a loss
+    gain_label = "gain" if total_gain > 0 else "loss"
+    penalty_comment = (
+        f"Although the investor incurred a {gain_label}, SEC may still impose penalties if the trade was illegal."
+        if total_gain < 0 else
+        "Since the investor profited from the trade, SEC may impose penalties based on the gain."
     )
 
-    gain_per_share = post_price - pre_price
-    total_gain = gain_per_share * shares
-    penalty = 3 * total_gain
+    question = (
+        f"{investor} traded {shares} shares of {company} one day before a confidential merger announcement.\n"
+        f"The stock price moved from ${pre_price:.2f} to ${post_price:.2f} after the announcement.\n"
+        f"The SEC is investigating potential insider trading. What is the {gain_label}, and what penalty may apply under SEC rules?"
+    )
 
     solution = (
-        f"Step 1: Gain per share = ${post_price:.2f} - ${pre_price:.2f} = ${gain_per_share:.2f}\n"
-        f"Step 2: Total gain = {shares} × ${gain_per_share:.2f} = ${total_gain:.2f}\n"
-        f"Step 3: Under SEC rules, the penalty can be up to 3× the illicit gain.\n"
-        f"Step 4: Penalty = 3 × ${total_gain:.2f} = ${penalty:.2f}"
+        f"Step 1: Gain/Loss per share = ${post_price:.2f} - ${pre_price:.2f} = ${gain_per_share:.2f}\n"
+        f"Step 2: Total {gain_label} = {shares} × ${gain_per_share:.2f} = ${total_gain:.2f}\n"
+        f"Step 3: SEC penalty is the greater of 3× gain/loss or a statutory fine of ${statutory_penalty:,.2f}\n"
+        f"         → 3× gain/loss = ${3 * abs(total_gain):,.2f}\n"
+        f"         → Statutory fine = ${statutory_penalty:,.2f}\n"
+        f"Step 4: Penalty = max(3× gain/loss, statutory fine) = ${penalty:,.2f}\n"
+        f"Step 5: {penalty_comment}"
     )
 
     return question, solution
-
-# def advanced_accredited_investor_test():
-#     """Advanced: Determine if multiple criteria qualify for accredited investor status"""
-#     investor, company = random_entities()
-#     income = random.randint(180000, 300000)
-#     net_worth = random.randint(500000, 2000000)
-#     joint_income = random.randint(250000, 400000)
-
-#     question = (
-#         f"{investor} wants to invest in a private placement offered by {company}.\n"
-#         f"To qualify as an accredited investor, one must meet at least one of these:\n"
-#         f"- Annual income over $200,000 ($300,000 jointly), or\n"
-#         f"- Net worth over $1,000,000 excluding primary residence.\n"
-#         f"{investor} reports ${income} in income, ${joint_income} jointly, and ${net_worth} in net worth.\n"
-#         f"Do they qualify as an accredited investor?"
-#     )
-
-#     qualifies = income > 200000 or joint_income > 300000 or net_worth > 1_000_000
-#     solution = (
-#         f"Step 1: Check individual income > $200,000 → {'Yes' if income > 200000 else 'No'}\n"
-#         f"Step 2: Check joint income > $300,000 → {'Yes' if joint_income > 300000 else 'No'}\n"
-#         f"Step 3: Check net worth > $1,000,000 → {'Yes' if net_worth > 1_000_000 else 'No'}\n\n"
-#         f"Step 4: If any are true → Accredited investor: {'Yes' if qualifies else 'No'}"
-#     )
-#     return question, solution
-
 
 
 
@@ -162,11 +194,11 @@ def main():
 
     # List of template functions
     templates = [
-        basic_disclosure_threshold,
-        basic_insider_trading_gain,
-        intermediate_reg_a_investment_limit,
-        intermediate_multiple_reporting_thresholds,
-        advanced_merger_announcement_timing
+        template_security_basic_disclosure_threshold,
+        template_security_basic_insider_trading_gain,
+        template_security_intermediate_reg_a_investment_limit,
+        template_security_intermediate_multiple_reporting_thresholds,
+        template_security_advanced_merger_announcement_timing
     ]
 
     # List to store all generated problems

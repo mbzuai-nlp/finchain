@@ -1,258 +1,270 @@
 import random
+from decimal import Decimal, ROUND_HALF_UP
+import json
+import argparse
+import pathlib
+
+# ----------------------------
+# Helpers for consistency
+# ----------------------------
+def q2(x) -> Decimal:
+    """Quantize to 2 decimals with ROUND_HALF_UP for financial-style rounding."""
+    return Decimal(str(x)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+def money(x) -> str:
+    """Format number as USD with thousands separators and 2 decimals."""
+    return f"${q2(x):,}"
+
+def ratio2(numer, denom) -> Decimal:
+    """Compute a ratio with 2-decimal precision (dimensionless)."""
+    return q2(Decimal(numer) / Decimal(denom))
+
+def ensure_quick_assets_reasonable(ca: int, inv: int, prepaids: int) -> tuple[int, int]:
+    """
+    If inventories + prepaids are too large (leading to negative or near-zero quick assets),
+    resample inventories to keep scenarios realistic for teaching.
+    """
+    max_inv_pre = int(0.85 * ca)  # keep some quick assets positive
+    total = inv + prepaids
+    if total > max_inv_pre:
+        # Reduce inventories so that inv + prepaids ≤ 85% of CA
+        inv = max(0, max_inv_pre - prepaids)
+    return inv, prepaids
 
 # Named entities for companies and industries
 company_names = ["Tesla Inc.", "Apple Inc.", "Amazon.com", "SpaceX", "Google LLC"]
-industry_names = [
-    "automotive",
-    "technology",
-    "e-commerce",
-    "aerospace",
-    "internet services",
-]
+industry_names = ["automotive", "technology", "e-commerce", "aerospace", "internet services"]
 
+# ==========================================================
+# EASY (2): Current Ratio; Quick Ratio
+# ==========================================================
 
 def template_current_ratio_simple():
-    """1:Basic: Current Ratio Calculation"""
-    company_name = random.choice(company_names)
+    """1:Easy:Simple Current Ratio using current assets and current liabilities."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    current_assets = random.randint(5000, 50000)  # Current Assets
-    current_liabilities = random.randint(2000, 25000)  # Current Liabilities
+    ca = random.randint(5_000, 50_000)
+    cl = random.randint(2_000, 25_000)
 
     question = (
-        f"{company_name}, operating in the {industry} industry, has current assets amounting to ${current_assets} "
-        f"and current liabilities of ${current_liabilities}. Calculate the current ratio."
+        f"{company}, operating in the {industry} industry, has current assets of {money(ca)} "
+        f"and current liabilities of {money(cl)}. Calculate the current ratio (to two decimals)."
     )
 
-    # Step 1: Calculate the current ratio with consistent precision throughout
-    current_ratio = round(current_assets / current_liabilities, 2)
+    current_ratio = ratio2(ca, cl)
 
     solution = (
-        f"Step 1: Calculate the current ratio using the formula:\n"
-        f"  Current Ratio = Current Assets / Current Liabilities\n"
-        f"               = {current_assets} / {current_liabilities} = {current_ratio:.2f}"
+        "Step: Apply the formula Current Ratio = Current Assets ÷ Current Liabilities.\n"
+        f"  = {money(ca)} ÷ {money(cl)} = {current_ratio:.2f}"
     )
-
     return question, solution
 
 
-def template_quick_ratio():
-    """2:Basic: Quick Ratio Calculation"""
-    company_name = random.choice(company_names)
+def template_quick_ratio_simple():
+    """2:Easy:Quick Ratio (acid-test) = (Current Assets − Inventories) ÷ Current Liabilities."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    current_assets = random.randint(10000, 100000)  # Current Assets
-    inventories = random.randint(2000, 30000)  # Inventories
-    current_liabilities = random.randint(5000, 50000)  # Current Liabilities
+    ca = random.randint(10_000, 100_000)
+    inv = random.randint(2_000, 30_000)
+    cl = random.randint(5_000, 50_000)
+
+    # Keep the prompt realistic (avoid > ~CA inventories for simple cases)
+    inv = min(inv, int(0.8 * ca))
 
     question = (
-        f"{company_name}, a major player in the {industry} industry, has ${current_assets} in current assets, ${inventories} in inventories, "
-        f"and ${current_liabilities} in current liabilities. Calculate the quick ratio (acid-test ratio)."
+        f"{company}, a major player in the {industry} industry, reports current assets of {money(ca)}, "
+        f"inventories of {money(inv)}, and current liabilities of {money(cl)}. "
+        f"Calculate the quick ratio (to two decimals)."
     )
 
-    # Step 1: Calculate the quick ratio with consistent precision
-    quick_ratio = round((current_assets - inventories) / current_liabilities, 2)
+    quick_ratio = ratio2(Decimal(ca) - Decimal(inv), cl)
 
     solution = (
-        f"Step 1: Calculate the quick ratio using the formula:\n"
-        f"  Quick Ratio = (Current Assets - Inventories) / Current Liabilities\n"
-        f"             = ({current_assets} - {inventories}) / {current_liabilities} = {quick_ratio:.2f}"
+        "Step: Apply Quick Ratio = (Current Assets − Inventories) ÷ Current Liabilities.\n"
+        f"  = ({money(ca)} − {money(inv)}) ÷ {money(cl)} = {quick_ratio:.2f}"
     )
-
     return question, solution
 
+# ==========================================================
+# INTERMEDIATE (2): Both Ratios; Quick-Ratio to Target
+# ==========================================================
 
-def template_both_ratios():
-    """3:Intermediate: Current and Quick Ratio Analysis"""
-    company_name = random.choice(company_names)
+def template_both_ratios_intermediate():
+    """3:Intermediate:Compute Current and Quick Ratios (prepaid expenses excluded from quick assets)."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    current_assets = random.randint(20000, 200000)  # Current Assets
-    inventories = random.randint(5000, 50000)  # Inventories
-    prepaid_expenses = random.randint(1000, 20000)  # Prepaid Expenses
-    current_liabilities = random.randint(10000, 100000)  # Current Liabilities
+    ca = random.randint(20_000, 200_000)
+    inv = random.randint(5_000, 50_000)
+    pre = random.randint(1_000, 20_000)
+    cl = random.randint(10_000, 100_000)
+
+    inv, pre = ensure_quick_assets_reasonable(ca, inv, pre)
 
     question = (
-        f"{company_name}, operating in the {industry} sector, has ${current_assets} in current assets, ${inventories} in inventories, "
-        f"${prepaid_expenses} in prepaid expenses, and ${current_liabilities} in current liabilities. Calculate both the current ratio and quick ratio."
+        f"{company}, operating in the {industry} sector, reports: "
+        f"current assets {money(ca)}, inventories {money(inv)}, prepaid expenses {money(pre)}, "
+        f"and current liabilities {money(cl)}. "
+        f"Calculate (i) the current ratio and (ii) the quick ratio (to two decimals)."
     )
 
-    # Step 1: Calculate the current ratio with consistent precision
-    current_ratio = round(current_assets / current_liabilities, 2)
-
-    # Step 2: Calculate the quick ratio with consistent precision
-    quick_ratio = round(
-        (current_assets - inventories - prepaid_expenses) / current_liabilities, 2
-    )
+    current_ratio = ratio2(ca, cl)
+    quick_ratio = ratio2(Decimal(ca) - Decimal(inv) - Decimal(pre), cl)
 
     solution = (
-        f"Step 1: Calculate the current ratio:\n"
-        f"  Current Ratio = Current Assets / Current Liabilities\n"
-        f"               = {current_assets} / {current_liabilities} = {current_ratio:.2f}\n\n"
-        f"Step 2: Calculate the quick ratio:\n"
-        f"  Quick Ratio = (Current Assets - Inventories - Prepaid Expenses) / Current Liabilities\n"
-        f"             = ({current_assets} - {inventories} - {prepaid_expenses}) / {current_liabilities} = {quick_ratio:.2f}"
+        "Step 1: Current Ratio = Current Assets ÷ Current Liabilities\n"
+        f"  = {money(ca)} ÷ {money(cl)} = {current_ratio:.2f}\n\n"
+        "Step 2: Quick Ratio excludes inventories and prepaid expenses:\n"
+        "  Quick Ratio = (Current Assets − Inventories − Prepaid Expenses) ÷ Current Liabilities\n"
+        f"  = ({money(ca)} − {money(inv)} − {money(pre)}) ÷ {money(cl)} = {quick_ratio:.2f}"
     )
-
     return question, solution
 
 
-def template_quick_ratio_scenario():
-    """4:Intermediate: Quick Ratio Scenario Analysis"""
-    company_name = random.choice(company_names)
+def template_quick_ratio_reach_target_intermediate():
+    """4:Intermediate:Given a minimum quick ratio requirement, compute additional quick assets needed."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    current_assets = random.randint(50000, 500000)  # Current Assets
-    inventories = random.randint(10000, 100000)  # Inventories
-    prepaid_expenses = random.randint(2000, 25000)  # Prepaid Expenses
-    current_liabilities = random.randint(25000, 250000)  # Current Liabilities
-    min_quick_ratio = round(random.uniform(1.5, 2.5), 2)  # Minimum Quick Ratio required
+    ca = random.randint(50_000, 500_000)
+    inv = random.randint(10_000, 100_000)
+    pre = random.randint(2_000, 25_000)
+    cl = random.randint(25_000, 250_000)
+    target = q2(random.uniform(1.10, 2.20))
+
+    inv, pre = ensure_quick_assets_reasonable(ca, inv, pre)
 
     question = (
-        f"{company_name}, in the {industry} industry, has ${current_assets} in current assets, ${inventories} in inventories, "
-        f"${prepaid_expenses} in prepaid expenses, and ${current_liabilities} in current liabilities. "
-        f"To meet liquidity requirements, the company must maintain a minimum quick ratio of {min_quick_ratio:.2f}. "
-        f"How much additional cash or marketable securities are needed to meet this requirement?"
+        f"{company}, in the {industry} industry, has current assets {money(ca)}, inventories {money(inv)}, "
+        f"prepaid expenses {money(pre)}, and current liabilities {money(cl)}. "
+        f"The firm must maintain a minimum quick ratio of {target:.2f}. "
+        f"How much additional cash or marketable securities are required to meet this requirement?"
     )
 
-    # Step 1: Calculate the existing quick ratio with consistent precision
-    quick_ratio = round(
-        (current_assets - inventories - prepaid_expenses) / current_liabilities, 2
-    )
+    quick_assets_now = Decimal(ca) - Decimal(inv) - Decimal(pre)
+    required_quick_assets = q2(target * Decimal(cl))
+    gap = q2(required_quick_assets - quick_assets_now)
+    additional_needed = max(Decimal("0.00"), gap)
 
-    # Step 2: Calculate the required quick assets to meet the minimum quick ratio
-    required_quick_assets = round(min_quick_ratio * current_liabilities, 2)
-
-    # Step 3: Calculate the additional quick assets needed
-    additional_assets_needed = round(
-        required_quick_assets - (current_assets - inventories - prepaid_expenses), 2
-    )
+    current_quick_ratio = ratio2(quick_assets_now, cl)
 
     solution = (
-        f"Step 1: Calculate the existing quick ratio:\n"
-        f"  Quick Ratio = (Current Assets - Inventories - Prepaid Expenses) / Current Liabilities\n"
-        f"             = ({current_assets} - {inventories} - {prepaid_expenses}) / {current_liabilities} = {quick_ratio:.2f}\n\n"
-        f"Step 2: Calculate the required quick assets to meet the minimum quick ratio:\n"
-        f"  Required Quick Assets = Minimum Quick Ratio × Current Liabilities\n"
-        f"                       = {min_quick_ratio:.2f} × {current_liabilities} = {required_quick_assets:.2f}\n\n"
-        f"Step 3: Calculate the additional quick assets needed:\n"
-        f"  Additional Quick Assets Needed = Required Quick Assets - Existing Quick Assets\n"
-        f"                               = {required_quick_assets:.2f} - ({current_assets} - {inventories} - {prepaid_expenses}) = {additional_assets_needed:.2f}"
+        "Step 1: Compute current quick ratio:\n"
+        f"  Quick Assets = {money(ca)} − {money(inv)} − {money(pre)} = {money(quick_assets_now)}\n"
+        f"  Quick Ratio = {money(quick_assets_now)} ÷ {money(cl)} = {current_quick_ratio:.2f}\n\n"
+        "Step 2: Compute the required quick assets to hit the target:\n"
+        f"  Required Quick Assets = {target:.2f} × {money(cl)} = {money(required_quick_assets)}\n\n"
+        "Step 3: Additional quick assets needed (if any):\n"
+        f"  = Required Quick Assets − Current Quick Assets\n"
+        f"  = {money(required_quick_assets)} − {money(quick_assets_now)} = {money(additional_needed)}"
+        + (" (already compliant; need $0.00)" if additional_needed == Decimal("0.00") else "")
     )
 
     return question, solution
 
+# ==========================================================
+# ADVANCED (1): Full breakdown + target quick ratio
+# ==========================================================
 
-def template_liquidity_minimum_quick_ratio():
-    """5:Advanced: Comprehensive Liquidity Analysis"""
-    # Defining variables with ranges for the company's balance sheet items
-    A = random.randint(25000, 200000)  # Cash
-    B = random.randint(5000, 50000)  # Marketable securities
-    C = random.randint(20000, 150000)  # Accounts receivable
-    D = random.randint(15000, 100000)  # Inventory
-    E = random.randint(1000, 10000)  # Prepaid expenses
-    F = random.randint(30000, 300000)  # Current liabilities
-    G = round(random.uniform(1.5, 2.5), 2)  # Minimum Quick Ratio
+def template_liquidity_minimum_quick_ratio_advanced():
+    """5:Advanced:Full balance sheet breakdown — compute Current Ratio, Quick Ratio, and additional quick assets needed to meet a minimum quick ratio threshold."""
+    # Balance sheet components
+    cash = random.randint(25_000, 200_000)
+    mkt = random.randint(5_000, 50_000)      # Marketable securities
+    ar  = random.randint(20_000, 150_000)    # Accounts receivable
+    inv = random.randint(15_000, 100_000)    # Inventory
+    pre = random.randint(1_000, 10_000)      # Prepaid expenses
+    cl  = random.randint(30_000, 300_000)    # Current liabilities
+    target = q2(random.uniform(1.30, 2.50))  # Minimum Quick Ratio
+
+    # Keep inventories + prepaids reasonable relative to total CA
+    total_ca = cash + mkt + ar + inv + pre
+    inv, pre = ensure_quick_assets_reasonable(total_ca, inv, pre)
 
     question = (
-        f"A company's balance sheet provides the following details:\n"
-        f"  - Cash: ${A}\n"
-        f"  - Marketable securities: ${B}\n"
-        f"  - Accounts receivable: ${C}\n"
-        f"  - Inventory: ${D}\n"
-        f"  - Prepaid expenses: ${E}\n"
-        f"  - Current liabilities: ${F}\n\n"
-        f"The company is evaluating its liquidity health under two different scenarios:\n"
-        f"1. Calculate the Current Ratio and Quick Ratio.\n"
-        f"2. Assume the company needs to maintain a minimum Quick Ratio of {G}. "
-        f"How much additional cash or marketable securities are required for the company to meet this threshold?"
+        "A company's balance sheet shows:\n"
+        f"  • Cash: {money(cash)}\n"
+        f"  • Marketable securities: {money(mkt)}\n"
+        f"  • Accounts receivable: {money(ar)}\n"
+        f"  • Inventory: {money(inv)}\n"
+        f"  • Prepaid expenses: {money(pre)}\n"
+        f"  • Current liabilities: {money(cl)}\n\n"
+        f"(i) Compute the Current Ratio and Quick Ratio (both to two decimals).\n"
+        f"(ii) If the firm must maintain a minimum Quick Ratio of {target:.2f}, "
+        "how much additional cash or marketable securities are required?"
     )
 
-    # Step 1: Compute Current Ratio
-    current_assets = A + B + C + D + E
-    current_ratio = round(current_assets / F, 2)
+    current_assets = Decimal(cash + mkt + ar + inv + pre)
+    quick_assets   = Decimal(cash + mkt + ar)  # exclude inventory & prepaids
+    current_ratio  = ratio2(current_assets, cl)
+    quick_ratio    = ratio2(quick_assets, cl)
 
-    # Step 2: Compute Quick Ratio
-    quick_assets = A + B + C  # Quick assets exclude Inventory and Prepaid Expenses
-    quick_ratio = round(quick_assets / F, 2)
-
-    # Step 3: Calculate the additional cash or marketable securities needed to meet the minimum Quick Ratio
-    required_quick_assets = round(G * F, 2)  # To meet the minimum Quick Ratio
-    additional_assets_needed = max(0, round(required_quick_assets - quick_assets, 2))
+    required_quick_assets = q2(target * Decimal(cl))
+    additional_needed = max(Decimal("0.00"), q2(required_quick_assets - quick_assets))
 
     solution = (
-        f"Step 1: Calculate the Current Ratio:\n"
-        f"  Current Assets = Cash + Marketable Securities + Accounts Receivable + Inventory + Prepaid Expenses\n"
-        f"                 = ${A} + ${B} + ${C} + ${D} + ${E} = ${current_assets}\n"
-        f"  Current Ratio = Current Assets / Current Liabilities = ${current_assets} / ${F} = {current_ratio:.2f}\n\n"
-        f"Step 2: Calculate the Quick Ratio:\n"
-        f"  Quick Assets = Cash + Marketable Securities + Accounts Receivable\n"
-        f"              = ${A} + ${B} + ${C} = ${quick_assets}\n"
-        f"  Quick Ratio = Quick Assets / Current Liabilities = ${quick_assets} / ${F} = {quick_ratio:.2f}\n\n"
-        f"Step 3: Determine how much additional cash or marketable securities are required:\n"
-        f"  Required Quick Assets = Minimum Quick Ratio × Current Liabilities\n"
-        f"                       = {G} × ${F} = ${required_quick_assets}\n"
-        f"  Additional cash or marketable securities needed = ${required_quick_assets} - ${quick_assets} = ${additional_assets_needed:.2f}"
+        "Step 1: Current Ratio\n"
+        f"  Current Assets = {money(cash)} + {money(mkt)} + {money(ar)} + {money(inv)} + {money(pre)} = {money(current_assets)}\n"
+        f"  Current Ratio = {money(current_assets)} ÷ {money(cl)} = {current_ratio:.2f}\n\n"
+        "Step 2: Quick Ratio (exclude inventory & prepaids)\n"
+        f"  Quick Assets = {money(cash)} + {money(mkt)} + {money(ar)} = {money(quick_assets)}\n"
+        f"  Quick Ratio = {money(quick_assets)} ÷ {money(cl)} = {quick_ratio:.2f}\n\n"
+        "Step 3: Amount needed to meet the minimum Quick Ratio\n"
+        f"  Required Quick Assets = {target:.2f} × {money(cl)} = {money(required_quick_assets)}\n"
+        f"  Additional cash/marketable securities needed = {money(required_quick_assets)} − {money(quick_assets)} = {money(additional_needed)}"
+        + (" (already compliant; need $0.00)" if additional_needed == Decimal("0.00") else "")
     )
 
     return question, solution
 
-
-def main():
+def generate_templates(output_file: str, num_instances: int):
     """
-    Generate 10 instances of each template with different random seeds
+    Generate instances of each template with different random seeds
     and write the results to a JSON file.
     """
-    import json
-
-    # List of template functions
     templates = [
         template_current_ratio_simple,
-        template_quick_ratio,
-        template_both_ratios,
-        template_quick_ratio_scenario,
-        template_liquidity_minimum_quick_ratio,
+        template_quick_ratio_simple,
+        template_both_ratios_intermediate,
+        template_quick_ratio_reach_target_intermediate,
+        template_liquidity_minimum_quick_ratio_advanced,
     ]
-
-    # List to store all generated problems
+    
     all_problems = []
-
-    # Generate 10 problems for each template
+    
     for template_func in templates:
-        id = template_func.__doc__.split(':')[0].strip()
-        level = template_func.__doc__.split(':')[1].strip()
-
-        for i in range(10):
-            # Generate a unique seed for each problem
+        doc_parts = template_func.__doc__.split(':')
+        id, level = doc_parts[0].strip(), doc_parts[1].strip()
+        
+        for i in range(num_instances):
             seed = random.randint(1000000000, 4000000000)
             random.seed(seed)
-
-            # Generate the problem and solution
+            
             question, solution = template_func()
-
-            # Create a JSON entry
+            
             problem_entry = {
                 "seed": seed,
                 "id": id,
                 "level": level,
                 "question": question,
-                "solution": solution,
+                "solution": solution
             }
-
-            # Add to the list of problems
+            
             all_problems.append(problem_entry)
-
-            # Reset the random seed
+            
             random.seed()
-
+    
     random.shuffle(all_problems)
-    # Write all problems to a .jsonl file
-    output_file = "../../testset/financial_ratios/liqratio.jsonl"
+
     with open(output_file, "w") as file:
         for problem in all_problems:
             file.write(json.dumps(problem))
             file.write("\n")
+    
+    print(f"Successfully generated {len(all_problems)} problems and saved to {output_file}")
 
-    print(
-        f"Successfully generated {len(all_problems)} problems and saved to {output_file}"
-    )
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Generate liquidity ratio problems.")
+    parser.add_argument("--output_file", type=str, default="liqratio_problems.jsonl", help="Output JSONL file path.")
+    parser.add_argument("--num_instances", type=int, default=10, help="Number of instances to generate per template.")
+    args = parser.parse_args()
+    
+    generate_templates(args.output_file, args.num_instances)

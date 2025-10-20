@@ -7,194 +7,204 @@ company_names = ["Apple", "Google", "Microsoft", "Amazon", "Tesla", "Facebook", 
 
 # ------------------------------------------------------------------
 # Basic Scenario 1: Cash Payment Calculation in a Deal Structure
-def basic_cash_payment_calculation():
+def template_cash_payment_calculation():
     """1:Basic: Cash Payment Calculation in a Deal Structure"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    total_deal = random.randint(50, 200)  # Total deal value in million dollars
-    cash_percent = random.randint(30, 70)  # Cash payment percentage
-    question = (
-        f"{investor} is acquiring {company} for ${total_deal} million. The deal is structured so that "
-        f"{cash_percent}% of the payment is made in cash while the rest is in stock. "
-        f"Calculate the cash component of the deal."
-    )
-    # Step 1: Calculate cash payment = total_deal * (cash_percent / 100)
+    total_deal = random.randint(50, 200)            # in million dollars
+    cash_percent = random.randint(30, 70)           # %
+    
+    # Compute cash component (rounded to 2 dp for display)
     cash_payment = round(total_deal * cash_percent / 100, 2)
+
+    question = (
+        f"{investor} is acquiring {company} for ${total_deal} million. "
+        f"The deal stipulates that {cash_percent}% of the consideration is paid in cash, "
+        f"with the remainder in stock. Calculate the cash component of the deal."
+    )
+
     solution = (
-        f"Step 1: Identify the total deal value and cash percentage:\n"
-        f"  Total Deal Value = ${total_deal} million\n"
-        f"  Cash Percentage = {cash_percent}%\n\n"
-        f"Step 2: Calculate the cash payment:\n"
-        f"  Cash Payment = Total Deal Value × (Cash Percentage / 100)\n"
-        f"               = {total_deal} × ({cash_percent} / 100) = {cash_payment} million dollars"
+        f"Step 1: Identify key figures:\n"
+        f"  Total Deal Value = ${total_deal:.2f} million\n"
+        f"  Cash Percentage  = {cash_percent}%\n\n"
+        f"Step 2: Compute the cash payment:\n"
+        f"  Cash Payment = ${total_deal:.2f} × ({cash_percent}/100)\n"
+        f"               = ${cash_payment:.2f} million"
     )
     return question, solution
 
 # ------------------------------------------------------------------
 # Basic Scenario 2: Stock Swap Calculation in a Deal Structure
-def basic_stock_swap_calculation():
+def template_stock_swap_calculation():
     """2:Basic: Stock Swap Calculation in a Deal Structure"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    total_deal = round(random.uniform(10, 50), 2)  # Total deal value in million dollars
-    share_price = round(random.uniform(0.5, 5.0), 2)  # Share price (in million dollars per share)
-    question = (
-        f"{investor} is acquiring {company} in a stock swap deal valued at ${total_deal} million. "
-        f"If each share is valued at ${share_price} million, how many shares will be issued?"
-    )
-    # Step 1: Calculate shares = total_deal / share_price
+    total_deal = round(random.uniform(10, 50), 2)   # in million dollars
+    share_price = round(random.uniform(0.5, 5.0), 2)  # in million dollars per share
+    
+    # Compute number of shares (rounded to 2 dp for display)
     shares = round(total_deal / share_price, 2)
+
+    question = (
+        f"{investor} is acquiring {company} in a stock‑swap deal valued at "
+        f"${total_deal:.2f} million. If each share is valued at "
+        f"${share_price:.2f} million, how many shares will be issued?"
+    )
+
     solution = (
-        f"Step 1: Identify the deal value and share price:\n"
-        f"  Total Deal Value = ${total_deal} million\n"
-        f"  Share Price = ${share_price} million per share\n\n"
-        f"Step 2: Compute the number of shares issued:\n"
-        f"  Shares Issued = Total Deal Value / Share Price\n"
-        f"                = {total_deal} / {share_price} = {shares} shares"
+        f"Step 1: Identify key figures:\n"
+        f"  Total Deal Value = ${total_deal:.2f} million\n"
+        f"  Share Price      = ${share_price:.2f} million per share\n\n"
+        f"Step 2: Compute the shares to issue:\n"
+        f"  Shares Issued = ${total_deal:.2f} / ${share_price:.2f}\n"
+        f"                = {shares:.2f} shares"
     )
     return question, solution
+
+
 
 # ------------------------------------------------------------------
 # Intermediate Scenario 1: Earnout Payment with Revenue Bonus Calculation
-def intermediate_earnout_with_bonus_calculation():
-    """3:Intermediate: Earnout Payment Calculation with Revenue Bonus in a Deal Structure"""
+def template_earnout_with_bonus_calculation():
+    """3:Intermediate: Earnout Payment Calculation with Revenue Bonus in a Deal Structure (money shown with $ and 2‑dp)"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    base_price = random.randint(20, 100)           # Base price in million dollars
-    earnout_max = random.randint(5, 20)              # Maximum earnout in million dollars
-    target_revenue = random.randint(50, 150)         # Target revenue in million dollars
-    # Set actual revenue between the target and up to 130% of the target
-    actual_revenue = random.randint(target_revenue, int(target_revenue * 1.30))
-    bonus_rate = round(random.uniform(0.05, 0.20), 2)  # Bonus rate: additional % (in decimal)
-    max_bonus = random.randint(2, 10)                # Maximum bonus in million dollars
-    
+
+    base_price    = random.randint(20, 100)                      # $ million
+    earnout_max   = random.randint(5, 20)                        # $ million
+    target_rev    = random.randint(50, 150)                      # $ million
+    actual_rev    = random.randint(target_rev, int(target_rev*1.30))
+    bonus_rate    = round(random.uniform(0.05, 0.20), 2)         # decimal
+    max_bonus     = random.randint(2, 10)                        # $ million
+
     question = (
-        f"{investor} acquired {company} for a base price of ${base_price} million. The deal includes an earnout clause "
-        f"that pays up to ${earnout_max} million if {company} meets a target revenue of ${target_revenue} million. "
-        f"If {company} achieves an actual revenue of ${actual_revenue} million, the earnout is prorated. Moreover, "
-        f"if the actual revenue exceeds 110% of the target, an additional bonus is paid at a rate of {bonus_rate*100:.0f}% "
-        f"on the excess revenue, capped at ${max_bonus} million. Calculate the total deal value (base price plus total earnout)."
+        f"{investor} acquired {company} for a base price of ${base_price:.2f} million. "
+        f"The deal includes an earn‑out of up to ${earnout_max:.2f} million if "
+        f"{company} meets a revenue target of ${target_rev:.2f} million. "
+        f"With actual revenue of ${actual_rev:.2f} million, the earn‑out is prorated. "
+        f"If actual revenue exceeds 110 % of target, an extra bonus equal to "
+        f"{bonus_rate*100:.0f}% of the excess revenue is paid, capped at "
+        f"${max_bonus:.2f} million. Calculate the total deal value (base price plus total earn‑out)."
     )
-    # Step 1: Calculate basic prorated earnout
-    earnout_basic = round(earnout_max * actual_revenue / target_revenue, 2)
-    # Step 2: Determine bonus threshold (110% of target revenue)
-    bonus_threshold = round(1.10 * target_revenue, 2)
-    # Step 3: Compute bonus (if actual_revenue exceeds bonus_threshold)
-    bonus_unclipped = round((actual_revenue - bonus_threshold) * bonus_rate, 2) if actual_revenue > bonus_threshold else 0
-    bonus = min(bonus_unclipped, max_bonus)
-    # Step 4: Total earnout is sum of basic earnout and bonus
-    total_earnout = round(earnout_basic + bonus, 2)
-    # Step 5: Total deal value is base price plus total earnout
-    total_deal_value = round(base_price + total_earnout, 2)
+
+    # calculations (rounded once, at 2 dp)
+    earnout_basic   = round(earnout_max * actual_rev / target_rev, 2)
+    bonus_threshold = round(1.10 * target_rev, 2)
+    bonus_unclipped = round(max(0, actual_rev - bonus_threshold) * bonus_rate, 2)
+    bonus           = min(bonus_unclipped, max_bonus)
+    total_earnout   = round(earnout_basic + bonus, 2)
+    total_value     = round(base_price + total_earnout, 2)
+
     solution = (
-        f"Step 1: Compute the Basic Earnout Payment:\n"
-        f"  Basic Earnout = Earnout Max × (Actual Revenue / Target Revenue)\n"
-        f"                = {earnout_max} × ({actual_revenue} / {target_revenue}) = {earnout_basic} million dollars\n\n"
-        f"Step 2: Determine the Bonus Threshold:\n"
-        f"  Bonus Threshold = 110% of Target Revenue = 1.10 × {target_revenue} = {bonus_threshold} million dollars\n\n"
-        f"Step 3: Compute the Bonus Payment (if applicable):\n"
-        f"  Unclipped Bonus = (Actual Revenue - Bonus Threshold) × Bonus Rate\n"
-        f"                  = ({actual_revenue} - {bonus_threshold}) × {bonus_rate} = {bonus_unclipped} million dollars\n"
-        f"  Bonus = min(Unclipped Bonus, Maximum Bonus)\n"
-        f"        = min({bonus_unclipped}, {max_bonus}) = {bonus} million dollars\n\n"
-        f"Step 4: Total Earnout Payment = Basic Earnout + Bonus = {earnout_basic} + {bonus} = {total_earnout} million dollars\n\n"
-        f"Step 5: Total Deal Value = Base Price + Total Earnout\n"
-        f"          = {base_price} + {total_earnout} = {total_deal_value} million dollars"
+        f"Step 1  Basic earn‑out:\n"
+        f"  ${earnout_max:.2f} m × (${actual_rev:.2f} m / ${target_rev:.2f} m) "
+        f"= ${earnout_basic:.2f} m\n\n"
+        f"Step 2  Bonus threshold:\n"
+        f"  110 % × ${target_rev:.2f} m = ${bonus_threshold:.2f} m\n\n"
+        f"Step 3  Bonus:\n"
+        f"  Excess = max(0, ${actual_rev:.2f} m − ${bonus_threshold:.2f} m) = "
+        f"${max(0, actual_rev - bonus_threshold):.2f} m\n"
+        f"  Unclipped bonus = Excess × {bonus_rate:.2f} = ${bonus_unclipped:.2f} m\n"
+        f"  Bonus = min(Unclipped, cap ${max_bonus:.2f}) = ${bonus:.2f} m\n\n"
+        f"Step 4  Total earn‑out = ${earnout_basic:.2f} m + ${bonus:.2f} m = ${total_earnout:.2f} m\n\n"
+        f"Step 5  Total deal value = ${base_price:.2f} m + ${total_earnout:.2f} m = ${total_value:.2f} m"
     )
     return question, solution
+
 
 # ------------------------------------------------------------------
 # Intermediate Scenario 2: Adjusted Equity Shares Calculation in a Leveraged Buyout with Bonus Shares
-def intermediate_leveraged_buyout_adjusted_shares_calculation():
-    """4:Intermediate: Adjusted Equity Shares Calculation in a Leveraged Buyout with Bonus Shares for Low Share Price"""
+def template_leveraged_buyout_adjusted_shares_calculation():
+    """4:Intermediate: Adjusted Equity Shares in an LBO (money shown with $ and 2‑dp; conditional bonus text)"""
     investor = random.choice(investor_names)
-    company = random.choice(company_names)
-    total_deal = random.randint(50, 200)  # Total deal value in million dollars
-    debt_percent = random.randint(20, 60)   # Debt financing percentage
-    equity_percent = 100 - debt_percent     # Equity financing percentage
-    share_price = round(random.uniform(0.5, 5.0), 2)  # Share price (in million dollars per share)
-    # Define a threshold such that if share_price < threshold, bonus shares are added
-    threshold_value = 2.0
-    bonus_factor = 0.05  # Additional bonus shares equal to 5% of basic shares if condition met
-    
+    company  = random.choice(company_names)
+
+    total_deal     = random.randint(50, 200)             # $ million
+    debt_pct       = random.randint(20, 60)
+    equity_pct     = 100 - debt_pct
+    share_price    = round(random.uniform(0.5, 5.0), 2)  # $ million per share
+    threshold_val  = 2.00                                # $ million
+    bonus_factor   = 0.05
+
     question = (
-        f"In a leveraged buyout, {investor} acquires {company} for a total deal value of ${total_deal} million. "
-        f"The deal is financed with {debt_percent}% debt and the remaining {equity_percent}% is raised through equity. "
-        f"Equity is raised by issuing shares at a price of ${share_price} million per share. If the share price is below "
-        f"${threshold_value} million, an additional 5% bonus in shares is provided. Calculate the adjusted number of shares issued."
+        f"In a leveraged buyout, {investor} acquires {company} for ${total_deal:.2f} million. "
+        f"The deal uses {debt_pct}% debt and {equity_pct}% equity financing. "
+        f"Equity is raised by issuing shares at ${share_price:.2f} million per share. "
+        f"If the share price is below ${threshold_val:.2f} million, investors receive an additional "
+        f"5 % bonus in shares. Calculate the adjusted number of shares issued."
     )
-    # Step 1: Compute the equity value
-    equity_value = round(total_deal * equity_percent / 100, 2)
-    # Step 2: Compute basic number of shares (without bonus)
-    basic_shares = round(equity_value / share_price, 2)
-    # Step 3: Determine bonus shares if share_price < threshold_value
-    bonus_shares = round(basic_shares * bonus_factor, 2) if share_price < threshold_value else 0
-    # Step 4: Adjusted number of shares = basic shares + bonus shares
-    adjusted_shares = round(basic_shares + bonus_shares, 2)
+
+    equity_value  = round(total_deal * equity_pct / 100, 2)              # $ million
+    basic_shares  = round(equity_value / share_price, 2)
+    bonus_shares  = round(basic_shares * bonus_factor, 2) if share_price < threshold_val else 0.00
+    adj_shares    = round(basic_shares + bonus_shares, 2)
+
+    bonus_line = (
+        f"Since ${share_price:.2f} m < ${threshold_val:.2f} m, "
+        f"bonus shares = 5 % × {basic_shares:.2f} = {bonus_shares:.2f} shares"
+        if share_price < threshold_val
+        else f"Share price ≥ threshold, so bonus shares = 0"
+    )
+
     solution = (
-        f"Step 1: Compute the Equity Value:\n"
-        f"  Equity Value = Total Deal Value × (Equity Percentage / 100)\n"
-        f"               = {total_deal} × ({equity_percent} / 100) = {equity_value} million dollars\n\n"
-        f"Step 2: Compute the Basic Number of Shares:\n"
-        f"  Basic Shares = Equity Value / Share Price\n"
-        f"               = {equity_value} / {share_price} = {basic_shares} shares\n\n"
-        f"Step 3: Determine Bonus Shares:\n"
-        f"  Since Share Price ({share_price}) < Threshold (${threshold_value}), bonus shares = 5% of basic shares\n"
-        f"              = {basic_shares} × {bonus_factor} = {bonus_shares} shares\n\n"
-        f"Step 4: Adjusted Number of Shares = Basic Shares + Bonus Shares\n"
-        f"              = {basic_shares} + {bonus_shares} = {adjusted_shares} shares"
+        f"Step 1  Equity raised:\n"
+        f"  ${total_deal:.2f} m × {equity_pct}% = ${equity_value:.2f} m\n\n"
+        f"Step 2  Basic shares:\n"
+        f"  ${equity_value:.2f} m / ${share_price:.2f} m per share = {basic_shares:.2f} shares\n\n"
+        f"Step 3  Bonus shares:\n"
+        f"  {bonus_line}\n\n"
+        f"Step 4  Adjusted shares issued = {basic_shares:.2f} + {bonus_shares:.2f} = {adj_shares:.2f} shares"
     )
     return question, solution
 
+
 # ------------------------------------------------------------------
 # Advanced Scenario: Multi-step Calculation Involving Control Premium, Debt, and Earnout
-def advanced_control_premium_debt_earnout_calculation():
-    """5:Advanced: Multi-step Deal Structure with Control Premium, Earnout, and Debt Financing"""
+def template_control_premium_debt_earnout_calculation():
+    """5 : Advanced – Control premium, earn‑out, debt financing (asks for equity value only)."""
     investor = random.choice(investor_names)
-    company = random.choice(company_names)
-    base_price = random.randint(50, 150)                  # Base price in million dollars
-    control_premium_percent = random.randint(10, 30)        # Control premium percentage
-    earnout_max = random.randint(5, 20)                     # Maximum earnout in million dollars
-    achievement_percent = random.randint(50, 100)           # Performance achievement percentage
-    debt_percent = random.randint(20, 50)                   # Percentage of deal financed with debt
+    company  = random.choice(company_names)
+
+    base_price              = round(random.uniform(50, 150), 2)   # $ million
+    control_premium_percent = random.randint(10, 30)              # %
+    earnout_max             = round(random.uniform(5, 20), 2)     # $ million
+    achievement_percent     = random.randint(50, 100)             # %
+    debt_percent            = random.randint(20, 50)              # %
+
+    # ---------- Question ----------
     question = (
-        f"{investor} is acquiring {company} with a multifaceted deal structure. The base price is ${base_price} million. "
-        f"A control premium of {control_premium_percent}% is applied to the base price. Additionally, there is an earnout clause "
-        f"that pays up to ${earnout_max} million, prorated by performance (currently at {achievement_percent}%). "
-        f"Finally, the deal is financed with {debt_percent}% debt. Calculate the following:\n"
-        f"  (a) The control premium amount.\n"
-        f"  (b) The prorated earnout payment.\n"
-        f"  (c) The total deal value (base price + control premium + earnout payment).\n"
-        f"  (d) The equity value after subtracting the debt financing."
+        f"{investor} is acquiring {company}. The base purchase price is "
+        f"${base_price:.2f} million. A control premium of {control_premium_percent}% applies. "
+        f"The deal also includes an earn‑out of up to ${earnout_max:.2f} million, "
+        f"prorated to actual performance (currently {achievement_percent}%). "
+        f"The total consideration will be funded with {debt_percent}% debt, the rest equity. "
+        f"What is the **equity value** (in $ million) that {investor} must contribute?"
     )
-    # Step 1: Compute the control premium amount
-    control_premium = round(base_price * control_premium_percent / 100, 2)
-    # Step 2: Compute the prorated earnout payment
-    prorated_earnout = round(earnout_max * achievement_percent / 100, 2)
-    # Step 3: Calculate the total deal value
+
+    # ---------- Calculations ----------
+    control_premium  = round(base_price * control_premium_percent / 100, 2)
+    prorated_earnout = round(earnout_max * achievement_percent   / 100, 2)
     total_deal_value = round(base_price + control_premium + prorated_earnout, 2)
-    # Step 4: Determine the debt financing amount
-    debt_amount = round(total_deal_value * debt_percent / 100, 2)
-    # Step 5: Calculate the equity value
-    equity_value = round(total_deal_value - debt_amount, 2)
+    debt_amount      = round(total_deal_value * debt_percent / 100, 2)
+    equity_value     = round(total_deal_value - debt_amount, 2)
+
+    # ---------- Solution ----------
     solution = (
-        f"Step 1: Compute the Control Premium Amount:\n"
-        f"  Control Premium = Base Price × (Control Premium % / 100)\n"
-        f"                  = {base_price} × ({control_premium_percent} / 100) = {control_premium} million dollars\n\n"
-        f"Step 2: Compute the Prorated Earnout Payment:\n"
-        f"  Prorated Earnout = Earnout Max × (Achievement % / 100)\n"
-        f"                   = {earnout_max} × ({achievement_percent} / 100) = {prorated_earnout} million dollars\n\n"
-        f"Step 3: Calculate the Total Deal Value:\n"
-        f"  Total Deal Value = Base Price + Control Premium + Prorated Earnout\n"
-        f"                   = {base_price} + {control_premium} + {prorated_earnout} = {total_deal_value} million dollars\n\n"
-        f"Step 4: Compute the Debt Amount:\n"
-        f"  Debt Amount = Total Deal Value × (Debt % / 100)\n"
-        f"              = {total_deal_value} × ({debt_percent} / 100) = {debt_amount} million dollars\n\n"
-        f"Step 5: Compute the Equity Value:\n"
-        f"  Equity Value = Total Deal Value - Debt Amount\n"
-        f"               = {total_deal_value} - {debt_amount} = {equity_value} million dollars"
+        f"Step 1 – Control premium:\n"
+        f"  ${base_price:.2f} × {control_premium_percent}% = ${control_premium:.2f} million\n\n"
+        f"Step 2 – Prorated earn‑out:\n"
+        f"  ${earnout_max:.2f} × {achievement_percent}% = ${prorated_earnout:.2f} million\n\n"
+        f"Step 3 – Total deal value:\n"
+        f"  ${base_price:.2f} + ${control_premium:.2f} + ${prorated_earnout:.2f}"
+        f" = ${total_deal_value:.2f} million\n\n"
+        f"Step 4 – Debt amount:\n"
+        f"  ${total_deal_value:.2f} × {debt_percent}% = ${debt_amount:.2f} million\n\n"
+        f"Step 5 – Equity value:\n"
+        f"  ${total_deal_value:.2f} − ${debt_amount:.2f} = **${equity_value:.2f} million**"
     )
+
     return question, solution
+
 
 # ------------------------------------------------------------------
 # Main method to generate problems and write to a JSONL file
@@ -204,11 +214,11 @@ def main():
     """
     # List of template functions
     templates = [
-        basic_cash_payment_calculation,             # Basic
-        basic_stock_swap_calculation,               # Basic
-        intermediate_earnout_with_bonus_calculation,  # Intermediate (Enhanced)
-        intermediate_leveraged_buyout_adjusted_shares_calculation,  # Intermediate (Enhanced)
-        advanced_control_premium_debt_earnout_calculation  # Advanced
+        template_cash_payment_calculation,             # Basic
+        template_stock_swap_calculation,               # Basic
+        template_earnout_with_bonus_calculation,  # Intermediate 
+        template_leveraged_buyout_adjusted_shares_calculation,  # Intermediate 
+        template_control_premium_debt_earnout_calculation  # Advanced
     ]
     
     # List to store all generated problems

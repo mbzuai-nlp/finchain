@@ -1,291 +1,267 @@
 import random
+import math
+import json
+import argparse
+import pathlib
 
-# Named entities for companies and industries
-company_names = ["Tesla Inc.", "Apple Inc.", "Amazon.com", "SpaceX", "Google LLC"]
-industry_names = ["automotive", "technology", "e-commerce", "aerospace", "internet services"]
+# ---------------------------
+# Helpers (formatting & draws)
+# ---------------------------
 
-# Template 1
+def _fmt_money(x: float) -> str:
+    return f"${x:,.2f}"
+
+def _fmt_pct(p: float) -> str:
+    return f"{p:.2f}%"
+
+def _years_left(current_age: int, retirement_age: int) -> int:
+    return max(1, retirement_age - current_age)
+
+# Optional: set a seed for reproducibility in testing
+# random.seed(42)
+
+# ---------------------------------------------------
+# EASY 1: Additional annual needed (NO investment returns)
+# ---------------------------------------------------
+
 def template_retirement_savings_simple():
-    """1:Basic: Creates a straightforward retirement savings problem where an individual 
-    needs to calculate additional annual savings needed to reach a target amount, 
-    considering current savings and years until retirement."""
+    """1:Easy:Additional annual savings needed to hit a target, assuming NO investment returns (pure arithmetic)."""
     person_name = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
     age = random.randint(30, 50)
     retirement_age = random.randint(60, 65)
-    years_left = retirement_age - age
-    target_savings = round(random.randint(5000000, 20000000),2)  # Target savings
-    current_savings = round(random.randint(500000, 5000000),2)  # Current savings
-    annual_savings = round(random.randint(100000, 500000),2)  # Current annual savings
-    total_savings_needed = round((target_savings - current_savings),2)
-    additional_savings_needed = round((total_savings_needed / years_left),2)
-    
+    years_left = _years_left(age, retirement_age)
+
+    target_savings = float(random.randint(2_000_000, 10_000_000))  # $
+    current_savings = float(random.randint(200_000, 1_500_000))    # $
+    annual_savings = float(random.randint(60_000, 250_000))        # $/year
+
+    # Correct logic: extra needed beyond current annual_savings each year
+    shortfall = max(0.0, target_savings - current_savings - annual_savings * years_left)
+    extra_annual_needed = shortfall / years_left
+
     question = (
-        f"{person_name}, aged {age}, plans to retire in {years_left} years. They aim to save ${target_savings} by the time they retire and currently have ${current_savings} saved. "
-        f"Assuming they save ${annual_savings} every year, how much more do they need to save annually to reach their retirement goal?"
+        f"{person_name}, aged {age}, plans to retire in {years_left} years with a goal of "
+        f"{_fmt_money(target_savings)}. They currently have {_fmt_money(current_savings)} and "
+        f"already save {_fmt_money(annual_savings)} at the end of each year. "
+        f"Assuming no investment returns, how much MORE do they need to save per year "
+        f"(in addition to the {_fmt_money(annual_savings)} they already save) to reach their goal?"
     )
-    
-    # Step 1: Calculate additional savings needed annually
+
     solution = (
-        f"Step 1: Calculate how much more needs to be saved annually:\n"
-        f"  Total Additional Savings Needed = ${target_savings} - ${current_savings} = ${total_savings_needed:.2f}\n"
-        f"  Additional Annual Savings Needed = ${total_savings_needed:.2f} / {years_left} = ${additional_savings_needed:.2f} per year"
+        "Step 1: Compute the shortfall after accounting for current contributions (no returns).\n"
+        f"  Shortfall S = Target − Current − (Annual × Years)\n"
+        f"               = {_fmt_money(target_savings)} − {_fmt_money(current_savings)} − "
+        f"({_fmt_money(annual_savings)} × {years_left}) = {_fmt_money(shortfall)}\n\n"
+        "Step 2: Spread the remaining shortfall evenly across the years.\n"
+        f"  Extra annual needed = S / Years = {_fmt_money(shortfall)} / {years_left} "
+        f"= {_fmt_money(extra_annual_needed)} per year"
     )
-    
+
     return question, solution
 
+# ---------------------------------------------------
+# EASY 2: Years needed to hit target (NO investment returns)
+# ---------------------------------------------------
 
-# Template 2
+def template_retirement_years_to_target_simple():
+    """2:Easy:Years required to hit a target with current savings and constant annual savings, assuming NO investment returns."""
+    person_name = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
+    age = random.randint(25, 45)
+
+    target_savings = float(random.randint(1_500_000, 6_000_000))  # $
+    current_savings = float(random.randint(100_000, 800_000))     # $
+    annual_savings = float(random.randint(80_000, 250_000))       # $/year
+
+    remaining = max(0.0, target_savings - current_savings)
+    if annual_savings <= 0:
+        years_needed = math.inf  # Safeguard; won't occur by construction
+    else:
+        years_needed = math.ceil(remaining / annual_savings)
+
+    question = (
+        f"{person_name}, aged {age}, currently has {_fmt_money(current_savings)} saved and can set aside "
+        f"{_fmt_money(annual_savings)} at the end of each year. Without assuming any investment returns, "
+        f"how many years will it take to reach {_fmt_money(target_savings)}?"
+    )
+
+    solution = (
+        "Step 1: Compute the remaining amount to reach the target.\n"
+        f"  Remaining R = Target − Current = {_fmt_money(target_savings)} − {_fmt_money(current_savings)} "
+        f"= {_fmt_money(remaining)}\n\n"
+        "Step 2: Divide by annual savings and round up to a whole year.\n"
+        f"  Years = ceil(R / Annual) = ceil({_fmt_money(remaining)} / {_fmt_money(annual_savings)}) = {years_needed} years"
+    )
+
+    return question, solution
+
+# ------------------------------------------------------------------
+# INTERMEDIATE 1: Future value with returns (current + contributions)
+# ------------------------------------------------------------------
+
 def template_retirement_investment_returns():
-    """2:Basic: Generates a retirement planning problem that incorporates investment 
-    returns, calculating future values of both current savings and ongoing contributions 
-    using compound interest formulas."""
+    """3:Intermediate:Future value at retirement with annual return r, combining (a) current savings growth and (b) end-of-year contributions (ordinary annuity)."""
     person_name = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
     current_age = random.randint(30, 50)
     retirement_age = random.randint(60, 65)
-    years_left = retirement_age - current_age
-    current_savings = round(random.randint(500000, 3000000),2)  # Current savings
-    annual_savings = round(random.randint(100000, 500000),2)  # Annual savings
-    investment_return_rate = round(random.uniform(4.0, 10.0),2)  # Expected return rate (%)
-    
-    future_value_of_current_savings = round((current_savings * (1 + investment_return_rate / 100) ** years_left),2)
-    future_value_of_savings = round((annual_savings * (((1 + investment_return_rate / 100) ** years_left - 1) / (investment_return_rate / 100))),2)
-    total_future_savings = round((future_value_of_current_savings + future_value_of_savings),2)
-    
+    years_left = _years_left(current_age, retirement_age)
+
+    current_savings = float(random.randint(300_000, 2_000_000))
+    annual_savings = float(random.randint(80_000, 300_000))
+    r_pct = round(random.uniform(4.0, 9.0), 2)        # %
+    r = r_pct / 100.0                                 # decimal
+
+    fv_current = current_savings * (1 + r) ** years_left
+    annuity_factor = ((1 + r) ** years_left - 1) / r
+    fv_contribs = annual_savings * annuity_factor
+    total_fv = fv_current + fv_contribs
+
     question = (
-        f"{person_name}, aged {current_age}, has saved ${current_savings} so far and plans to retire in {years_left} years. "
-        f"If they expect an average annual return of {investment_return_rate:.2f}% on their investments, how much will they have at retirement if they continue to save ${annual_savings} per year?"
+        f"{person_name}, aged {current_age}, has {_fmt_money(current_savings)} now and contributes "
+        f"{_fmt_money(annual_savings)} at the end of each year. If investments earn an average of {_fmt_pct(r_pct)} "
+        f"annually, how much will {person_name} have in {years_left} years at retirement?"
     )
-    # Step 1: Calculate future value of current savings
-    # Step 2: Calculate future value of additional savings
+
     solution = (
-        f"Step 1: Calculate the future value of current savings:\n"
-        f"  Future Value (Current Savings) = ${current_savings} × (1 + {investment_return_rate:.2f}%)^{years_left} = ${future_value_of_current_savings:.2f}\n\n"
-        f"Step 2: Calculate the future value of additional savings:\n"
-        f"  Future Value (Additional Savings) = ${annual_savings} × [(1 + {investment_return_rate:.2f}%)^{years_left} - 1] / {investment_return_rate:.2f}% = ${future_value_of_savings:.2f}\n\n"
-        f"  Total Savings at Retirement = ${future_value_of_current_savings:.2f} + ${future_value_of_savings:.2f} = ${total_future_savings:.2f}"
+        "Step 1: Define the annual return as a decimal.\n"
+        f"  r = {_fmt_pct(r_pct)} = {r:.4f}\n\n"
+        "Step 2: Grow the current balance to retirement.\n"
+        f"  FV(current) = Current × (1 + r)^n = {_fmt_money(current_savings)} × (1 + {r:.4f})^{years_left} "
+        f"= {_fmt_money(fv_current)}\n\n"
+        "Step 3: Future value of end-of-year contributions (ordinary annuity).\n"
+        f"  AF = ((1 + r)^n − 1) / r = ((1 + {r:.4f})^{years_left} − 1) / {r:.4f}\n"
+        f"  FV(contribs) = Annual × AF = {_fmt_money(annual_savings)} × AF = {_fmt_money(fv_contribs)}\n\n"
+        "Step 4: Total future value.\n"
+        f"  Total FV = FV(current) + FV(contribs) = {_fmt_money(fv_current)} + {_fmt_money(fv_contribs)} "
+        f"= {_fmt_money(total_fv)}"
     )
+
     return question, solution
 
-# Template 3
+# ---------------------------------------------------------
+# INTERMEDIATE 2: Inflation adjustment of a real target
+# ---------------------------------------------------------
+
 def template_retirement_inflation_adjustment():
-    """3:Intermediate: Creates a retirement planning scenario that factors in inflation, 
-    calculating how much future savings are needed to maintain the purchasing power 
-    of a target amount in today's terms."""
+    """4:Intermediate:Convert a target expressed in today's dollars into the nominal amount needed at retirement using inflation g."""
     person_name = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
     current_age = random.randint(30, 50)
     retirement_age = random.randint(60, 65)
-    years_left = retirement_age - current_age
-    target_savings_in_today_terms = round(random.randint(5000000, 20000000),2)  # Savings target in today's terms
-    inflation_rate = round(random.uniform(2.0, 5.0),2)  # Annual inflation rate (%)
-    
-    future_savings_needed = round((target_savings_in_today_terms * (1 + inflation_rate / 100) ** years_left),2)
-    
+    years_left = _years_left(current_age, retirement_age)
+
+    target_today = float(random.randint(2_500_000, 12_000_000))
+    g_pct = round(random.uniform(2.0, 5.0), 2)
+    g = g_pct / 100.0
+
+    nominal_needed = target_today * (1 + g) ** years_left
+
     question = (
-        f"{person_name}, aged {current_age}, plans to retire in {years_left} years and wants to have ${target_savings_in_today_terms} in today’s terms. "
-        f"Assuming an annual inflation rate of {inflation_rate:.2f}%, how much will they actually need to save by the time they retire to match the purchasing power of ${target_savings_in_today_terms}?"
+        f"{person_name}, aged {current_age}, wants {_fmt_money(target_today)} in today’s purchasing power. "
+        f"If retirement is in {years_left} years and inflation averages {_fmt_pct(g_pct)} per year, "
+        f"what nominal amount will be needed at retirement to match {_fmt_money(target_today)} today?"
     )
-    # Step 1: Calculate future value of savings required after adjusting for inflation
+
     solution = (
-        f"Step 1: Adjust the target savings for inflation:\n"
-        f"  Future Value of Target Savings = ${target_savings_in_today_terms} × (1 + {inflation_rate:.2f}%)^{years_left} = ${future_savings_needed:.2f}"
+        "Step 1: Express inflation as a decimal.\n"
+        f"  g = {_fmt_pct(g_pct)} = {g:.4f}\n\n"
+        "Step 2: Inflate today’s target to retirement.\n"
+        f"  Nominal needed = Target_today × (1 + g)^n "
+        f"= {_fmt_money(target_today)} × (1 + {g:.4f})^{years_left} = {_fmt_money(nominal_needed)}"
     )
+
     return question, solution
 
-# Template 4
-def template_retirement_shortfall():
-    """4:Intermediate: Generates a retirement planning problem where an individual must 
-    calculate additional annual savings needed to cover a shortfall between current 
-    savings trajectory and an updated retirement goal."""
-    person_name = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
-    current_age = random.randint(35, 50)
-    retirement_age = random.randint(60, 65)
-    years_left = retirement_age - current_age
-    current_savings = round(random.randint(500000, 3000000),2)  # Current savings
-    target_savings = round(random.randint(10000000, 30000000),2)  # New retirement goal
-    additional_savings_needed = round((target_savings - current_savings),2)
-    annual_savings = round(random.randint(100000, 500000),2)  # Current annual savings
-    annual_return_rate = round(random.uniform(4.0, 8.0),2)  # Expected annual return (%)
-    
-    # Step 1: Calculate future value of current savings
-    future_value_current_savings = round(current_savings * (1 + annual_return_rate / 100) ** years_left, 2)
-    
-    # Step 2: Calculate future value of current annual savings
-    future_value_annual_savings = round(
-        annual_savings * (((1 + annual_return_rate / 100) ** years_left - 1) / (annual_return_rate / 100)),
-        2
-    )
-    
-    # Step 3: Calculate total projected savings at retirement
-    total_projected_savings = round(future_value_current_savings + future_value_annual_savings, 2)
-    
-    # Step 4: Calculate the shortfall
-    shortfall = round(target_savings - total_projected_savings, 2)
-    
-    # Step 5: Calculate additional annual savings needed to cover the shortfall
-    if shortfall > 0:
-        additional_annual_savings = round(
-            shortfall / (((1 + annual_return_rate / 100) ** years_left - 1) / (annual_return_rate / 100)),
-            2
-        )
-    else:
-        additional_annual_savings = 0  # No additional savings needed
-    
-    question = (
-        f"{person_name}, aged {current_age}, has saved ${current_savings} so far and currently saves ${annual_savings} annually. "
-        f"They aim to have ${target_savings} at retirement in {years_left} years. "
-        f"Assuming an annual investment return of {annual_return_rate:.2f}%, how much additional money will they need to save each year to meet their retirement goal?"
-    )
-    
-    solution = (
-        f"Step 1: Calculate the future value of current savings with investment returns:\n"
-        f"  Future Value of Current Savings = ${current_savings} × (1 + {annual_return_rate:.2f}%)^{years_left} = ${future_value_current_savings:.2f}\n\n"
-        
-        f"Step 2: Calculate the future value of current annual savings:\n"
-        f"  Future Value of Annual Savings = ${annual_savings} × [((1 + {annual_return_rate:.2f}%)^{years_left} - 1) / {annual_return_rate:.2f}%] = ${future_value_annual_savings:.2f}\n\n"
-        
-        f"Step 3: Calculate total projected savings at retirement:\n"
-        f"  Total Projected Savings = ${future_value_current_savings:.2f} + ${future_value_annual_savings:.2f} = ${total_projected_savings:.2f}\n\n"
-        
-        f"Step 4: Calculate the shortfall between the target and projected savings:\n"
-        f"  Shortfall = ${target_savings} - ${total_projected_savings:.2f} = ${shortfall:.2f}\n\n"
-    )
-    
-    if shortfall > 0:
-        solution += (
-            f"Step 5: Calculate the additional annual savings needed to cover the shortfall:\n"
-            f"  Additional Annual Savings = Shortfall / [((1 + r)^n - 1) / r]\n"
-            f"                           = ${shortfall:.2f} / [((1 + {annual_return_rate:.2f}%)^{years_left} - 1) / {annual_return_rate:.2f}%]\n"
-            f"                           = ${additional_annual_savings:.2f} per year"
-        )
-    else:
-        solution += (
-            f"Step 5: Since the projected savings (${total_projected_savings:.2f}) exceeds the target savings (${target_savings}),\n"
-            f"  no additional savings are required. The current savings plan is sufficient to meet or exceed the retirement goal."
-        )
-    
-    return question, solution
+# -------------------------------------------------------------------------
+# ADVANCED: Early retirement feasibility (pre/post returns + withdrawals)
+# -------------------------------------------------------------------------
 
-
-# Template 5
 def template_retirement_early():
-    """5:Advanced: Creates a complex early retirement scenario that considers multiple 
-    factors including current savings, future contributions, investment returns, 
-    annual withdrawals, and life expectancy to determine retirement feasibility."""
+    """5:Advanced:Early retirement feasibility. Pre-retirement growth at r_pre, contributions (ordinary annuity), then withdrawals for N years with post-retirement return r_post."""
     person_name = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
     current_age = random.randint(30, 50)
-    early_retirement_age = random.randint(50, 60)
-    years_until_retirement = early_retirement_age - current_age
-    current_savings = round(random.randint(500000, 3000000), 2)  # Current savings
-    annual_savings = round(random.randint(100000, 500000), 2)  # Annual savings until retirement
-    investment_return_rate = round(random.uniform(4.0, 8.0), 2)  # Expected annual return rate (%)
-    retirement_return_rate = round(investment_return_rate * 0.75, 2)  # More conservative return during retirement
-    annual_withdrawal = round(random.randint(300000, 1000000),2)  # Annual retirement withdrawal
-    life_expectancy = random.randint(75, 90)  # Life expectancy (years)
-    retirement_years = life_expectancy - early_retirement_age
+    early_retire_age = random.randint(max(current_age + 5, 50), 60)
+    years_until_ret = _years_left(current_age, early_retire_age)
 
-    # Step 1: Calculate the future value of current savings
-    future_value_of_current_savings = round((current_savings * (1 + investment_return_rate / 100) ** years_until_retirement),2)
+    current_savings = float(random.randint(400_000, 2_500_000))
+    annual_savings = float(random.randint(100_000, 350_000))
 
-    # Step 2: Calculate the future value of additional annual savings
-    future_value_of_savings = round((annual_savings * (((1 + investment_return_rate / 100) ** years_until_retirement - 1) / (investment_return_rate / 100))),2)
+    r_pre_pct = round(random.uniform(4.0, 8.0), 2)
+    r_pre = r_pre_pct / 100.0
 
-    # Step 3: Calculate the total retirement savings at early retirement
-    total_savings_at_retirement = round((future_value_of_current_savings + future_value_of_savings),2)
+    r_post_pct = round(max(1.0, r_pre_pct * 0.75), 2)  # conservative, at least 1%
+    r_post = r_post_pct / 100.0
 
-    # Step 4: Calculate if the total retirement savings will be enough for planned annual withdrawals
-    # Using the present value of an annuity formula to determine the capital needed for withdrawals
-    # PV = PMT × [1 - (1 + r)^-n] / r
-    capital_needed_for_withdrawals = round(
-        annual_withdrawal * (1 - (1 + retirement_return_rate / 100) ** -retirement_years) / (retirement_return_rate / 100),
-        2
-    )
-    
-    # Step 5: Determine if there's a shortfall or surplus
-    shortfall_or_surplus = round((total_savings_at_retirement - capital_needed_for_withdrawals),2)
-    
-    # Step 6: Simulate year-by-year to verify (optional, for solution explanation)
-    remaining_balance = total_savings_at_retirement
-    years_sustainable = 0
-    
-    for year in range(1, retirement_years + 1):
-        # Apply withdrawal at the beginning of the year
-        remaining_balance -= annual_withdrawal
-        
-        if remaining_balance <= 0:
-            break
-            
-        # Apply investment returns for the year
-        remaining_balance = round(remaining_balance * (1 + retirement_return_rate / 100), 2)
-        years_sustainable += 1
+    annual_withdrawal = float(random.randint(250_000, 900_000))
+    life_expectancy = random.randint(max(early_retire_age + 15, 75), 90)
+    retirement_years = max(1, life_expectancy - early_retire_age)
+
+    # Future value at retirement
+    fv_current = current_savings * (1 + r_pre) ** years_until_ret
+    af_pre = ((1 + r_pre) ** years_until_ret - 1) / r_pre
+    fv_contribs = annual_savings * af_pre
+    total_at_retirement = fv_current + fv_contribs
+
+    # Capital required to fund withdrawals for retirement_years at r_post
+    # PV of ordinary annuity: W * [1 - (1 + r_post)^(-N)] / r_post
+    required_capital = annual_withdrawal * (1 - (1 + r_post) ** (-retirement_years)) / r_post
+    surplus = total_at_retirement - required_capital
 
     question = (
-        f"{person_name}, currently {current_age} years old, plans to retire early at age {early_retirement_age}. They currently have ${current_savings} saved and expect to save ${annual_savings} per year "
-        f"until retirement. Assuming an average annual return of {investment_return_rate:.2f}% on their investments before retirement and {retirement_return_rate:.2f}% during retirement, how much will they have at retirement, and will it be enough if they want to withdraw "
-        f"${annual_withdrawal} per year for the rest of their life (assumed life expectancy of {life_expectancy} years)?"
+        f"{person_name}, currently {current_age}, wants to retire at {early_retire_age}. "
+        f"They have {_fmt_money(current_savings)} now and can save {_fmt_money(annual_savings)} at the end of each year. "
+        f"Assume pre-retirement returns of {_fmt_pct(r_pre_pct)} and post-retirement returns of {_fmt_pct(r_post_pct)}. "
+        f"If they plan to withdraw {_fmt_money(annual_withdrawal)} each year for {retirement_years} years "
+        f"(life expectancy {life_expectancy}), will their savings be sufficient?"
     )
 
     solution = (
-        f"Step 1: Calculate the future value of current savings:\n"
-        f"  Future Value (Current Savings) = ${current_savings} × (1 + {investment_return_rate:.2f}%)^{years_until_retirement} = ${future_value_of_current_savings:.2f}\n\n"
-        f"Step 2: Calculate the future value of additional annual savings:\n"
-        f"  Future Value (Additional Savings) = ${annual_savings} × [(1 + {investment_return_rate:.2f}%)^{years_until_retirement} - 1] / {investment_return_rate:.2f}% = ${future_value_of_savings:.2f}\n\n"
-        f"Step 3: Calculate the total savings at retirement:\n"
-        f"  Total Savings at Retirement = ${future_value_of_current_savings:.2f} + ${future_value_of_savings:.2f} = ${total_savings_at_retirement:.2f}\n\n"
-        f"Step 4: Calculate the capital needed to sustain annual withdrawals of ${annual_withdrawal} for {retirement_years} years:\n"
-        f"  Using the present value of an annuity formula:\n"
-        f"  Capital Needed = Annual Withdrawal × [1 - (1 + r)^-n] / r\n"
-        f"                 = ${annual_withdrawal} × [1 - (1 + {retirement_return_rate:.2f}%)^-{retirement_years}] / {retirement_return_rate:.2f}%\n"
-        f"                 = ${capital_needed_for_withdrawals:.2f}\n\n"
-        f"Step 5: Determine if there's a shortfall or surplus:\n"
-        f"  Shortfall/Surplus = ${total_savings_at_retirement:.2f} - ${capital_needed_for_withdrawals:.2f} = ${shortfall_or_surplus:.2f}\n\n"
+        "Step 1: Convert returns to decimals.\n"
+        f"  r_pre = {_fmt_pct(r_pre_pct)} = {r_pre:.4f},  r_post = {_fmt_pct(r_post_pct)} = {r_post:.4f}\n\n"
+        "Step 2: Project savings to retirement.\n"
+        f"  FV(current) = {_fmt_money(current_savings)} × (1 + {r_pre:.4f})^{years_until_ret} = {_fmt_money(fv_current)}\n"
+        f"  AF_pre = ((1 + r_pre)^{years_until_ret} − 1) / r_pre\n"
+        f"  FV(contribs) = {_fmt_money(annual_savings)} × AF_pre = {_fmt_money(fv_contribs)}\n"
+        f"  Total at retirement = {_fmt_money(total_at_retirement)}\n\n"
+        "Step 3: Capital required for withdrawals (PV of annuity).\n"
+        f"  Required = W × [1 − (1 + r_post)^(-N)] / r_post\n"
+        f"           = {_fmt_money(annual_withdrawal)} × [1 − (1 + {r_post:.4f})^{-{retirement_years}}] / {r_post:.4f}\n"
+        f"           = {_fmt_money(required_capital)}\n\n"
+        "Step 4: Compare.\n"
+        f"  Surplus/Shortfall = Total − Required = {_fmt_money(total_at_retirement)} − {_fmt_money(required_capital)} "
+        f"= {_fmt_money(surplus)}\n\n"
+        + (
+            "Result: The plan is feasible with a projected surplus."
+            if surplus >= 0 else
+            "Result: The plan is NOT feasible as-is; consider higher savings, later retirement, lower withdrawals, or different asset mix."
+        )
     )
-    
-    if shortfall_or_surplus >= 0:
-        solution += (
-            f"The retirement plan is feasible. {person_name} will have enough savings to withdraw ${annual_withdrawal} "
-            f"per year until age {life_expectancy}, with a projected surplus of ${shortfall_or_surplus:.2f}."
-        )
-    else:
-        solution += (
-            f"The retirement plan is not feasible as currently structured. {person_name} will face a shortfall of ${-shortfall_or_surplus:.2f}. "
-            f"Options to consider include: increasing current savings, delaying retirement, reducing planned withdrawals, "
-            f"or seeking higher investment returns."
-        )
 
     return question, solution
 
-def main():
+def generate_templates(output_file: str, num_instances: int):
     """
-    Generate 10 instances of each template with different random seeds 
+    Generate instances of each template with different random seeds
     and write the results to a JSON file.
     """
-    import json
-    # List of template functions
     templates = [
         template_retirement_savings_simple,
+        template_retirement_years_to_target_simple,
         template_retirement_investment_returns,
         template_retirement_inflation_adjustment,
-        template_retirement_shortfall,
-        template_retirement_early
+        template_retirement_early,
     ]
     
-    # List to store all generated problems
     all_problems = []
     
-    # Generate 10 problems for each template
     for template_func in templates:
-        id = template_func.__doc__.split(':')[0].strip()
-        level = template_func.__doc__.split(':')[1].strip()
+        doc_parts = template_func.__doc__.split(':')
+        id, level = doc_parts[0].strip(), doc_parts[1].strip()
         
-        for i in range(10):
-            # Generate a unique seed for each problem
+        for i in range(num_instances):
             seed = random.randint(1000000000, 4000000000)
             random.seed(seed)
             
-            # Generate the problem and solution
             question, solution = template_func()
             
-            # Create a JSON entry
             problem_entry = {
                 "seed": seed,
                 "id": id,
@@ -294,15 +270,12 @@ def main():
                 "solution": solution
             }
             
-            # Add to the list of problems
             all_problems.append(problem_entry)
             
-            # Reset the random seed
             random.seed()
     
     random.shuffle(all_problems)
-    # Write all problems to a .jsonl file
-    output_file = "../../testset/personal_finance/saveretire.jsonl"
+
     with open(output_file, "w") as file:
         for problem in all_problems:
             file.write(json.dumps(problem))
@@ -311,4 +284,9 @@ def main():
     print(f"Successfully generated {len(all_problems)} problems and saved to {output_file}")
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description="Generate retirement savings problems.")
+    parser.add_argument("--output_file", type=str, default="saveretire_problems.jsonl", help="Output JSONL file path.")
+    parser.add_argument("--num_instances", type=int, default=10, help="Number of instances to generate per template.")
+    args = parser.parse_args()
+    
+    generate_templates(args.output_file, args.num_instances)

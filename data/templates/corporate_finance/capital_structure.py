@@ -1,268 +1,233 @@
 import random
 from misc import companies, currencies
 
-def basic_debt_to_equity_ratio():
+from decimal import Decimal, ROUND_HALF_UP
+import random
+
+def fmt_money(val):
+    return f"${val.quantize(Decimal('0.1'), ROUND_HALF_UP)}"
+
+def template_debt_to_equity_aggregate_debt():
     """
-    1:Basic: Calculate the debt-to-equity ratio given the total debt and total equity for a company.
-
-    Generate a question and solution for calculating a company's debt-to-equity ratio.
-    This function randomly selects a company, currency and monetary values to create a
-    financial analysis problem involving debt-to-equity ratio calculation.
-
-    The debt-to-equity ratio is calculated as (Total Liabilities / Shareholders' Equity)
-
-    Returns:
-        tuple: A pair of strings containing:
-            - question (str): A word problem describing a company's debt and equity values
-            - solution (str): Step-by-step solution showing debt-to-equity ratio calculation
+    1:Basic: Calculate debt-to-equity ratio given short-term and long-term debt, and equity.
+    Capital-structure scenario with two reasoning steps:
+      1. Aggregate short-term and long-term debt.
+      2. Compute debt-to-equity ratio.
     """
+    company, industry = random.choice(companies)
+    multiplier = random.choice(["million", "billion"])
 
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
-    currency = random.choice(currencies)
+    # Generate numbers as Decimals for precise rounding
+    st_debt = Decimal(random.randint(50, 50000)) / 100   # short-term debt
+    lt_debt = Decimal(random.randint(50, 50000)) / 100   # long-term debt
+    equity  = Decimal(random.randint(100, 100000)) / 100
 
+    question = (
+        f"{company}, a company in the {industry} sector, reports:\n"
+        f"- Short-term debt: {fmt_money(st_debt)} {multiplier}\n"
+        f"- Long-term debt: {fmt_money(lt_debt)} {multiplier}\n"
+        f"- Shareholders' equity: {fmt_money(equity)} {multiplier}\n\n"
+        "Calculate the debt-to-equity ratio (round to two decimal places)."
+    )
 
-    money_multiplier = "million" if random.choice([True, False]) else "billion"
+    total_debt = st_debt + lt_debt
+    ratio = (total_debt / equity).quantize(Decimal('0.01'), ROUND_HALF_UP)
 
-    total_debt = random.randint(100, 100000)/100
-    total_equity = random.randint(100, 100000)/100
-
-    question = f'''{company_name}, a leading company in the {industry} sector, has recently released its financial statements. According to the balance sheet:
-
-        - The company's total liabilities (debt) amount to {currency}{total_debt} {money_multiplier}.
-        - The total shareholder equity is valued at {currency}{total_equity} {money_multiplier}.
-        Based on this information, calculate the debt-to-equity ratio for {company_name}.'''
-
-    debt_to_equity_ratio = total_debt / total_equity
-    solution = f'''Step 1: Calculate the Debt-to-Equity Ratio using the formula:\nDebt-to-Equity Ratio = Total Liabilities / Shareholders' Equity\n                      = {total_debt} / {total_equity} = {debt_to_equity_ratio:.2f}'''
+    solution = (
+        "Step 1: Compute total liabilities (short-term + long-term).\n"
+        f"        = {fmt_money(st_debt)} {multiplier} + "
+        f"{fmt_money(lt_debt)} {multiplier} = {fmt_money(total_debt)} {multiplier}\n"
+        "Step 2: Debt-to-Equity = Total Liabilities ÷ Shareholders’ Equity.\n"
+        f"        = {fmt_money(total_debt)} {multiplier} ÷ "
+        f"{fmt_money(equity)} {multiplier} = {ratio}"
+    )
 
     return question, solution
 
-def basic_debt_to_equity_ratio_different_multiplier():
+def template_debt_to_equity_after_buyback():
     """
-    2:Basic: Calculate debt-to-equity ratio given the total debt and total equity but in different units.
-
-    Generate a question and solution for calculating debt-to-equity ratio with different unit multipliers.
-    This function creates a financial problem involving debt-to-equity ratio calculation where
-    the debt and equity values are given in different units (millions vs billions). It randomly 
-    selects a company, currency, and generates appropriate financial values.
-    Returns:
-        tuple: A tuple containing two strings:
-            - question (str): A word problem describing a company's financial situation with 
-              debt and equity values in different units
-            - solution (str): Detailed step-by-step solution showing:
-                1. Unit conversion to make values comparable
-                2. Final debt-to-equity ratio calculation
+    2:Basic: Calculate debt-to-equity ratio after a share buy-back.
+    Capital-structure scenario with two reasoning steps:
+      1. Adjust equity for a share buy-back.
+      2. Compute debt-to-equity ratio using adjusted equity.
     """
+    company, industry = random.choice(companies)
+    multiplier = random.choice(["million", "billion"])
 
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
-    currency = random.choice(currencies)
+    debt      = Decimal(random.randint(100, 100000)) / 100  # total liabilities
+    equity    = Decimal(random.randint(100, 100000)) / 100  # pre-buy-back equity
+    buyback   = Decimal(random.randint(10, 5000)) / 100     # cash used for buy-back
 
+    question = (
+        f"{company}, operating in the {industry} sector, announces:\n"
+        f"- Total liabilities: {fmt_money(debt)} {multiplier}\n"
+        f"- Shareholders' equity (before buy-back): {fmt_money(equity)} {multiplier}\n"
+        f"- It repurchased shares for {fmt_money(buyback)} {multiplier} in cash.\n\n"
+        "After the buy-back, what is the debt-to-equity ratio (round to two decimal places)?"
+    )
 
-    money_multipliers = ["milllion", "billion"]
-    mm_1 = random.choice(money_multipliers)
-    mm_2 = "billion" if mm_1 == "million" else "million"
+    adj_equity = equity - buyback
+    ratio = (debt / adj_equity).quantize(Decimal('0.01'), ROUND_HALF_UP)
 
-    total_debt = random.randint(10, 1000000)/100
-    total_equity = random.randint(10, 1000000)/100
-
-    question = f'''{company_name}, a leading company in the {industry} sector, has recently released its financial statements. According to the balance sheet:
-
-        - The company's total liabilities (debt) amount to {currency}{total_debt} {mm_1}.
-        - The total shareholder equity is valued at {currency}{total_equity} {mm_2}.
-        Based on this information, calculate the debt-to-equity ratio for {company_name}.'''
-
-    debt_to_equity_ratio = (total_debt * (1000 if mm_1 == "billion" else 1)) / (total_equity *(1000 if mm_2 == "billion" else 1))
-    
-    solution_step_1 = f'''Step 1: Convert the total liabilities to the same unit as the total equity. Since the total liabilities are in {mm_1} {currency} and the total equity is in {mm_2} {currency}, we need to convert the {"total liabilities" if mm_1 == "billion" else "total debt"} to million {currency}:
-        Total Debt = {currency}{total_debt} {mm_1} {f"= {currency}{total_debt * 1000} million" if mm_1 == "billion" else ""}
-        Total Equity = {currency}{total_equity} {mm_2} {f"= {currency}{total_equity * 1000} million" if mm_2 == "billion" else ""}'''
-        
-    solution_step_2 = f'''Step 2: Calculate the Debt-to-Equity Ratio using the formula:\nDebt-to-Equity Ratio = Total Liabilities / Shareholders' Equity\n                      = {currency}{total_debt} {mm_1}/ {currency}{total_equity} {mm_2} = {debt_to_equity_ratio:.2f}'''
-
-    solution = f"{solution_step_1}\n\n{solution_step_2}"
+    solution = (
+        "Step 1: Adjust equity for the cash buy-back.\n"
+        f"        Adjusted Equity = {fmt_money(equity)} {multiplier} − "
+        f"{fmt_money(buyback)} {multiplier} = {fmt_money(adj_equity)} {multiplier}\n"
+        "Step 2: Debt-to-Equity = Total Liabilities ÷ Adjusted Equity.\n"
+        f"        = {fmt_money(debt)} {multiplier} ÷ "
+        f"{fmt_money(adj_equity)} {multiplier} = {ratio}"
+    )
 
     return question, solution
 
-def intermediate_debt_to_equity_ratio_equity_long_short_debt():
+
+def template_debt_to_equity_after_asset_sale():
     """
-    3:Intermediate: Calculate debt-to-equity ratio given long / short term debt, shareholder equity and treasury stock.
-
-    Generates a financial problem and solution for calculating debt-to-equity ratio.
-    The function creates a scenario for a randomly selected company with given:
-    - Long-term debt
-    - Short-term debt
-    - Shareholder equity
-    The function calculates the debt-to-equity ratio using the formula:
-    Debt-to-Equity Ratio = Total Debt / Shareholder Equity
-    where Total Debt = Long-term Debt + Short-term Debt
-    Returns:
-        tuple: A tuple containing two strings:
-            - question (str): A problem statement with the company's financial data
-            - solution (str): A detailed step-by-step solution showing the calculation
-                             of the debt-to-equity ratio
+    3:Intermediate: Calculate debt-to-equity ratio after selling a non-core asset.
+    Three-step reasoning:
+      1. Find net sale proceeds.
+      2. Reduce total debt by those proceeds.
+      3. Compute the debt-to-equity ratio.
     """
+    company, industry = random.choice(companies)
+    unit = "million"   # keep everything in the same unit
 
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
-    currency = random.choice(currencies)
+    orig_debt = Decimal(random.randint(500, 50000)) / 100   # $m
+    equity    = Decimal(random.randint(500, 80000)) / 100
+    sale_price = Decimal(random.randint(100, 10000)) / 100
+    trans_cost = Decimal(random.randint(  5,   500)) / 100   # costs of the sale
 
+    question = (
+        f"{company}, operating in the {industry} sector, reports:\n"
+        f"- Total liabilities: {fmt_money(orig_debt)} {unit}\n"
+        f"- Shareholders' equity: {fmt_money(equity)} {unit}\n"
+        f"- It sells a non-core asset for {fmt_money(sale_price)} {unit}; "
+        f"transaction costs are {fmt_money(trans_cost)} {unit}.\n"
+        "All net proceeds are used immediately to repay debt.\n\n"
+        "After the sale, what is the debt-to-equity ratio (round to two decimals)?"
+    )
 
-    money_multiplier = "million" if random.choice([True, False]) else "billion"
+    # Step 1 – net proceeds
+    net_proceeds = sale_price - trans_cost
+    # Step 2 – adjust debt (cannot drop below zero)
+    adj_debt = max(orig_debt - net_proceeds, Decimal("0"))
+    # Step 3 – ratio
+    ratio = (adj_debt / equity).quantize(Decimal('0.01'), ROUND_HALF_UP)
 
-    long_debt = random.randint(10000, 10000000)/100
-    short_debt = random.randint(100, 100000)/100
-    shareholder_equity = random.randint(10000, 10000000)/100
-
-    question = f'''{company_name}, a leading company in the {industry} sector, has recently released its financial statements. According to the balance sheet:
-    
-        - The company's long-term debt amounts to {currency}{long_debt} {money_multiplier}.
-        - The company's short-term debt amounts to {currency}{short_debt} {money_multiplier}.
-        - The total shareholder equity is valued at {currency}{shareholder_equity} {money_multiplier}.
-        Based on this information, calculate the debt-to-equity ratio for {company_name}.'''
-
-    total_debt = long_debt + short_debt
-
-    debt_to_equity_ratio = total_debt / shareholder_equity
-
-    solution = f'''Step 1: Calculate the Total Debt and Total Equity:
-        Total Debt = Long-term Debt + Short-term Debt = {currency}{long_debt} {money_multiplier} + {currency}{short_debt} {money_multiplier} = {currency}{total_debt} {money_multiplier}
-        Total Equity = Shareholder Equity = {currency}{shareholder_equity} {money_multiplier}
-        Step 2: Calculate the Debt-to-Equity Ratio using the formula:
-        Debt-to-Equity Ratio = Total Debt / Total Equity
-        Debt-to-Equity Ratio = {currency}{total_debt} {money_multiplier} / {currency}{shareholder_equity} {money_multiplier} = {debt_to_equity_ratio:.2f}'''
+    solution = (
+        "Step 1  Net proceeds = Sale price − Transaction costs\n"
+        f"        = {fmt_money(sale_price)} − {fmt_money(trans_cost)} "
+        f"= {fmt_money(net_proceeds)} {unit}\n"
+        "Step 2  Adjusted Debt = max(Original Debt − Net proceeds, 0)\n"
+        f"        = max({fmt_money(orig_debt)} − {fmt_money(net_proceeds)}, 0) "
+        f"= {fmt_money(adj_debt)} {unit}\n"
+        "Step 3  Debt-to-Equity = Adjusted Debt ÷ Equity\n"
+        f"        = {fmt_money(adj_debt)} ÷ {fmt_money(equity)} "
+        f"= {ratio}"
+    )
 
     return question, solution
 
-def intermediate_debt_to_equity_ratio_treasury_stock_equity_long_short_debt():
+def template_debt_to_equity_bond_and_buyback():
     """
-    4:Intermediate: Calculate debt-to-equity ratio given long / short term debt, shareholder equity and treasury stock.
-
-    Generates a financial problem and solution for calculating debt-to-equity ratio considering treasury stock.
-    The function creates a scenario for a randomly selected company with given:
-    - Long-term debt
-    - Short-term debt
-    - Shareholder equity
-    - Treasury stock
-    The function calculates the debt-to-equity ratio using the formula:
-    Debt-to-Equity Ratio = Total Debt / (Shareholder Equity - Treasury Stock)
-    where Total Debt = Long-term Debt + Short-term Debt
-    Returns:
-        tuple: A tuple containing two strings:
-            - question (str): A problem statement with the company's financial data
-            - solution (str): A detailed step-by-step solution showing the calculation
-                             of the debt-to-equity ratio
+    4:Intermediate: Calculate debt-to-equity ratio after issuing new bonds and a share buy-back.
+    Three-step reasoning:
+      1. Add new bond issue to total debt.
+      2. Subtract buy-back cash from equity.
+      3. Compute the debt-to-equity ratio.
     """
+    company, industry = random.choice(companies)
+    unit = "million"
 
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
-    currency = random.choice(currencies)
+    debt      = Decimal(random.randint(800, 100000)) / 100   # $m
+    equity    = Decimal(random.randint(800, 120000)) / 100
+    new_bond  = Decimal(random.randint( 50,  30000)) / 100   # $m
+    buy_back  = Decimal(random.randint( 20,  20000)) / 100   # $m
 
+    question = (
+        f"{company}, active in the {industry} sector, reports:\n"
+        f"- Existing liabilities: {fmt_money(debt)} {unit}\n"
+        f"- Shareholders' equity: {fmt_money(equity)} {unit}\n"
+        f"- It will issue new bonds worth {fmt_money(new_bond)} {unit}.\n"
+        f"- It will repurchase shares for {fmt_money(buy_back)} {unit} in cash.\n\n"
+        "After completing both transactions, calculate the debt-to-equity ratio "
+        "(round to two decimals)."
+    )
 
-    money_multiplier = "million" if random.choice([True, False]) else "billion"
+    # Step 1 – adjust debt
+    new_debt = debt + new_bond
+    # Step 2 – adjust equity
+    new_equity = equity - buy_back
+    # Step 3 – ratio
+    ratio = (new_debt / new_equity).quantize(Decimal('0.01'), ROUND_HALF_UP)
 
-    long_debt = random.randint(10000, 10000000)/100
-    short_debt = random.randint(100, 100000)/100
-    shareholder_equity = random.randint(10000, 10000000)/100
-    treasury_stock = random.randint(100, 100000)/100
-
-    while treasury_stock > shareholder_equity:
-        treasury_stock = random.randint(100, 100000)/100
-
-    question = f'''{company_name}, a leading company in the {industry} sector, has recently released its financial statements. According to the balance sheet:
-    
-        - The company's long-term debt amounts to {currency}{long_debt} {money_multiplier}.
-        - The company's short-term debt amounts to {currency}{short_debt} {money_multiplier}.
-        - The total shareholder equity is valued at {currency}{shareholder_equity} {money_multiplier}.
-        - The company has {currency}{treasury_stock} {money_multiplier} in treasury stock.
-        Based on this information, calculate the debt-to-equity ratio for {company_name}.'''
-
-    total_debt = long_debt + short_debt
-    total_equity = shareholder_equity - treasury_stock
-
-    debt_to_equity_ratio = total_debt / total_equity
-
-    solution = f'''Step 1: Calculate the Total Debt and Total Equity:
-        Total Debt = Long-term Debt + Short-term Debt = {currency}{long_debt} {money_multiplier} + {currency}{short_debt} {money_multiplier} = {currency}{total_debt} {money_multiplier}
-        Total Equity = Shareholder Equity - Treasury Stock = {currency}{shareholder_equity} {money_multiplier} - {currency}{treasury_stock} {money_multiplier} = {currency}{total_equity} {money_multiplier}
-        Step 2: Calculate the Debt-to-Equity Ratio using the formula:
-        Debt-to-Equity Ratio = Total Debt / Total Equity
-        Debt-to-Equity Ratio = {currency}{total_debt} {money_multiplier} / {currency}{total_equity} {money_multiplier} = {debt_to_equity_ratio:.2f}'''
+    solution = (
+        "Step 1  Adjusted Debt = Existing Debt + New Bond Issue\n"
+        f"        = {fmt_money(debt)} + {fmt_money(new_bond)} "
+        f"= {fmt_money(new_debt)} {unit}\n"
+        "Step 2  Adjusted Equity = Existing Equity − Share Buy-Back\n"
+        f"        = {fmt_money(equity)} − {fmt_money(buy_back)} "
+        f"= {fmt_money(new_equity)} {unit}\n"
+        "Step 3  Debt-to-Equity = Adjusted Debt ÷ Adjusted Equity\n"
+        f"        = {fmt_money(new_debt)} ÷ {fmt_money(new_equity)} "
+        f"= {ratio}"
+    )
 
     return question, solution
 
-def advanced_debt_to_equity_ratio_target():
+
+def template_debt_to_equity_bond_repay_buyback():
     """
-    5:Advanced: Calculate the change in debt required to reach a target debt-to-equity ratio.
-
-    Generate a question and solution about adjusting a company's debt-to-equity ratio to meet a target ratio.
-    The function creates a scenario where a randomly selected company needs to either decrease debt
-    or increase equity to achieve a desired debt-to-equity ratio. It provides step-by-step calculations
-    for the required changes.
-    Returns:
-        tuple: A tuple containing two strings:
-            - question (str): A problem statement with company details and financial information
-            - solution (str): Detailed step-by-step solution showing calculations and required changes
+    5:Advanced: Calculate debt-to-equity ratio after issuing bonds, repaying debt, and a share buy-back.
+    Four-step reasoning:
+      1. Add bond issue to debt.
+      2. Subtract repayment from debt.
+      3. Subtract buy-back from equity.
+      4. Compute debt-to-equity ratio.
     """
+    company, industry = random.choice(companies)
+    unit = "million"
 
+    orig_debt   = Decimal(random.randint(800, 120000)) / 100   # $m
+    orig_equity = Decimal(random.randint(800, 120000)) / 100
+    new_bond    = Decimal(random.randint(50, 30000))  / 100
+    repayment   = Decimal(random.randint(20, 20000))  / 100
+    buyback     = Decimal(random.randint(20, 15000))  / 100
 
-    
-    company = random.choice(companies)
-    company_name = company[0]
-    industry = company[1]
-    currency = random.choice(currencies)
+    question = (
+        f"{company}, active in the {industry} sector, reports:\n"
+        f"- Existing liabilities: {fmt_money(orig_debt)} {unit}\n"
+        f"- Shareholders' equity: {fmt_money(orig_equity)} {unit}\n"
+        f"- It will issue new bonds worth {fmt_money(new_bond)} {unit}.\n"
+        f"- It will repay {fmt_money(repayment)} {unit} of existing debt.\n"
+        f"- It plans a share buy-back costing {fmt_money(buyback)} {unit}.\n\n"
+        "After all three actions, calculate the debt-to-equity ratio (round to two decimals)."
+    )
 
-    money_multiplier = "million" if random.choice([True, False]) else "billion"
+    # Step 1 – add bond issue
+    debt_step1 = orig_debt + new_bond
+    # Step 2 – subtract repayment
+    debt_step2 = debt_step1 - repayment
+    # Step 3 – adjust equity for buy-back
+    equity_adj = orig_equity - buyback
+    # Step 4 – ratio
+    ratio = (debt_step2 / equity_adj).quantize(Decimal('0.01'), ROUND_HALF_UP)
 
-    total_debt = random.randint(100, 100000) / 100
-    total_equity = random.randint(100, 100000) / 100
-    target_ratio = random.uniform(0.5, 2.0)
-
-    question = f'''{company_name}, a leading company in the {industry} sector, has recently released its financial statements. According to the balance sheet:
-
-        - The company's total liabilities (debt) amount to {currency}{total_debt} {money_multiplier}.
-        - The total shareholder equity is valued at {currency}{total_equity} {money_multiplier}.
-        - The target debt-to-equity ratio for the company is {target_ratio:.2f}.
-        Based on this information, determine whether the company needs to decrease its debt or increase its equity to reach the target debt-to-equity ratio. Calculate the required change.'''
-
-    current_ratio = total_debt / total_equity
-    if current_ratio > target_ratio:
-        required_debt = target_ratio * total_equity
-        change_needed = total_debt - required_debt
-        solution = f'''Step 1: Calculate the current Debt-to-Equity Ratio:
-        Current Debt-to-Equity Ratio = Total Liabilities / Shareholders' Equity = {currency}{total_debt} {money_multiplier} / {currency}{total_equity} {money_multiplier} = {current_ratio:.2f}
-
-        Step 2: Since the current ratio ({current_ratio:.2f}) is higher than the target ratio ({target_ratio:.2f}), the company needs to decrease its debt.
-
-        Step 3: Calculate the required debt to achieve the target ratio:
-        Required Debt = Target Ratio * Total Equity = {target_ratio:.2f} * {currency}{total_equity} {money_multiplier} = {currency}{required_debt:.2f} {money_multiplier}
-
-        Step 4: Calculate the change needed:
-        Change Needed = Total Debt - Required Debt = {currency}{total_debt} {money_multiplier} - {currency}{required_debt:.2f} {money_multiplier} = {currency}{change_needed:.2f} {money_multiplier}
-
-        Therefore, the company needs to decrease its debt by {currency}{change_needed:.2f} {money_multiplier} to reach the target debt-to-equity ratio of {target_ratio:.2f}.'''
-    else:
-        required_equity = total_debt / target_ratio
-        change_needed = required_equity - total_equity
-        solution = f'''Step 1: Calculate the current Debt-to-Equity Ratio:
-        Current Debt-to-Equity Ratio = Total Liabilities / Shareholders' Equity = {currency}{total_debt} {money_multiplier} / {currency}{total_equity} {money_multiplier} = {current_ratio:.2f}
-
-        Step 2: Since the current ratio ({current_ratio:.2f}) is lower than the target ratio ({target_ratio:.2f}), the company needs to increase its equity.
-
-        Step 3: Calculate the required equity to achieve the target ratio:
-        Required Equity = Total Debt / Target Ratio = {currency}{total_debt} {money_multiplier} / {target_ratio:.2f} = {currency}{required_equity:.2f} {money_multiplier}
-
-        Step 4: Calculate the change needed:
-        Change Needed = Required Equity - Total Equity = {currency}{required_equity:.2f} {money_multiplier} - {currency}{total_equity} {money_multiplier} = {currency}{change_needed:.2f} {money_multiplier}
-
-        Therefore, the company needs to increase its equity by {currency}{change_needed:.2f} {money_multiplier} to reach the target debt-to-equity ratio of {target_ratio:.2f}.'''
+    solution = (
+        "Step 1  Adjust debt for the new bond issue:\n"
+        f"        {fmt_money(orig_debt)} + {fmt_money(new_bond)} = {fmt_money(debt_step1)} {unit}\n"
+        "Step 2  Subtract the scheduled debt repayment:\n"
+        f"        {fmt_money(debt_step1)} − {fmt_money(repayment)} = {fmt_money(debt_step2)} {unit}\n"
+        "Step 3  Adjust equity for the share buy-back:\n"
+        f"        {fmt_money(orig_equity)} − {fmt_money(buyback)} = {fmt_money(equity_adj)} {unit}\n"
+        "Step 4  Debt-to-Equity = Adjusted Debt ÷ Adjusted Equity\n"
+        f"        = {fmt_money(debt_step2)} ÷ {fmt_money(equity_adj)} = {ratio}"
+    )
 
     return question, solution
+
+
+
 
 def main():
     """
@@ -272,11 +237,11 @@ def main():
     import json
     # List of template functions
     templates = [
-        basic_debt_to_equity_ratio,
-        basic_debt_to_equity_ratio_different_multiplier,
-        intermediate_debt_to_equity_ratio_equity_long_short_debt,
-        intermediate_debt_to_equity_ratio_treasury_stock_equity_long_short_debt,
-        advanced_debt_to_equity_ratio_target
+        template_debt_to_equity_aggregate_debt,
+        template_debt_to_equity_after_buyback,
+        template_debt_to_equity_after_asset_sale,
+        template_debt_to_equity_bond_and_buyback,
+        template_debt_to_equity_bond_repay_buyback,
     ]
     
     # List to store all generated problems

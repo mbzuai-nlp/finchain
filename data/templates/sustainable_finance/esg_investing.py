@@ -32,26 +32,31 @@ def template_esg_green_bond_yield():
     investor = random.choice(investor_names)
     company = random.choice(company_names)
     principal = random.randint(10000, 50000)  # Investment amount in dollars
-    rate = round(random.uniform(3, 7), 2)       # Annual yield in percent
+    rate = round(random.uniform(3, 7), 2)     # Annual yield in percent
     years = random.randint(1, 5)
+
+    # Question focuses on total interest (NOT including principal)
     question = (f"{investor} invested ${principal} in green bonds issued by {company}. "
                 f"The bonds offer a simple annual yield of {rate}% for {years} years. "
-                f"Calculate the total return from interest after {years} years (ignore compounding).")
+                f"Calculate the total interest earned after {years} years (ignore compounding).")
+
     # Step 1: Calculate the annual interest
     annual_interest = round(principal * rate / 100, 2)
+
     # Step 2: Compute the total interest earned over the years
     total_interest = round(annual_interest * years, 2)
-    total_return = principal + total_interest
+
+    # Solution matches the question (only total interest)
     solution = (f"Step 1: Compute the annual interest:\n"
-                f"  Annual Interest = Principal × (Rate/100) = {principal} × ({rate}/100) = {annual_interest}\n"
+                f"  Annual Interest = Principal × (Rate/100)\n"
+                f"                  = {principal} × ({rate}/100) = {annual_interest}\n"
                 f"Step 2: Compute the total interest over {years} years:\n"
-                f"  Total Interest = Annual Interest × Years = {annual_interest} × {years} = {total_interest}\n"
-                f"Step 3: Compute the total return:\n"
-                f"  Total Return = Principal + Total Interest = {principal} + {total_interest} = {total_return}")
+                f"  Total Interest = Annual Interest × Years\n"
+                f"                 = {annual_interest} × {years} = {total_interest}\n"
+                f"Therefore, the total interest earned after {years} years is ${total_interest}.")
+
     return question, solution
 
-# Intermediate Template 1:
-# Dual ESG Savings Calculation with Energy and Water Initiatives (4 steps)
 def template_esg_dual_savings():
     """3:Intermediate: Dual ESG Savings with Energy and Water Initiatives (4 steps)"""
     investor = random.choice(investor_names)
@@ -65,7 +70,7 @@ def template_esg_dual_savings():
     
     question = (
         f"{investor} implemented dual ESG initiatives at {company} to improve sustainability. "
-        f"The project reduced energy costs by ${monthly_energy_savings} per month and water consumption costs by "
+        f"The project reduced energy costs by ${monthly_energy_savings} per month and reduced water consumption costs by "
         f"${monthly_water_savings} per month. However, the project incurs an annual maintenance cost of "
         f"${annual_maintenance_cost} and qualifies for a government incentive of ${government_incentive} each year. "
         f"Calculate the net annual savings from the project."
@@ -143,7 +148,7 @@ def template_esg_multi_factor_synergy():
     """5:Advanced: Multi-Factor ESG Synergy Calculation with Tax Credits and Efficiency Gains"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    initial_cost = random.randint(50000, 200000)          # Initial investment cost
+    initial_cost = random.randint(50000, 200000)            # Initial investment cost
     monthly_energy_savings = random.randint(3000, 10000)    # Savings from energy efficiency per month
     annual_tax_credit = random.randint(10000, 30000)        # Annual tax credit in dollars
     operating_costs = random.randint(50000, 150000)         # Annual operating costs in dollars

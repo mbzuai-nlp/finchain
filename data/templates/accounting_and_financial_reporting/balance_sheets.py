@@ -31,12 +31,12 @@ def template_cash_accounts_payable():
     question = (
         f"{company_name} has ${cash} in cash and ${accounts_payable} in accounts payable. Calculate the net cash position "
         f"of the company after paying off all its accounts payable."
-    )
+    ).replace("$-", "-$")
 
     solution = (
         f"Step 1. Net Cash Position = Cash - Accounts Payable\n"
-        f"                          = {cash} - {accounts_payable} = ${net_cash}"
-    )
+        f"                          = ${cash} - ${accounts_payable} = ${net_cash}"
+    ).replace("$-", "-$")
 
     return question, solution
 
@@ -46,8 +46,8 @@ def template_balance_sheet_equation():
     2:Basic: Balance Sheet Equation
 
     Scenario:
-        A company’s financial position is assessed using the balance sheet equation.
-        Given the company’s assets and liabilities, the goal is to compute the equity 
+        A company's financial position is assessed using the balance sheet equation.
+        Given the company's assets and liabilities, the goal is to compute the equity 
         using the fundamental accounting equation: 
 
             Equity = Assets - Liabilities
@@ -64,149 +64,193 @@ def template_balance_sheet_equation():
 
     question = (
         f"{company_name} has ${assets} in assets and ${liabilities} in liabilities. Using the balance sheet equation, "
-        f"calculate the company’s equity."
-    )
+        f"calculate the company's equity."
+    ).replace("$-", "-$")
 
     solution = (
         f"Step 1. Equity = Assets - Liabilities\n"
-        f"               = {assets} - {liabilities} = ${equity}"
-    )
+        f"               = ${assets} - ${liabilities} = ${equity}"
+    ).replace("$-", "-$")
 
     return question, solution
 
 
 # Template 6 (intermediate)
-def template_inventory_valuation():
+def template_inventory_turnover_days():
     """
-    3:Intermediate: Inventory Valuation
+    3:Intermediate: Inventory Turnover Days
 
-    Scenario:
-        A company is evaluating its inventory using different valuation methods.
-        Given the starting inventory, purchases, and cost of goods sold (COGS) under 
-        FIFO, LIFO, and WAC methods, the goal is to compute the closing inventory 
-        using the formula:
-
-            Closing Inventory = Starting Inventory + Purchases - COGS
+    Scenario: A company's Inventory Turnover Days measures how quickly it sells and 
+        replaces its inventory over a period (usually a year). 
+        It reflects how many days, on average, items remain in stock before being sold.
+        This metric is especially useful in:
+            - Assessing operational efficiency
+            - Managing working capital
+            - Identifying slow-moving or overstocked inventory
 
     Returns:
         tuple: A tuple containing:
-            - str: A question asking to compute the closing inventory under different methods.
+            - str: A question asking to compute the inventory turnover days.
             - str: A step-by-step solution explaining the calculation.
     """
-    # Data generation
     company_name = random.choice(company_names)
-    inventory_start = random.randint(500, 1000)
-    purchases = random.randint(2000, 5000)
-    sales = random.randint(1500, 3000)
-    fifo_cogs = random.randint(1000, 2000)
-    lifo_cogs = fifo_cogs + random.randint(-200, 200)
-    wac_cogs = fifo_cogs + random.randint(-100, 100)
+    opening_inventory = random.randint(10000, 20000)
+    purchases = random.randint(20000, 40000)
+    closing_inventory = random.randint(10000, 25000)
+
+    average_inventory = round((opening_inventory + closing_inventory) / 2, 2)
+    cogs = opening_inventory + purchases - closing_inventory
+    turnover_ratio = round(cogs / average_inventory, 2)
+    turnover_days = round(365 / turnover_ratio, 2)
 
     question = (
-        f"{company_name} started the year with an inventory worth ${inventory_start}. Over the year, it made purchases worth "
-        f"${purchases} and sold goods costing ${sales} using different valuation methods. Under FIFO, the cost of goods sold "
-        f"was ${fifo_cogs}, under LIFO it was ${lifo_cogs}, and under WAC it was ${wac_cogs}. Calculate the closing inventory "
-        f"for each method."
-    )
+        f"{company_name} had an opening inventory of ${opening_inventory} and made purchases worth ${purchases} during the year. "
+        f"The closing inventory at year-end was ${closing_inventory}. Using this information, calculate the **Inventory Turnover Days**?"
+    ).replace("$-", "-$")
 
     solution = (
-        f"Using the formula: Closing Inventory = Starting Inventory + Purchases - COGS\n"
-        f"Step 1. FIFO: {inventory_start} + {purchases} - {fifo_cogs} = ${inventory_start + purchases - fifo_cogs}\n"
-        f"Step 2. LIFO: {inventory_start} + {purchases} - {lifo_cogs} = ${inventory_start + purchases - lifo_cogs}\n"
-        f"Step 3. WAC: {inventory_start} + {purchases} - {wac_cogs} = ${inventory_start + purchases - wac_cogs}"
-    )
+        f"Step 1: COGS = Opening Inventory + Purchases - Closing Inventory\n"
+        f"             = ${opening_inventory} + ${purchases} - ${closing_inventory} = ${cogs}\n\n"
+
+        f"Step 2: Average Inventory = (Opening Inventory + Closing Inventory) / 2\n"
+        f"                          = (${opening_inventory} + ${closing_inventory}) / 2 = ${average_inventory}\n\n"
+
+        f"Step 3: Inventory Turnover Ratio = COGS / Average Inventory = ${cogs} / ${average_inventory} = {turnover_ratio}\n"
+        f"        Inventory Turnover Days = 365 / Inventory Turnover Ratio = 365 / {turnover_ratio} = {turnover_days} days\n\n"
+    ).replace("$-", "-$")
 
     return question, solution
 
 # Template 7 (intermediate)
-def template_deferred_tax():
+def template_current_ratio_with_adjustment():
     """
-    4:Intermediate: Deferred Tax Calculation
-
+    4:Intermediate: Adjusted Current Ratio Calculation with Logical Dependency
+    
     Scenario:
-        A company reports a temporary difference between its tax base and 
-        carrying amount of an asset. Given the profit before tax, the temporary 
-        difference, and the tax rate, the goal is to compute the deferred tax 
-        asset/liability and the taxable profit using:
+    A company's liquidity is assessed using the current ratio:
+        Current Ratio = Current Assets / Current Liabilities
 
-            Taxable Profit = Profit Before Tax - Temporary Difference
-            Deferred Tax = Temporary Difference * Tax Rate
+    However, accounting standards require that any portion of a long-term liability 
+    that becomes due within the next 12 months must be reclassified as a current liability. 
+    This affects the company's liquidity position.
+
+    This problem tests conceptual understanding of liquidity metrics and the effect of reclassification 
+    on financial ratios.
 
     Returns:
         tuple: A tuple containing:
-            - str: A question asking to compute the deferred tax asset/liability and taxable profit.
+            - str: A question asking to compute the change in current ratio after an adjustment.
             - str: A step-by-step solution explaining the calculation.
     """
+
     company_name = random.choice(company_names)
-    profit_before_tax = random.randint(10000, 50000)
-    temporary_difference = random.randint(2000, 8000)
-    tax_rate = random.randint(20, 30) / 100
-    tax_base = profit_before_tax - temporary_difference
-    deferred_tax = temporary_difference * tax_rate
+    
+    current_assets = random.randint(80000, 150000)
+    current_liabilities = random.randint(30000, 70000)
+    long_term_loan = random.randint(20000, 50000)
+    reclassified_amount = random.choice([5000, 10000, 15000])  # reclassified to current
+
+    # Step 1
+    initial_ratio = round(current_assets / current_liabilities, 2)
+
+    # Step 2
+    adjusted_liabilities = current_liabilities + reclassified_amount
+
+    # Step 3
+    adjusted_ratio = round(current_assets / adjusted_liabilities, 2)
+    ratio_change = round(initial_ratio - adjusted_ratio, 2)
 
     question = (
-        f"{company_name} reported a profit before tax of ${profit_before_tax}. There was a temporary difference of "
-        f"${temporary_difference} between the tax base and the carrying amount of an asset. If the tax rate is "
-        f"{int(tax_rate * 100)}%, calculate the deferred tax asset or liability and the taxable profit."
-    )
+        f"{company_name} has current assets of ${current_assets} and current liabilities of ${current_liabilities}. "
+        f"It also holds a long-term loan of ${long_term_loan}, out of which ${reclassified_amount} becomes due within the next year "
+        f"and must be reclassified as a current liability. \n\n"
+        f"Determine the **change** in the current ratio."
+    ).replace("$-", "-$")
 
     solution = (
-        f"Step 1: Taxable profit = Profit Before Tax - Temporary Difference\n"
-        f"                       = {profit_before_tax} - {temporary_difference} = ${tax_base}\n"
-        f"Step 2: Deferred Tax = Temporary Difference * Tax Rate\n"
-        f"                     = {temporary_difference} * {tax_rate} = ${deferred_tax}"
-    )
+        f"Step 1: Original Current Ratio:\n"
+        f"        = Current Assets / Current Liabilities\n"
+        f"        = ${current_assets} / ${current_liabilities} = {initial_ratio}\n\n"
+
+        f"Step 2: Adjusted Current Liabilities = ${current_liabilities} + ${reclassified_amount} = ${adjusted_liabilities}\n\n"
+
+        f"Step 3: Adjusted Ratio = ${current_assets} / ${adjusted_liabilities} = {adjusted_ratio}\n"
+        f"        Change in ratio = {initial_ratio:.2f} - {adjusted_ratio:.2f} = {ratio_change}\n\n"
+    ).replace("$-", "-$")
 
     return question, solution
+
+
 
 # Template 15 (advanced)
 def template_business_combination():
     """
-    5:Advanced: Business Combination Analysis
-
-    Scenario:
-        A company acquires a controlling stake in another company. 
-        Given the purchase price, the net assets value, and the fair value of 
-        the non-controlling interest (NCI), the goal is to compute goodwill. 
-        Additionally, the net profit is allocated between the parent company 
-        and the NCI using:
-
-            Goodwill = Purchase Price + NCI Value - Net Assets Value
-            Parent’s Share of Net Profit = Net Profit * Parent’s Ownership Percentage
-            NCI’s Share of Net Profit = Net Profit * (1 - Parent’s Ownership Percentage)
+    5:Advanced: Business Combination Goodwill Computation
+    
+    Scenario: This template models a business combination where Company A acquires Company B. 
+    The acquisition involves paying cash and issuing shares as purchase consideration. 
+    Company B's identifiable assets and liabilities are valued at their fair values. 
+    The task is to calculate the goodwill arising from this acquisition, 
+    which represents the excess of the purchase consideration over the net identifiable assets acquired.
 
     Returns:
         tuple: A tuple containing:
-            - str: A question asking to compute goodwill, parent company's share of net profit, and NCI's share.
-            - str: A step-by-step solution explaining the calculations.
+            - str: A question asking to compute the goodwill arising from an acquisition.
+            - str: A step-by-step solution explaining the calculation.
     """
-    company_name1, company_name2 = random.sample(company_names, 2)
-    purchase_price = 20000000  # Price paid for the acquisition
-    net_assets_value = 15000000  # Fair value of the net assets
-    nci_value = 5000000  # Fair value of the non-controlling interest (NCI)
-    goodwill = purchase_price + nci_value - net_assets_value
-    net_profit = 2000000  # Net profit of the subsidiary
-    parent_share = 0.8  # Parent's ownership percentage
-    parent_profit_share = net_profit * parent_share
-    nci_profit_share = net_profit * (1 - parent_share)
+
+    company_a, company_b = random.sample(company_names, 2)
+
+    # Step 1 inputs
+    cash_paid = random.randint(200000, 600000)
+    shares_issued = random.randint(1000, 5000)
+    share_price = random.randint(100, 200)
+    total_consideration = cash_paid + (shares_issued * share_price)
+
+    # Step 2 inputs
+    land = random.randint(150000, 300000)
+    inventory = random.randint(80000, 150000)
+    patents = random.randint(60_000, 120000)
+    total_assets = land + inventory + patents
+
+    # Step 3 inputs
+    borrowings = random.randint(50000, 120000)
+    payables = random.randint(30000, 90000)
+    total_liabilities = borrowings + payables
+
+    # Step 4
+    net_assets = total_assets - total_liabilities
+
+    # Step 5
+    goodwill = total_consideration - net_assets
 
     question = (
-        f"{company_name1} acquires an 80% stake in {company_name2} for ${purchase_price}. The fair value of {company_name2}’s net identifiable assets "
-        f"is ${net_assets_value}, and the fair value of the non-controlling interest (NCI) is ${nci_value}. During the year, {company_name2} "
-        f"reported a net profit of ${net_profit}. Calculate the goodwill arising from the acquisition, the parent company’s share "
-        f"of net profit, and the share of net profit attributable to NCI."
-    )
+        f"{company_a} has acquired {company_b} in a business combination. To finance the acquisition, "
+        f"{company_a} paid ${cash_paid} in cash and issued {shares_issued} shares valued at ${share_price} each. "
+        f"The fair values of {company_b}'s identifiable assets include land worth ${land}, inventory worth ${inventory}, "
+        f"and patents valued at ${patents}. The assumed liabilities include borrowings of ${borrowings} and trade payables of ${payables}. "
+        f"Based on this information, compute the **goodwill** arising on the acquisition."
+    ).replace("$-", "-$")
 
     solution = (
-        f"Step 1. Goodwill = Purchase Price + NCI Value - Net Assets Value\n"
-        f"   = {purchase_price} + {nci_value} - {net_assets_value} = ${goodwill}\n"
-        f"Step 2. Parent Company’s Share of Net Profit = Net Profit * Parent’s Ownership Percentage\n"
-        f"   = {net_profit} * {parent_share} = ${parent_profit_share}\n"
-        f"Step 3. NCI’s Share of Net Profit = Net Profit * (1 - Parent’s Ownership Percentage)\n"
-        f"   = {net_profit} * {1 - parent_share} = ${nci_profit_share}"
-    )
+        f"Step 1: Total Consideration = Cash Paid + (Shares Issued × Share Price)\n"
+        f"                            = ${cash_paid} + ({shares_issued} × ${share_price}) = ${total_consideration}\n\n"
+
+        f"Step 2: Total Identifiable Assets = Land + Inventory + Patents\n"
+        f"                                  = ${land} + ${inventory} + ${patents} = ${total_assets}\n\n"
+
+        f"Step 3: Total Liabilities = Borrowings + Payables\n"
+        f"                          = ${borrowings} + ${payables} = ${total_liabilities}\n\n"
+
+        f"Step 4: Net Identifiable Assets = Total Assets - Total Liabilities\n"
+        f"                                = ${total_assets} - ${total_liabilities} = ${net_assets}\n\n"
+
+        f"Step 5: Goodwill = Total Consideration - Net Identifiable Assets\n"
+        f"                 = ${total_consideration} - ${net_assets} = ${goodwill}\n\n"
+    ).replace("$-", "-$")
 
     return question, solution
+
 
 
 def main():
@@ -219,8 +263,8 @@ def main():
     templates = [
         template_cash_accounts_payable,
         template_balance_sheet_equation,
-        template_inventory_valuation,
-        template_deferred_tax,
+        template_inventory_turnover_days,
+        template_current_ratio_with_adjustment,
         template_business_combination
     ]
     

@@ -6,38 +6,38 @@ import math   # used in some calculations
 # Data Pools
 ###############################################################################
 investor_names = ["Alice Wu", "Brad Johnson", "Carla Simmons", "Daniel Craig", "Eva Gonzalez"]
-robo_advisors = ["BetterWealth", "SmartInvest", "RoboMax", "WealthBot", "AlgoAdvisor"]
+robo_advisors  = ["BetterWealth", "SmartInvest", "RoboMax", "WealthBot", "AlgoAdvisor"]
 
 ###############################################################################
-# BASIC TEMPLATES (2 Steps)
+# BASIC TEMPLATES (2 steps, single numeric answer)
 ###############################################################################
 
 def template_ra_easy1():
     """
-    1:Basic: Advisory Fee on Portfolio Value
+    1:Basic: Net Portfolio Value After Advisory Fee (single answer)
     Variables:
       • Portfolio value (V)
       • Annual advisory fee rate (f)
-    Steps (2):
+    Steps (2):
       1) Fee = V × f
-      2) Net portfolio value after fee = V − Fee
+      2) Net portfolio value after fee = V − Fee  (answer)
     """
     investor = random.choice(investor_names)
     advisor  = random.choice(robo_advisors)
-    value = random.randint(5_000, 50_000)
-    fee_rate = round(random.uniform(0.0025, 0.01), 4)   # 0.25 %–1 %
+    value    = random.randint(5_000, 50_000)
+    fee_rate = round(random.uniform(0.0025, 0.01), 4)   # 0.25 %–1 %
 
-    fee = value * fee_rate
+    fee       = value * fee_rate
     net_value = value - fee
 
     question = (
         f"{investor} has ${value:,} managed by {advisor}, which charges an annual advisory fee "
-        f"of {fee_rate*100:.2f}%. What is the fee for the year, and what is the net value after the fee?"
+        f"of {fee_rate*100:.2f}%. What will the portfolio be worth **after** the fee is deducted?"
     )
 
     solution = (
-        f"Step 1: Fee = ${value:,} × {fee_rate:.4f} = ${fee:,.2f}\n\n"
-        f"Step 2: Net value = ${value:,} − ${fee:,.2f} = ${net_value:,.2f}"
+        f"Step 1: Fee = ${value:,} × {fee_rate:.4f} = ${fee:,.2f}\n\n"
+        f"Step 2 (answer): Net value = ${value:,} − ${fee:,.2f} = ${net_value:,.2f}"
     )
 
     return question, solution
@@ -45,88 +45,78 @@ def template_ra_easy1():
 
 def template_ra_easy2():
     """
-    2:Basic: One‑Year Return Net of Advisory Fee
+    2:Basic: One-Year Ending Value After Fee (single answer)
     Variables:
       • Portfolio value (V)
       • Gross return (g)
       • Advisory fee rate (f)
-    Steps (2):
-      1) Growth: V × (1 + g)
-      2) Subtract advisory fee = ending value × f
+    Steps (2):
+      1) Ending value before fee = V × (1 + g)
+      2) Ending value after fee = Ending value × (1 − f)  (answer)
     """
     investor = random.choice(investor_names)
     advisor  = random.choice(robo_advisors)
-    value = random.randint(10_000, 100_000)
-    gross_return = round(random.uniform(-0.05, 0.12), 3)   # −5 % to 12 %
-    fee_rate = round(random.uniform(0.003, 0.01), 4)
+    value        = random.randint(10_000, 100_000)
+    gross_return = round(random.uniform(-0.05, 0.12), 3)  # −5 % to 12 %
+    fee_rate     = round(random.uniform(0.003, 0.01), 4)
 
-    end_value_before_fee = value * (1 + gross_return)
-    fee = end_value_before_fee * fee_rate
-    end_value_after_fee = end_value_before_fee - fee
+    end_before_fee = value * (1 + gross_return)
+    end_after_fee  = end_before_fee * (1 - fee_rate)
 
     question = (
         f"{investor}'s portfolio at {advisor} is worth ${value:,}. Over the next year it earns a "
         f"gross return of {gross_return*100:.2f}%. {advisor} charges {fee_rate*100:.2f}% of assets as its fee. "
-        f"What will the portfolio be worth after fees?"
+        f"What will the portfolio be worth **after fees**?"
     )
 
     solution = (
-        f"Step 1: Ending value before fee = ${value:,} × (1 + {gross_return:.3f}) "
-        f"= ${end_value_before_fee:,.2f}\n\n"
-        f"Step 2: Fee = {fee_rate*100:.2f}% of ${end_value_before_fee:,.2f} = ${fee:,.2f}\n"
-        f"        Ending value after fee = ${end_value_before_fee:,.2f} − ${fee:,.2f} "
-        f"= ${end_value_after_fee:,.2f}"
+        f"Step 1: Ending value before fee = ${value:,} × (1 + {gross_return:.3f}) "
+        f"= ${end_before_fee:,.2f}\n\n"
+        f"Step 2 (answer): Ending value after fee = ${end_before_fee:,.2f} × (1 − {fee_rate:.4f}) "
+        f"= ${end_after_fee:,.2f}"
     )
 
     return question, solution
 
 ###############################################################################
-# INTERMEDIATE TEMPLATES (3 Steps)
+# INTERMEDIATE TEMPLATES (3 steps, single numeric answer)
 ###############################################################################
 
 def template_ra_medium1():
     """
-    3:Intermediate: Rebalancing to Target Allocation
+    3:Intermediate: Equity Trade Needed for Rebalance (single answer)
     Scenario:
-      • Two‑asset portfolio (Equities / Bonds)
+      • Two-asset portfolio (Equities / Bonds)
       • Current values given
       • Target allocation given
-    Steps (3):
+    Steps (3):
       1) Compute total portfolio value
-      2) Calculate target dollar amounts
-      3) Determine buy/sell amounts to rebalance
+      2) Calculate target equity dollar amount
+      3) Buy/sell amount of equities needed to hit target  (answer)
     """
     investor = random.choice(investor_names)
     advisor  = random.choice(robo_advisors)
     equities_val = random.randint(20_000, 60_000)
     bonds_val    = random.randint(10_000, 40_000)
-    target_equity_pct = random.choice([0.6, 0.7, 0.8])   # 60 %, 70 %, 80 %
+    target_equity_pct = random.choice([0.6, 0.7, 0.8])   # 60 %, 70 %, 80 %
 
-    total_val = equities_val + bonds_val
+    total_val        = equities_val + bonds_val
     target_equity_val = total_val * target_equity_pct
-    target_bond_val   = total_val - target_equity_val
-
-    rebalance_equity = target_equity_val - equities_val   # positive → buy, negative → sell
-    rebalance_bonds  = target_bond_val - bonds_val
+    equity_trade      = target_equity_val - equities_val  # +ve buy, −ve sell
 
     question = (
-        f"{investor}'s portfolio managed by {advisor} currently holds:\n"
-        f"  • Equities: ${equities_val:,}\n"
-        f"  • Bonds:    ${bonds_val:,}\n"
-        f"The target allocation is {target_equity_pct*100:.0f}% equities and "
-        f"{(1-target_equity_pct)*100:.0f}% bonds.\n"
-        f"How much of each asset should be bought or sold to rebalance exactly to the target?"
+        f"{investor}'s portfolio with {advisor} currently holds ${equities_val:,} in equities and "
+        f"${bonds_val:,} in bonds. The target allocation is {target_equity_pct*100:.0f}% equities. "
+        f"How many dollars of equities should be "
+        f"{'bought' if equity_trade>0 else 'sold'} to reach the target exactly?"
     )
 
     solution = (
-        f"Step 1: Total value = ${equities_val:,} + ${bonds_val:,} = ${total_val:,}\n\n"
-        f"Step 2: Targets → Equities = {target_equity_pct*100:.0f}% × ${total_val:,} "
-        f"= ${target_equity_val:,.2f}; Bonds = ${target_bond_val:,.2f}\n\n"
-        f"Step 3: Rebalance amounts:\n"
-        f"  • Equities: ${target_equity_val:,.2f} − ${equities_val:,} = "
-        f"{'Buy' if rebalance_equity>0 else 'Sell'} ${abs(rebalance_equity):,.2f}\n"
-        f"  • Bonds:    ${target_bond_val:,.2f} − ${bonds_val:,} = "
-        f"{'Buy' if rebalance_bonds>0 else 'Sell'} ${abs(rebalance_bonds):,.2f}"
+        f"Step 1: Total value = ${equities_val:,} + ${bonds_val:,} = ${total_val:,}\n\n"
+        f"Step 2: Target equity value = {target_equity_pct*100:.0f}% × ${total_val:,} "
+        f"= ${target_equity_val:,.2f}\n\n"
+        f"Step 3 (answer): Equity trade = ${target_equity_val:,.2f} − ${equities_val:,} "
+        f"= {'+' if equity_trade>=0 else '−'}${abs(equity_trade):,.2f}"
     )
 
     return question, solution
@@ -134,100 +124,86 @@ def template_ra_medium1():
 
 def template_ra_medium2():
     """
-    4:Intermediate: Projected Portfolio Value with Monthly Contributions
+    4:Intermediate: Projected Value with Monthly Contributions (single answer)
     Variables:
       • Monthly contribution (C)
       • Annual expected return (r)
-      • Number of years (t)
-      • Advisory fee (f) charged annually on ending balance
-    Steps (3):
-      1) Compute future value of an ordinary annuity with monthly compounding
-      2) Apply advisory fee for each year (approximate: one fee at end)
-      3) Report net projected value
+      • Years (t)
+      • Advisory fee (f)
+    Steps (3):
+      1) FV of ordinary annuity with monthly compounding
+      2) Fee at end = FV × f
+      3) Net projected value = FV − fee  (answer)
     """
     investor = random.choice(investor_names)
     advisor  = random.choice(robo_advisors)
     monthly_contrib = random.randint(200, 600)
-    years = random.choice([5, 10, 15])
-    annual_return = round(random.uniform(0.04, 0.08), 3)
-    fee_rate = round(random.uniform(0.0025, 0.0075), 4)  # 0.25 %–0.75 %
+    years           = random.choice([5, 10, 15])
+    annual_return   = round(random.uniform(0.04, 0.08), 3)
+    fee_rate        = round(random.uniform(0.0025, 0.0075), 4)  # 0.25 %–0.75 %
 
-    months = years * 12
-    monthly_rate = annual_return / 12
+    months        = years * 12
+    monthly_rate  = annual_return / 12
     fv_before_fee = monthly_contrib * (((1 + monthly_rate) ** months - 1) / monthly_rate)
-    net_value = fv_before_fee * (1 - fee_rate)  # one fee at the end for simplicity
+    net_value     = fv_before_fee * (1 - fee_rate)
 
     question = (
-        f"{investor} plans to contribute ${monthly_contrib} each month into a portfolio at {advisor} for "
-        f"{years} years. The expected annual return is {annual_return*100:.2f}% (compounded monthly). "
-        f"{advisor} charges an annual advisory fee of {fee_rate*100:.2f}% of assets. "
-        f"What is the projected portfolio value after fees at the end of {years} years?"
+        f"{investor} will contribute ${monthly_contrib} each month to {advisor} for {years} years. "
+        f"Expected return is {annual_return*100:.2f}% (compounded monthly) and the advisory fee is "
+        f"{fee_rate*100:.2f}% per year. What is the projected portfolio value "
+        f"**after fees** at the end of {years} years?"
     )
 
     solution = (
-        f"Step 1: Future value before fees (ordinary annuity, monthly compounding):\n"
-        f"        FV = C × [((1 + r)^n − 1) / r]\n"
-        f"        = ${monthly_contrib} × [((1 + {monthly_rate:.5f})^{months} − 1) / {monthly_rate:.5f}] "
-        f"= ${fv_before_fee:,.2f}\n\n"
-        f"Step 2: Advisory fee at end = {fee_rate*100:.2f}% × ${fv_before_fee:,.2f} "
-        f"= ${fv_before_fee*fee_rate:,.2f}\n\n"
-        f"Step 3: Net projected value = ${fv_before_fee:,.2f} − fee "
-        f"= ${net_value:,.2f}"
+        f"Step 1: FV before fees = ${monthly_contrib} × [((1 + {monthly_rate:.5f})^{months} − 1) / "
+        f"{monthly_rate:.5f}] = ${fv_before_fee:,.2f}\n\n"
+        f"Step 2: Fee = {fee_rate*100:.2f}% × ${fv_before_fee:,.2f} = ${fv_before_fee*fee_rate:,.2f}\n\n"
+        f"Step 3 (answer): Net projected value = ${fv_before_fee:,.2f} − fee = ${net_value:,.2f}"
     )
 
     return question, solution
 
 ###############################################################################
-# ADVANCED TEMPLATE (4 Steps)
+# ADVANCED TEMPLATE (4 steps, single numeric answer)
 ###############################################################################
 
 def template_ra_hard1():
     """
-    5:Advanced: Tax‑Loss Harvesting Impact
+    5:Advanced: Tax Savings from Tax-Loss Harvesting  (3 steps, single answer)
     Scenario:
-      • Investor holds an ETF purchased at cost basis B
-      • Current market value lower than basis
-      • Sells ETF, realises capital loss, immediately buys similar ETF
-      • Uses loss to offset ordinary income at marginal tax rate (m)
-    Steps (4):
-      1) Calculate realised loss
-      2) Compute tax savings = loss × m
-      3) Determine new cost basis (purchase price of replacement)
-      4) Summarise net economic benefit (tax savings) and unchanged market exposure
+      • Investor sells ETF at a loss and buys a similar one
+      • Loss offsets ordinary income at marginal tax rate (m)
+    Steps (3):
+      1) Realised capital loss
+      2) Apply marginal rate to find tax savings
+      3) State the tax savings amount   (answer)
     """
     investor = random.choice(investor_names)
     advisor  = random.choice(robo_advisors)
-    shares = random.randint(50, 200)
-    cost_basis = round(random.uniform(50, 120), 2)        # purchase price
-    current_price = round(cost_basis * random.uniform(0.6, 0.95), 2)  # lower price
-    marginal_rate = random.choice([0.22, 0.24, 0.32])     # 22 %, 24 %, 32 %
+    shares        = random.randint(50, 200)
+    cost_basis    = round(random.uniform(50, 120), 2)
+    current_price = round(cost_basis * random.uniform(0.60, 0.95), 2)
+    marginal_rate = random.choice([0.22, 0.24, 0.32])   # 22 %, 24 %, 32 %
 
-    realised_loss = (current_price - cost_basis) * shares
-    tax_savings = -realised_loss * marginal_rate          # loss is negative
-    new_basis = current_price                             # assume repurchase at market
+    realised_loss = (current_price - cost_basis) * shares      # negative number
+    tax_savings   = -realised_loss * marginal_rate             # positive
 
     question = (
-        f"{investor}'s robo‑advisor {advisor} recommends tax‑loss harvesting. "
-        f"The investor owns {shares} shares of ETF X bought at ${cost_basis:.2f} per share. "
-        f"The market price has fallen to ${current_price:.2f}. "
-        f"{investor}'s marginal income‑tax rate is {marginal_rate*100:.0f}%. "
-        f"1) What capital loss will be realised if the ETF is sold?\n"
-        f"2) How much tax can be saved this year?\n"
-        f"3) What is the cost basis of the replacement ETF after repurchase?\n"
-        f"4) Briefly explain the net benefit of this strategy."
+        f"{investor} owns {shares} shares of an ETF bought at ${cost_basis:.2f} each, now trading at "
+        f"${current_price:.2f}.  If the shares are sold to harvest the loss and {investor}'s marginal tax "
+        f"rate is {marginal_rate*100:.0f} %, how much tax can be saved this year?"
     )
 
     solution = (
-        f"Step 1: Realised loss = ({current_price:.2f} − {cost_basis:.2f}) × {shares} "
+        f"Step 1: Realised loss = ({current_price:.2f} − {cost_basis:.2f}) × {shares} "
         f"= ${realised_loss:,.2f}\n\n"
-        f"Step 2: Tax savings = −Loss × marginal rate "
-        f"= ${-realised_loss:,.2f} × {marginal_rate:.2f} = ${tax_savings:,.2f}\n\n"
-        f"Step 3: New cost basis equals repurchase price = ${new_basis:.2f} per share\n\n"
-        f"Step 4: The investor keeps market exposure (switches to a similar ETF) "
-        f"while pocketing ${tax_savings:,.2f} in tax savings, improving after‑tax returns."
+        f"Step 2: Tax savings = (−Loss) × marginal rate = "
+        f"${-realised_loss:,.2f} × {marginal_rate:.2f} = ${tax_savings:,.2f}\n\n"
+        f"Step 3 (answer): ${tax_savings:,.2f}"
     )
 
     return question, solution
+
 
 ###############################################################################
 # MAIN
@@ -235,7 +211,7 @@ def template_ra_hard1():
 
 def main():
     """
-    Generate 10 instances of each Robo‑Advisor template and save to JSONL.
+    Generate 10 instances of each Robo-Advisor template and save to JSONL.
     """
     templates = [
         template_ra_easy1,
@@ -247,7 +223,7 @@ def main():
 
     problems = []
     for template_func in templates:
-        id = template_func.__doc__.split(':')[0].strip()
+        id_   = template_func.__doc__.split(':')[0].strip()
         level = template_func.__doc__.split(':')[1].strip()
 
         for _ in range(10):
@@ -256,21 +232,21 @@ def main():
             q, a = template_func()
             problems.append({
                 "seed": seed,
+                "id": id_,
                 "level": level,
                 "question": q,
                 "solution": a
             })
-            random.seed()  # reset to system seed
+            random.seed()  # restore system RNG state
 
     random.shuffle(problems)
-
     outfile = "../../testset/fintech/robo_advisors.jsonl"
     with open(outfile, "w") as f:
         for p in problems:
             f.write(json.dumps(p))
             f.write("\n")
 
-    print(f"Successfully generated {len(problems)} problems and saved to {outfile}")
+    print(f"Successfully generated {len(problems)} problems → {outfile}")
 
 
 if __name__ == "__main__":

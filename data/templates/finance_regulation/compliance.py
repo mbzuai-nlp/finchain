@@ -8,26 +8,51 @@ company_names = [
 ]
 
 
-def aml_fine_calculation():
-    """1:Basic: Fine for non-compliance"""
+def template_compliance_basic_fine_calculation():
+    """1:Basic: Calculate total fine from multiple types of AML violations with tiered penalties"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    violations = random.randint(2, 5)
-    fine_per_violation = random.choice([50000, 75000, 100000])
+
+    # Different types of violations with different fine rates
+    violation_types = {
+        "Failure to file SARs": random.randint(1, 3),
+        "Structuring detection failure": random.randint(1, 2),
+        "Incomplete customer due diligence": random.randint(1, 3)
+    }
+
+    fine_rates = {
+        "Failure to file SARs": 100_000,
+        "Structuring detection failure": 75_000,
+        "Incomplete customer due diligence": 50_000
+    }
+
+    # Calculate total fine
+    fine_breakdown = []
+    total_fine = 0
+    for v_type, count in violation_types.items():
+        fine = count * fine_rates[v_type]
+        fine_breakdown.append(f"{count} × ${fine_rates[v_type]} for {v_type} = ${fine}")
+        total_fine += fine
+
     question = (
-        f"{company} was found to have {violations} AML violations. Each violation incurs a fine of ${fine_per_violation}. "
-        f"What is the total fine?"
+        f"{company} was found to have committed several types of AML violations:\n"
+        + "\n".join([f"  - {v_type}: {count} instance(s)" for v_type, count in violation_types.items()]) +
+        f"\nThe fine rates are:\n"
+        + "\n".join([f"  - {v_type}: ${fine_rates[v_type]} per violation" for v_type in fine_rates]) +
+        "\nWhat is the total fine?"
     )
-    total_fine = violations * fine_per_violation
+
     solution = (
-        f"Step 1: Multiply number of violations by fine per violation:\n"
-        f"  {violations} × ${fine_per_violation} = ${total_fine}\n"
-        f"Answer: Total fine = ${total_fine}"
+        "Step 1: Calculate fine for each violation type:\n" +
+        "\n".join([f"  - {line}" for line in fine_breakdown]) +
+        f"\nStep 2: Add all fines together:\n  Total fine = ${total_fine}"
     )
+
     return question, solution
 
 
-def compliance_risk_score():
+
+def template_compliance_basic_risk_score():
     """2:Basic: Risk score calculation"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
@@ -48,88 +73,203 @@ def compliance_risk_score():
     )
     return question, solution
 
-# def suspicious_transaction_flag():
-#     """Basic: Suspicious Transaction Flagging"""
-#     investor = random.choice(investor_names)
-#     company = random.choice(company_names)
-#     transactions = [random.randint(8000, 15000) for _ in range(4)]
-#     threshold = 10000
-#     flagged = [amt for amt in transactions if amt > threshold]
-#     question = (
-#         f"{company} flagged suspicious transactions above ${threshold}. "
-#         f"The amounts in a single day were: {transactions}. "
-#         f"Which transactions should be flagged?"
-#     )
-#     solution = (
-#         f"Step 1: Identify amounts above ${threshold}:\n"
-#         f"  Flagged: {flagged}\n"
-#         f"Answer: {len(flagged)} transaction(s) flagged: {flagged}"
-#     )
-#     return question, solution
 
+def template_compliance_intermediate_delayed_compliance_fine():
+    """3:Intermediate: Fine escalation with multiple delay types and tiered logic"""
 
-def delayed_compliance_fine():
-    """3:Intermediate: Fines with time escalation"""
     investor = random.choice(investor_names)
     company = random.choice(company_names)
     base_fine = 20000
-    delay_days = random.randint(3, 7)
-    fine_per_day = 5000
-    total_fine = base_fine + delay_days * fine_per_day
+
+    # Two types of delay
+    reporting_delay = random.randint(1, 5)
+    correction_delay = random.randint(0, 4)  # Optional second delay
+
+    # Define tiered rates for each
+    def fine_rate(days):
+        if days == 0:
+            return 0
+        elif days <= 2:
+            return random.randint(1000, 2000)
+        elif days <= 4:
+            return random.randint(3000, 5000)
+        else:
+            return random.randint(7000, 9000)
+
+    reporting_fine_per_day = fine_rate(reporting_delay)
+    correction_fine_per_day = fine_rate(correction_delay)
+
+    reporting_penalty = reporting_delay * reporting_fine_per_day
+    correction_penalty = correction_delay * correction_fine_per_day
+    total_penalty = base_fine + reporting_penalty + correction_penalty
+
+    # Optional administrative surcharge
+    admin_fee = 2500 if correction_delay > 0 else 0
+    total_due = total_penalty + admin_fee
+
     question = (
-        f"{company} was fined ${base_fine} for late AML reporting. Additionally, ${fine_per_day} is charged for each of the {delay_days} delay days. "
-        f"What is the total fine?"
+        f"{company} received a base AML fine of ${base_fine:,}.\n"
+        f"It submitted its AML report {reporting_delay} days late and corrected discrepancies {correction_delay} days after the notice.\n"
+        f"Penalty rates are tiered based on delay length:\n"
+        f"- Reporting delay penalty: ${reporting_fine_per_day:,}/day\n"
+        f"- Correction delay penalty: ${correction_fine_per_day:,}/day\n"
+        f"An additional administrative fee of ${admin_fee:,} applies {'due to correction delay' if admin_fee else 'since all corrections were timely'}.\n"
+        f"What is the total fine owed by {company}?"
     )
+
     solution = (
-        f"Step 1: Calculate additional fine = {delay_days} × ${fine_per_day} = ${delay_days * fine_per_day}\n"
-        f"Step 2: Total fine = ${base_fine} + additional = ${total_fine}\n"
-        f"Answer: ${total_fine}"
+        f"Step 1: Reporting penalty = {reporting_delay} × ${reporting_fine_per_day:,} = ${reporting_penalty:,}\n"
+        f"Step 2: Correction penalty = {correction_delay} × ${correction_fine_per_day:,} = ${correction_penalty:,}\n"
+        f"Step 3: Add base fine: ${base_fine:,} + penalties (${reporting_penalty:,} + ${correction_penalty:,}) = ${total_penalty:,}\n"
+        f"Step 4: Add administrative fee = ${admin_fee:,}\n"
+        f"Total Fine = ${total_due:,}"
     )
+
     return question, solution
+
+
 
 # Weighted risk of regions
-def regional_risk_weighted_score():
-    """4:Intermediate: Weighted risk of regions"""
+def template_compliance_intermediate_regional_risk_weighted_score():
+    """4:Intermediate: Compute weighted risk score and evaluate monitoring requirement"""
+
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    regions = ["North America", "Europe", "Asia"]
-    weights = [round(random.uniform(0.2, 0.5), 2) for _ in regions]
-    weights = [round(w / sum(weights), 2) for w in weights]
-    risks = [random.randint(3, 9) for _ in regions]
-    weighted_risk = round(sum(w * r for w, r in zip(weights, risks)), 2)
+
+    # Expanded region pool
+    region_pool = ["North America", "South America", "Europe", "Asia", "Africa", "Middle East", "Oceania"]
+    selected_regions = random.sample(region_pool, k=random.randint(4, 6))
+
+    # Random weights and normalization
+    raw_weights = [round(random.uniform(0.1, 0.6), 2) for _ in selected_regions]
+    weight_sum = sum(raw_weights)
+    weights = [round(w / weight_sum, 2) for w in raw_weights]
+    weights[-1] = round(1.0 - sum(weights[:-1]), 2)  # Ensure total = 1.0
+
+    # Assign risk scores to each region (1–10 scale)
+    risks = [random.randint(3, 10) for _ in selected_regions]
+    weighted_components = [round(w * r, 2) for w, r in zip(weights, risks)]
+    weighted_risk = round(sum(weighted_components), 2)
+
+    # Determine enhanced monitoring condition
+    enhanced_monitoring_required = weighted_risk > 6.5
+
+    # Determine if more than 30% of exposure is in high-risk regions (score ≥ 8)
+    high_risk_weights = [weights[i] for i in range(len(selected_regions)) if risks[i] >= 8]
+    high_risk_exposure = round(sum(high_risk_weights), 2)
+    high_exposure_triggered = high_risk_exposure > 0.3
+
+    # Final decision
+    needs_monitoring = enhanced_monitoring_required or high_exposure_triggered
+
     question = (
-        f"{company} evaluates compliance risk in three regions: {regions}. "
-        f"Assigned weights: {weights}, Risk scores: {risks}. "
-        f"What is the weighted average risk score?"
+        f"{company} is assessing its regional compliance risk exposure across the following regions:\n"
+        f"Regions: {', '.join(selected_regions)}\n"
+        f"Weights: {weights}\n"
+        f"Risk Scores: {risks}\n"
+        f"Determine:\n"
+        f"1. The weighted average risk score\n"
+        f"2. Whether enhanced monitoring is required based on the following rules:\n"
+        f"   - Weighted risk score > 6.5 → Enhanced monitoring\n"
+        f"   - If more than 30% of risk exposure is in regions with risk score ≥ 8 → Enhanced monitoring\n"
     )
-    solution = (
-        f"Step 1: Multiply weight × risk for each region:\n"
-        + "\n".join([f"  {w} × {r} = {round(w*r,2)}" for w, r in zip(weights, risks)]) + "\n"
-        f"Step 2: Sum all weighted risks: {weighted_risk}\n"
-        f"Answer: Weighted Risk Score = {weighted_risk}"
+
+    # Construct reasoning chain
+    step1 = "Step 1: Multiply weight × risk for each region:"
+    region_lines = [
+        f"  {selected_regions[i]}: {weights[i]} × {risks[i]} = {weighted_components[i]}"
+        for i in range(len(selected_regions))
+    ]
+
+    step2 = f"Step 2: Sum all weighted risks = {weighted_risk}"
+    step3 = f"Step 3: Weighted score {'exceeds' if enhanced_monitoring_required else 'does not exceed'} 6.5 → {'✓' if enhanced_monitoring_required else '✗'}"
+
+    step4 = (
+        f"Step 4: High-risk regions (score ≥ 8): Exposure = {high_risk_exposure:.2f} → "
+        f"{'✓ (over 30%)' if high_exposure_triggered else '✗ (not over 30%)'}"
     )
+
+    step5 = (
+        f"Final conclusion: {'Enhanced monitoring required' if needs_monitoring else 'Standard monitoring sufficient'}"
+    )
+
+    solution = "\n".join([step1] + region_lines + [step2, step3, step4, step5])
+
     return question, solution
 
 
-def composite_risk_rating():
-    """5:Advanced: Composite risk rating"""
+
+
+def template_compliance_advanced_composite_risk_rating():
+    """5:Advanced: Compute and interpret composite risk rating with exposure-based decision logic"""
+
     investor = random.choice(investor_names)
     company = random.choice(company_names)
-    categories = ["Customer", "Transaction", "Geography"]
-    scores = [random.randint(1, 5) for _ in categories]
-    weights = [0.4, 0.3, 0.3]
-    composite = round(sum(s * w for s, w in zip(scores, weights)), 2)
+
+    all_categories = [
+        "Customer", "Transaction", "Geography", "Product", "Delivery Channel", "Account Type"
+    ]
+    selected_categories = random.sample(all_categories, k=random.randint(4, 6))
+
+    scores = [random.randint(1, 5) for _ in selected_categories]
+    raw_weights = [round(random.uniform(0.1, 0.6), 2) for _ in selected_categories]
+    weight_sum = sum(raw_weights)
+    weights = [round(w / weight_sum, 2) for w in raw_weights]
+    weights[-1] = round(1.0 - sum(weights[:-1]), 2)
+
+    weighted_scores = [round(s * w, 2) for s, w, in zip(scores, weights)]
+    composite = round(sum(weighted_scores), 2)
+
+    # Tag risks and extract exposure info
+    risk_tags = []
+    high_risk_weight = 0
+    for score, weight in zip(scores, weights):
+        if score >= 4:
+            tag = "High"
+            high_risk_weight += weight
+        elif score == 3:
+            tag = "Medium"
+        else:
+            tag = "Low"
+        risk_tags.append(tag)
+
+    high_risk_exposure_pct = round(high_risk_weight * 100, 2)
+
+    # Threshold-based conclusion
+    composite_threshold = 3.5
+    high_risk_flag = composite >= composite_threshold or high_risk_weight > 0.5
+    final_rating = "High Risk" if high_risk_flag else "Moderate or Low Risk"
+
+    # Question prompt
     question = (
-        f"{investor} assigns risk scores to {company} as follows:\n"
-        f"  Customer Risk = {scores[0]}, Transaction Risk = {scores[1]}, Geography Risk = {scores[2]}\n"
-        f"With weights {weights}, what is the composite risk rating?"
+        f"{investor} has assessed {company}'s risk profile using the following criteria:\n\n"
+        + "Scores and weights:\n"
+        + "\n".join([
+            f"  {cat} Risk = {scores[i]} (weight: {weights[i]})"
+            for i, cat in enumerate(selected_categories)
+        ])
+        + "\n\nCompute the composite risk score and determine whether the customer should be classified as High Risk using the following rules:\n"
+        + "- Composite Score ≥ 3.5 → High Risk\n"
+        + "- OR: If over 50% of weight is allocated to categories with High individual risk (score ≥ 4)"
     )
-    solution = (
-        f"Step 1: Multiply scores by weights:\n"
-        + "\n".join([f"  {scores[i]} × {weights[i]} = {round(scores[i]*weights[i],2)}" for i in range(3)]) + "\n"
-        f"Step 2: Add all values = {composite}\n"
-        f"Answer: Composite Risk Rating = {composite}"
-    )
+
+    # Step-by-step solution
+    steps = []
+
+    steps.append("Step 1: Multiply score × weight for each dimension:")
+    for i in range(len(selected_categories)):
+        steps.append(f"  {selected_categories[i]}: {scores[i]} × {weights[i]} = {weighted_scores[i]} → {risk_tags[i]} Risk")
+
+    steps.append(f"\nStep 2: Sum of weighted scores = {composite}")
+    steps.append(f"Step 3: Composite threshold check → {composite} {'≥' if composite >= composite_threshold else '<'} {composite_threshold} → {'✓' if composite >= composite_threshold else '✗'}")
+
+    steps.append(f"Step 4: Weight in High-Risk dimensions = {high_risk_exposure_pct}%")
+    steps.append(f"Step 5: Exposure threshold check → {high_risk_exposure_pct}% {'>' if high_risk_exposure_pct > 50 else '<='} 50% → {'✓' if high_risk_exposure_pct > 50 else '✗'}")
+
+    steps.append("Final Risk Classification → " + final_rating)
+
+    solution = "\n".join(steps)
+
     return question, solution
 
 
@@ -145,11 +285,11 @@ def main():
 
     # List of template functions
     templates = [
-        aml_fine_calculation,
-        compliance_risk_score,
-        delayed_compliance_fine,
-        regional_risk_weighted_score,
-        composite_risk_rating
+        template_compliance_basic_fine_calculation,
+        template_compliance_basic_risk_score,
+        template_compliance_intermediate_delayed_compliance_fine,
+        template_compliance_intermediate_regional_risk_weighted_score,
+        template_compliance_advanced_composite_risk_rating
     ]
 
     # List to store all generated problems

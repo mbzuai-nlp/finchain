@@ -9,142 +9,256 @@ project_names = [
     "Facebook Metaverse", "Samsung Semiconductor Factory"
 ]
 
-# Template 1: IRR (Internal Rate of Return) for Single Cash Flow
-def template_irr_single_cash_flow():
-    """1:Basic: IRR for a single cash flow"""
-    investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    investment = random.randint(10000, 50000)  # Initial investment
-    cash_flow = random.randint(20000, 60000)   # Single cash flow after 1 year
-    question = (
-        f"{investor_name} invested ${investment} in {project_name}, which returns ${cash_flow} after 1 year. "
-        f"What is the IRR for {project_name}?"
-    )
-    irr = ((cash_flow / investment) - 1) * 100
-    solution = (
-        f"Step 1: Use the IRR formula for a single cash flow:\n"
-        f"  NPV = 0 = -Investment + Cash Flow / (1 + IRR)\n"
-        f"  Rearranging: IRR = (Cash Flow / Investment) - 1\n\n"
-        f"Step 2: Compute the IRR:\n"
-        f"  IRR = ({cash_flow} / {investment}) - 1 = {irr:.2f}%"
-    )
-    return question, solution
-
-# Template 2: IRR for Single Cash Flow (Multiple Years)
-def template_irr_single_cash_flow_multiple_years():
-    """2:Basic: IRR for a single cash flow over multiple years"""
-    investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    investment = random.randint(10000, 50000)  # Initial investment
-    cash_flow = random.randint(30000, 100000)  # Single cash flow
-    years = random.randint(2, 5)               # Number of years
-    question = (
-        f"{investor_name} invested ${investment} in {project_name}, which returns ${cash_flow} after {years} years. "
-        f"What is the IRR for {project_name}?"
-    )
-    irr = ((cash_flow / investment) ** (1 / years) - 1) * 100
-    solution = (
-        f"Step 1: Use the IRR formula for a single cash flow over multiple years:\n"
-        f"  NPV = 0 = -Investment + Cash Flow / (1 + IRR)^t\n"
-        f"  Rearranging: IRR = (Cash Flow / Investment)^(1/t) - 1\n\n"
-        f"Step 2: Compute the IRR:\n"
-        f"  IRR = ({cash_flow} / {investment})^(1/{years}) - 1 = {irr:.2f}%"
-    )
-    return question, solution
-
-# Template 3: IRR for Single Cash Flow with Additional Costs
-def template_irr_additional_costs():
-    """3:Intermediate: IRR for a single cash flow with additional costs"""
+# ------------------------------------------------------------------
+# Template 1: IRR with selling (exit) costs
+# ------------------------------------------------------------------
+def template_irr_net_sale_proceeds():
+    """
+    1: Basic: IRR where the year-1 inflow is a sale price minus selling costs.
+    Two reasoning steps:
+      1) Compute net proceeds.
+      2) Compute IRR from net proceeds and initial investment.
+    """
     investor_name = random.choice(investor_names)
     project_name  = random.choice(project_names)
 
-    investment        = random.randint(30_000, 70_000)   # t = 0 outflow
-    additional_cost   = random.randint(5_000, 15_000)    # t = 1 extra outflow
-    gross_cash_inflow = random.randint(40_000, 100_000)  # t = 1 inflow
+    investment   = random.randint(10_000, 50_000)
+    sale_price   = random.randint(20_000, 70_000)
+    sell_cost    = random.randint(500, 5_000)
 
-    net_cash_inflow = gross_cash_inflow - additional_cost  # what the investor actually receives
-    irr = (net_cash_inflow / investment - 1) * 100         # one-period IRR as a %
+    # Ensure positive net gain > investment so IRR is positive
+    # (Regenerate sale_price if needed.)
+    if sale_price - sell_cost <= investment:
+        sale_price = investment + sell_cost + random.randint(1_000, 20_000)
+
+    net_proceeds = sale_price - sell_cost
+    irr_ratio    = net_proceeds / investment - 1
+    irr_percent  = round(irr_ratio * 100, 2)
 
     question = (
-        f"{investor_name} invested ${investment:,} in {project_name}.\n"
-        f"One year later the project generated ${gross_cash_inflow:,}, "
-        f"but required an additional cost of ${additional_cost:,} before payout.\n"
-        f"What is the IRR for {project_name}?"
+        f"{investor_name} invested ${investment:,.0f} in {project_name}. "
+        f"After 1 year, the project is sold for ${sale_price:,.0f}, but ${sell_cost:,.0f} "
+        f"in selling costs must be paid. What is the internal rate of return (IRR)?"
     )
 
     solution = (
-        "Step 1  Compute the net cash inflow at t = 1:\n"
-        f"  Net Cash Inflow = Gross Cash Inflow − Additional Cost\n"
-        f"                  = {gross_cash_inflow:,} − {additional_cost:,}\n"
-        f"                  = {net_cash_inflow:,}\n\n"
-        "Step 2  Apply the one-period IRR formula (same as ROI for a single period):\n"
-        f"  IRR = (Net Cash Inflow ÷ Initial Investment) − 1\n"
-        f"      = ({net_cash_inflow:,} ÷ {investment:,}) − 1\n"
-        f"      = {net_cash_inflow / investment:.4f} − 1\n\n"
-        f"Step 3  Convert to a percentage:\n"
-        f"  IRR = {(irr):.2f}%"
+        "Step 1 (Compute net sale proceeds at Year 1):\n"
+        f"     Net Proceeds = ${sale_price:,.0f} - ${sell_cost:,.0f} = ${net_proceeds:,.0f}\n\n"
+        "Step 2 (Solve IRR for a 1-year investment):\n"
+        f"     IRR = (${net_proceeds:,.0f} ÷ ${investment:,.0f}) - 1 = {irr_ratio:.6f}\n\n"
+        f"Final: IRR = {irr_percent:.2f}%"
     )
 
     return question, solution
 
-# Template 4: IRR with Salvage Value and Multiple Cash Flows
-def template_irr_salvage_value():
-    """4:Intermediate: IRR with salvage value and multiple cash flows"""
+
+# ------------------------------------------------------------------
+# Template 2: IRR with after-tax proceeds on the gain
+# ------------------------------------------------------------------
+def template_irr_after_tax():
+    """
+    2: Basic: IRR where exit is taxed on the gain (sale - basis).
+    Two reasoning steps:
+      1) Compute after-tax cash flow (sale - tax_on_gain).
+      2) Compute IRR.
+    """
     investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    investment = random.randint(40000, 80000)  # Initial investment
-    cash_flows = [random.randint(10000, 20000), random.randint(10000, 20000)]  # Two-year cash flows
-    salvage_value = random.randint(5000, 15000)  # Salvage value at the end
+    project_name  = random.choice(project_names)
+
+    investment  = random.randint(10_000, 50_000)  # tax basis
+    sale_price  = random.randint(20_000, 80_000)
+    tax_rate_bp = random.choice([10, 15, 20, 25, 30, 35, 40])  # %
+    tax_rate    = tax_rate_bp / 100.0
+
+    # Ensure gain > 0 so tax makes sense & IRR positive
+    if sale_price <= investment:
+        sale_price = investment + random.randint(5_000, 30_000)
+
+    gain        = sale_price - investment
+    tax         = gain * tax_rate
+    after_tax   = sale_price - tax
+    irr_ratio   = after_tax / investment - 1
+    irr_percent = round(irr_ratio * 100, 2)
+
     question = (
-        f"{investor_name} invested ${investment} in {project_name}, which generated ${cash_flows[0]} in Year 1, "
-        f"${cash_flows[1]} in Year 2, and had a salvage value of ${salvage_value} at the end of Year 2. "
-        f"What is the IRR for {project_name}?"
+        f"{investor_name} invested ${investment:,.0f} (tax basis) in {project_name}. "
+        f"After 1 year, it is sold for ${sale_price:,.0f}. The tax on the gain is {tax_rate_bp}% "
+        f"of (Sale Price - Initial Investment). What is the internal rate of return (IRR) after tax?"
     )
-    total_cash_flow = cash_flows[0] + cash_flows[1] + salvage_value
-    irr = ((total_cash_flow / investment) - 1) * 100
+
     solution = (
-        f"Step 1: Compute the total cash flow including salvage value:\n"
-        f"  Total Cash Flow = Year 1 + Year 2 + Salvage Value = {cash_flows[0]} + {cash_flows[1]} + {salvage_value} = {total_cash_flow}\n\n"
-        f"Step 2: Compute the ratio of total cash flow to investment:\n"
-        f"  Ratio = Total Cash Flow / Investment = {total_cash_flow} / {investment} = {total_cash_flow / investment:.2f}\n\n"
-        f"Step 3: Compute the IRR:\n"
-        f"  IRR = (Ratio - 1) × 100 = ({total_cash_flow / investment:.2f} - 1) × 100 = {irr:.2f}%"
+        "Step 1 (Compute after-tax proceeds at Year 1):\n"
+        f"     Gain = ${sale_price:,.0f} - ${investment:,.0f} = ${gain:,.0f}\n"
+        f"     Tax  = {tax_rate_bp}% × ${gain:,.0f} = ${tax:,.2f}\n"
+        f"     After-Tax Proceeds = ${sale_price:,.0f} - ${tax:,.2f} = ${after_tax:,.2f}\n\n"
+        "Step 2 (Solve IRR for a 1-year investment):\n"
+        f"     IRR = (${after_tax:,.2f} ÷ ${investment:,.0f}) - 1 = {irr_ratio:.6f}\n\n"
+        f"Final: IRR = {irr_percent:.2f}%"
     )
+
     return question, solution
 
-# Template 5: IRR with Multiple Cash Flows and Tax Rate
-def template_irr_single_cash_flow_taxes_refined():
-    """5:Advanced: IRR with single cash flow and tax rate"""
+# ================================================================
+# 1. Sale -> Selling Costs -> Tax on Gain -> IRR (1-year)
+# Steps: (1) Net Sale  (2) After-Tax Proceeds  (3) IRR
+# ================================================================
+def template_irr_after_tax_net_sale_cost():
+    """
+    3: Intermediate:
+    1. Sale -> Selling Costs -> Tax on Gain -> IRR (1-year)
+    Steps: (1) Net Sale  (2) After-Tax Proceeds  (3) IRR
+    """
     investor_name = random.choice(investor_names)
-    project_name = random.choice(project_names)
-    investment = random.randint(30000, 70000)  # Initial investment
-    cash_flow = random.randint(40000, 100000)  # Single cash flow
-    tax_rate = round(random.uniform(10, 30), 2)      # Tax rate
+    project_name  = random.choice(project_names)
+
+    investment = random.randint(10_000, 50_000)
+    sale_price = random.randint(investment + 5_000, investment + 50_000)
+    sell_cost  = random.randint(500, 5_000)
+    tax_rate_bp = random.choice([10,15,20,25,30,35,40])
+
+    net_sale = sale_price - sell_cost
+    gain     = net_sale - investment
+    if gain <= 0:  # force positive gain
+        sale_price = investment + sell_cost + random.randint(1_000, 20_000)
+        net_sale   = sale_price - sell_cost
+        gain       = net_sale - investment
+
+    tax_rate  = tax_rate_bp / 100
+    tax       = gain * tax_rate
+    after_tax = net_sale - tax
+    irr_ratio = after_tax / investment - 1
+    irr_percent = round(irr_ratio * 100, 2)
+
     question = (
-        f"{investor_name} invested ${investment} in {project_name}, which generates a single cash flow of ${cash_flow} after 1 year. "
-        f"The corporate tax rate is {tax_rate:.2f}%. What is the IRR for {project_name}?"
+        f"{investor_name} invested ${investment:,.0f} in {project_name}. "
+        f"After 1 year, the project is sold for ${sale_price:,.0f}. Selling costs are ${sell_cost:,.0f}. "
+        f"Capital gains tax is {tax_rate_bp}% of (Net Sale Proceeds - Initial Investment). "
+        "What is the internal rate of return (IRR) after tax?"
     )
-    # Step 1: Compute after-tax cash flow
-    after_tax_cash_flow = cash_flow * (1 - tax_rate / 100)
-    # Step 2: Compute the ratio of after-tax cash flow to investment
-    ratio = after_tax_cash_flow / investment
-    # Step 3: Calculate IRR
-    irr = (ratio - 1) * 100
-    # Step 4: Interpret and validate IRR
+
     solution = (
-        f"Step 1: Adjust the cash flow for taxes:\n"
-        f"  After-Tax Cash Flow = Cash Flow × (1 - Tax Rate)\n"
-        f"                      = {cash_flow} × (1 - {tax_rate / 100:.4f}) = {after_tax_cash_flow:.2f}\n\n"
-        f"Step 2: Compute the ratio of after-tax cash flow to investment:\n"
-        f"  Ratio = After-Tax Cash Flow / Investment\n"
-        f"        = {after_tax_cash_flow:.2f} / {investment} = {ratio:.2f}\n\n"
-        f"Step 3: Calculate the IRR:\n"
-        f"  IRR = (Ratio - 1) × 100\n"
-        f"      = ({ratio:.2f} - 1) × 100 = {irr:.2f}%\n\n"
-        f"Step 4: Validate the IRR:\n"
-        f"  The IRR of {project_name} is {irr:.2f}%. This value confirms that the project's return "
-        f"accounts for the adjusted cash flow after taxes."
+        "Step 1 (Net sale proceeds after selling costs):\n"
+        f"     Net Sale = ${sale_price:,.0f} - ${sell_cost:,.0f} = ${net_sale:,.2f}\n\n"
+        "Step 2 (After-tax proceeds):\n"
+        f"     Gain = ${net_sale:,.2f} - ${investment:,.0f} = ${gain:,.2f}\n"
+        f"     Tax  = {tax_rate_bp}% * ${gain:,.2f} = ${tax:,.2f}\n"
+        f"     After-Tax Proceeds = ${net_sale:,.2f} - ${tax:,.2f} = ${after_tax:,.2f}\n\n"
+        "Step 3 (Solve IRR for 1-year investment):\n"
+        f"     IRR = (${after_tax:,.2f} / ${investment:,.0f}) - 1 = {irr_ratio:.6f}\n\n"
+        f"Final: IRR = {irr_percent:.2f}%"
     )
+
+    return question, solution
+
+# ================================================================
+# 4. Semiannual Coupon Reinvested to Year-End -> IRR
+# Steps: (1) Coupon  (2) Reinvest & Add Par  (3) IRR
+# ================================================================
+def template_irr_bond_coupon_reinvest():
+    """
+    4: Intermediate:
+    Semiannual Coupon Reinvested to Year-End -> IRR
+    Steps: (1) Coupon  (2) Reinvest & Add Par  (3) IRR
+    """
+    investor_name = random.choice(investor_names)
+    project_name  = random.choice(project_names)
+
+    face = 10_000
+    coupon_rate_bp = random.choice([4,5,6,7,8,9])  # annual coupon %
+    reinv_rate_bp  = random.choice([3,4,5,6])      # simple annual reinvest %
+    coupon_rate = coupon_rate_bp / 100
+    reinv_rate  = reinv_rate_bp  / 100
+
+    coupon_6mo = face * coupon_rate / 2
+    coupon_fv  = coupon_6mo * (1 + reinv_rate * 0.5)  # simple pro‑rata
+    total_cash = face + coupon_fv
+
+    # Choose a purchase price below total cash so IRR not negative
+    price = random.randint(int(total_cash * 0.7), int(total_cash * 0.99))
+
+    irr_ratio   = total_cash / price - 1
+    irr_percent = round(irr_ratio * 100, 2)
+
+    question = (
+        f"{investor_name} pays ${price:,.0f} to buy a 1-year ${face:,.0f} par bond issued by {project_name}. "
+        f"The bond has a {coupon_rate_bp}% annual coupon paid semiannually. "
+        f"The 6-month coupon is reinvested at a simple annual rate of {reinv_rate_bp}% "
+        "for the remaining 6 months until maturity, when par is repaid. "
+        "What is the internal rate of return (IRR) based on the cash received at maturity?"
+    )
+
+    solution = (
+        "Step 1 (Compute 6-month coupon payment):\n"
+        f"     Coupon = {coupon_rate_bp}% * ${face:,.0f} / 2 = ${coupon_6mo:,.2f}\n\n"
+        "Step 2 (Grow coupon to Year 1 at reinvest rate and add par):\n"
+        f"     Reinvested Coupon = ${coupon_6mo:,.2f} * [1 + {reinv_rate_bp}% * 0.5] = ${coupon_fv:,.2f}\n"
+        f"     Total Year-1 Cash = ${face:,.0f} + ${coupon_fv:,.2f} = ${total_cash:,.2f}\n\n"
+        "Step 3 (Solve IRR for 1-year holding):\n"
+        f"     IRR = (${total_cash:,.2f} / ${price:,.0f}) - 1 = {irr_ratio:.6f}\n\n"
+        f"Final: IRR = {irr_percent:.2f}%"
+    )
+
+    return question, solution
+
+# ---------------------------------------------------------------
+# Template 5 · Fractional-year sale → net sale → tax → IRR
+# ---------------------------------------------------------------
+def template_irr_fractional_net_tax():
+    """
+    5: Advanced:
+    4-step annualized IRR with a partial-year holding, selling costs, and tax.
+      Step 1  Convert holding period (months) to years.
+      Step 2  Compute net sale proceeds (sale price – selling costs).
+      Step 3  Compute tax on the gain and derive after-tax proceeds.
+      Step 4  Solve annualized IRR.
+    """
+    investor_name = random.choice(investor_names)
+    project_name  = random.choice(project_names)
+
+    investment = random.randint(10_000, 60_000)
+    months     = random.choice([6, 9, 15, 18, 21, 24])
+    sale_price = random.randint(investment + 5_000, investment + 70_000)
+    sell_cost  = random.randint(500, 5_000)
+    tax_rate_bp = random.choice([20, 25, 30, 35])
+    tax_rate = tax_rate_bp / 100
+
+    years = months / 12
+    net_sale = sale_price - sell_cost
+    gain     = net_sale - investment
+    if gain <= 0:                            # ensure positive gain
+        sale_price = investment + sell_cost + random.randint(3_000, 15_000)
+        net_sale   = sale_price - sell_cost
+        gain       = net_sale - investment
+
+    tax        = gain * tax_rate
+    after_tax  = net_sale - tax
+    irr_ratio  = (after_tax / investment) ** (1 / years) - 1
+    irr_percent = round(irr_ratio * 100, 2)
+
+    # ---------- Question ----------
+    question = (
+        f"{investor_name} invested ${investment:,.0f} in {project_name}. "
+        f"The project is sold after {months} months for ${sale_price:,.0f}. "
+        f"Selling costs total ${sell_cost:,.0f}. Capital-gains tax is {tax_rate_bp}% of "
+        "(Net Sale Proceeds − Initial Investment). What is the annualized internal rate of return (IRR)?"
+    )
+
+    # ---------- Solution ----------
+    solution = (
+        "Step 1 (Convert holding period to years):\n"
+        f"     {months} months ÷ 12 = {years:.4f} years\n\n"
+        "Step 2 (Compute net sale proceeds):\n"
+        f"     Net Sale = ${sale_price:,.0f} − ${sell_cost:,.0f} = ${net_sale:,.2f}\n\n"
+        "Step 3 (Compute after-tax proceeds):\n"
+        f"     Gain = ${net_sale:,.2f} − ${investment:,.0f} = ${gain:,.2f}\n"
+        f"     Tax  = {tax_rate_bp}% × ${gain:,.2f} = ${tax:,.2f}\n"
+        f"     After-Tax Proceeds = ${net_sale:,.2f} − ${tax:,.2f} = ${after_tax:,.2f}\n\n"
+        "Step 4 (Solve annualized IRR):\n"
+        f"     (1 + IRR)^{years:.4f} = ${after_tax:,.2f} / ${investment:,.0f}\n"
+        f"     IRR = ({after_tax / investment:.6f})^(1/{years:.4f}) − 1 = {irr_ratio:.6f}\n\n"
+        f"Final: IRR = {irr_percent:.2f}%"
+    )
+
     return question, solution
 
 def main():
@@ -155,11 +269,11 @@ def main():
     import json
     # List of template functions
     templates = [
-        template_irr_single_cash_flow,
-        template_irr_single_cash_flow_multiple_years,
-        template_irr_additional_costs,
-        template_irr_salvage_value,
-        template_irr_single_cash_flow_taxes_refined
+        template_irr_net_sale_proceeds,
+        template_irr_after_tax,
+        template_irr_after_tax_net_sale_cost,
+        template_irr_bond_coupon_reinvest,
+        template_irr_fractional_net_tax
     ]
     
     # List to store all generated problems

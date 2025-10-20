@@ -1,259 +1,249 @@
 import random
+import json
+import argparse
+import pathlib
 
 # Named entities for companies and industries
 company_names = ["Tesla Inc.", "Apple Inc.", "Amazon.com", "SpaceX", "Google LLC"]
-industry_names = [
-    "automotive",
-    "technology",
-    "e-commerce",
-    "aerospace",
-    "internet services",
-]
+industry_names = ["automotive", "technology", "e-commerce", "aerospace", "internet services"]
 
+def _usd(x: float) -> str:
+    """Format a number as USD with 2 decimals and thousands separators."""
+    return f"${x:,.2f}"
+
+def _pct(x: float) -> str:
+    """Format a percent value with 2 decimals and % sign."""
+    return f"{x:.2f}%"
+
+# =========================
+# EASY (2 templates)
+# =========================
 
 def template_asset_turnover_simple():
-    """1:Basic: Asset Turnover Ratio Calculation"""
+    """1:Easy:Simple Asset Turnover Ratio from sales and total assets."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 
-    # Generate sales and assets and round them to 2 decimal places
-    total_sales = round(random.uniform(50000, 500000), 2)  # Total sales
-    total_assets = round(random.uniform(100000, 1000000), 2)  # Total assets
+    total_sales = round(random.uniform(50_000, 500_000), 2)
+    total_assets = round(random.uniform(100_000, 1_000_000), 2)
 
     question = (
-        f"{company_name}, operating in the {industry} industry, has generated total sales of ${total_sales} and has total assets of ${total_assets}. "
-        f"Calculate the company's Asset Turnover Ratio."
+        f"{company_name}, operating in the {industry} industry, generated total sales of "
+        f"{_usd(total_sales)} and reported total assets of {_usd(total_assets)}. "
+        f"Calculate the company's Asset Turnover Ratio (unitless)."
     )
 
-    # Calculate the Asset Turnover Ratio using the rounded values
     asset_turnover = round(total_sales / total_assets, 2)
 
     solution = (
-        f"Step 1: Calculate the Asset Turnover Ratio using the formula:\n"
-        f"  Asset Turnover Ratio = Total Sales / Total Assets\n"
-        f"                     = ${total_sales} / ${total_assets} = {asset_turnover:.2f}"
+        "Step 1 (Identify formula): Asset Turnover = Total Sales ÷ Total Assets (unitless).\n"
+        f"Step 2 (Apply values): {_usd(total_sales)} ÷ {_usd(total_assets)} = {asset_turnover:.2f}.\n"
+        "Step 3 (Interpret): Each dollar of assets generated "
+        f"{asset_turnover:.2f} dollars of sales."
     )
 
     return question, solution
 
 
-def template_asset_turnover_increase_assets():
-    """2:Basic: Asset Turnover with Asset Increase"""
+def template_asset_turnover_compare_two_periods():
+    """2:Easy:Compare Asset Turnover across two periods with assets changing and sales constant."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 
-    # Generate and round sales, assets, and asset increase to 2 decimal places
-    total_sales = round(random.uniform(100000, 1000000), 2)  # Total sales
-    total_assets_last_year = round(
-        random.uniform(200000, 2000000), 2
-    )  # Assets last year
-    asset_increase = round(random.uniform(10000, 200000), 2)  # Increase in assets
-    total_assets_this_year = round(total_assets_last_year + asset_increase, 2)
+    total_sales = round(random.uniform(100_000, 1_000_000), 2)
+    assets_last_year = round(random.uniform(200_000, 2_000_000), 2)
+    asset_change = round(random.uniform(10_000, 200_000), 2)
+    assets_this_year = round(assets_last_year + asset_change, 2)
 
     question = (
-        f"{company_name}, a major player in the {industry} industry, generated sales of ${total_sales} last year and had total assets of ${total_assets_last_year}. "
-        f"This year, the company's assets increased by ${asset_increase}, while its sales remained constant. How did the change in assets impact the company's Asset Turnover Ratio?"
+        f"{company_name} in the {industry} industry recorded sales of {_usd(total_sales)} in both Year 1 and Year 2. "
+        f"In Year 1, total assets were {_usd(assets_last_year)}. In Year 2, total assets increased by "
+        f"{_usd(asset_change)} to {_usd(assets_this_year)}. Compute the Asset Turnover Ratio for each year "
+        "and state which year had the higher ratio."
     )
 
-    # Step 1: Calculate last year's Asset Turnover Ratio using the rounded values
-    asset_turnover_last_year = round(total_sales / total_assets_last_year, 2)
-
-    # Step 2: Calculate this year's Asset Turnover Ratio using the rounded values
-    asset_turnover_this_year = round(total_sales / total_assets_this_year, 2)
+    t_last = round(total_sales / assets_last_year, 2)
+    t_this = round(total_sales / assets_this_year, 2)
+    winner = "Year 1" if t_last > t_this else ("Year 2" if t_this > t_last else "Both equal")
 
     solution = (
-        f"Step 1: Calculate last year's Asset Turnover Ratio:\n"
-        f"  Asset Turnover Ratio = ${total_sales} / ${total_assets_last_year} = {asset_turnover_last_year:.2f}\n\n"
-        f"Step 2: Calculate this year's Asset Turnover Ratio:\n"
-        f"  Asset Turnover Ratio = ${total_sales} / ${total_assets_this_year} = {asset_turnover_this_year:.2f}"
+        "Step 1 (Formula): Asset Turnover = Sales ÷ Total Assets.\n"
+        f"Year 1: {_usd(total_sales)} ÷ {_usd(assets_last_year)} = {t_last:.2f}\n"
+        f"Year 2: {_usd(total_sales)} ÷ {_usd(assets_this_year)} = {t_this:.2f}\n"
+        "Step 2 (Reason): With sales constant, higher assets dilute turnover.\n"
+        f"Conclusion: {winner} has the higher Asset Turnover."
+    )
+
+    return question, solution
+
+# =========================
+# INTERMEDIATE (2 templates)
+# =========================
+
+def template_asset_turnover_average_assets():
+    """3:Intermediate:Use Average Total Assets (beginning & ending) to compute Asset Turnover."""
+    company_name = random.choice(company_names)
+    industry = random.choice(industry_names)
+
+    total_sales = round(random.uniform(300_000, 1_500_000), 2)
+    beginning_assets = round(random.uniform(400_000, 2_000_000), 2)
+    # Ensure ending assets not wildly off; keep within a sensible band
+    ending_assets = round(beginning_assets * random.uniform(0.8, 1.3), 2)
+    average_assets = round((beginning_assets + ending_assets) / 2, 2)
+
+    question = (
+        f"{company_name} ({industry}) reported total sales of {_usd(total_sales)} this year. "
+        f"Beginning total assets were {_usd(beginning_assets)} and ending total assets were {_usd(ending_assets)}. "
+        "Compute the Asset Turnover Ratio using Average Total Assets."
+    )
+
+    turnover = round(total_sales / average_assets, 2)
+
+    solution = (
+        "Step 1 (Use appropriate base): Seasonal/level changes mean we use Average Total Assets.\n"
+        f"Average Assets = ({_usd(beginning_assets)} + {_usd(ending_assets)}) / 2 = {_usd(average_assets)}\n"
+        "Step 2 (Apply formula): Asset Turnover = Sales ÷ Average Assets.\n"
+        f"{_usd(total_sales)} ÷ {_usd(average_assets)} = {turnover:.2f}\n"
+        "Step 3 (Interpret): This normalizes for asset changes across the year."
     )
 
     return question, solution
 
 
 def template_asset_turnover_with_depreciation():
-    """3:Intermediate: Asset Turnover with Depreciation"""
+    """4:Intermediate:Asset Turnover after depreciation adjustment (assets decrease; sales given)."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 
-    # Generate and round sales, assets, and depreciation to 2 decimal places
-    total_sales = round(random.uniform(200000, 1500000), 2)  # Total sales
-    total_assets = round(random.uniform(500000, 3000000), 2)  # Total assets
-    depreciation = round(random.uniform(50000, 500000), 2)  # Depreciation on assets
+    total_sales = round(random.uniform(200_000, 1_500_000), 2)
+    total_assets = round(random.uniform(500_000, 3_000_000), 2)
+    max_dep = min(500_000.00, total_assets * 0.8)  # guardrail to keep adjusted assets positive
+    depreciation = round(random.uniform(50_000, max_dep), 2)
     adjusted_assets = round(total_assets - depreciation, 2)
 
     question = (
-        f"{company_name}, operating in the {industry} sector, generated ${total_sales} in sales this year and had total assets of ${total_assets}. "
-        f"However, due to asset depreciation of ${depreciation}, the company's total assets have reduced by that amount. "
-        f"Calculate the company's Asset Turnover Ratio after accounting for depreciation."
+        f"{company_name}, operating in {industry}, generated {_usd(total_sales)} in sales this year and held "
+        f"total assets of {_usd(total_assets)}. Due to depreciation of {_usd(depreciation)}, total assets decline "
+        f"to {_usd(adjusted_assets)}. Compute the Asset Turnover Ratio before and after depreciation."
     )
 
-    # Step 1: Calculate Asset Turnover Ratio before depreciation using rounded values
-    asset_turnover_before = round(total_sales / total_assets, 2)
+    t_before = round(total_sales / total_assets, 2)
+    t_after = round(total_sales / adjusted_assets, 2)
 
-    # Step 2: Calculate Asset Turnover Ratio after depreciation using adjusted total assets
-    asset_turnover_after = round(total_sales / adjusted_assets, 2)
+    direction = "increases" if t_after > t_before else ("decreases" if t_after < t_before else "does not change")
 
     solution = (
-        f"Step 1: Calculate Asset Turnover Ratio before depreciation:\n"
-        f"  Asset Turnover Ratio = ${total_sales} / ${total_assets} = {asset_turnover_before:.2f}\n\n"
-        f"Step 2: Adjust total assets for depreciation:\n"
-        f"  Adjusted Assets = ${total_assets} - ${depreciation} = ${adjusted_assets}\n\n"
-        f"Step 3: Calculate Asset Turnover Ratio after depreciation:\n"
-        f"  Asset Turnover Ratio = ${total_sales} / ${adjusted_assets} = {asset_turnover_after:.2f}"
+        "Step 1 (Before): Asset Turnover = Sales ÷ Total Assets.\n"
+        f"{_usd(total_sales)} ÷ {_usd(total_assets)} = {t_before:.2f}\n"
+        "Step 2 (After adjustment): Reduce assets for depreciation.\n"
+        f"Adjusted Assets = {_usd(total_assets)} − {_usd(depreciation)} = {_usd(adjusted_assets)}\n"
+        f"Turnover After = {_usd(total_sales)} ÷ {_usd(adjusted_assets)} = {t_after:.2f}\n"
+        f"Step 3 (Reason): With sales unchanged and assets lower, turnover {direction}."
     )
 
     return question, solution
 
+# =========================
+# ADVANCED (1 template)
+# =========================
 
-def template_asset_turnover_scenario_analysis():
-    """4:Intermediate: Asset Turnover Scenario Analysis"""
+def template_asset_turnover_investment_vs_sales_push():
+    """5:Advanced:Two strategic scenarios: (1) Add new investment and simultaneous depreciation (assets change). (2) Push sales by a specified percentage with assets held at current level."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 
-    # Generate and round sales, assets, and increase values to 2 decimal places
-    total_sales = round(random.uniform(400000, 2000000), 2)  # Total sales
-    total_assets = round(random.uniform(500000, 2500000), 2)  # Total assets
-    asset_increase = round(
-        random.uniform(50000, 400000), 2
-    )  # Asset increase for Scenario 1
-    sales_increase_percentage = round(
-        random.uniform(10, 50), 2
-    )  # Sales increase in Scenario 2
-    new_sales = round(
-        total_sales * (1 + sales_increase_percentage / 100), 2
-    )  # New sales after increase
+    total_sales = round(random.uniform(500_000, 2_500_000), 2)
+    total_assets = round(random.uniform(800_000, 3_000_000), 2)
 
-    question = (
-        f"{company_name}, in the {industry} industry, had total sales of ${total_sales} and total assets of ${total_assets}. The company is evaluating two options:\n"
-        f"- Scenario 1: Increase its assets by ${asset_increase} to improve production capacity.\n"
-        f"- Scenario 2: Focus on maximizing sales, which could increase sales by {sales_increase_percentage}%. "
-        f"For each scenario, how will the company's Asset Turnover Ratio change?"
-    )
+    new_investment = round(random.uniform(100_000, 500_000), 2)
+    depreciation = round(random.uniform(50_000, min(200_000.00, total_assets * 0.5)), 2)
 
-    # Step 1: Calculate current Asset Turnover Ratio
-    asset_turnover_current = round(total_sales / total_assets, 2)
+    sales_increase_pct = round(random.uniform(10.0, 50.0), 2)
+    new_sales = round(total_sales * (1 + sales_increase_pct / 100.0), 2)
 
-    # Step 2: Calculate Asset Turnover Ratio for Scenario 1 (increased assets)
-    new_assets_scenario_1 = round(total_assets + asset_increase, 2)
-    asset_turnover_scenario_1 = round(total_sales / new_assets_scenario_1, 2)
-
-    # Step 3: Calculate Asset Turnover Ratio for Scenario 2 (increased sales)
-    asset_turnover_scenario_2 = round(new_sales / total_assets, 2)
-
-    solution = (
-        f"Step 1: Calculate the current Asset Turnover Ratio:\n"
-        f"  Asset Turnover Ratio = ${total_sales} / ${total_assets} = {asset_turnover_current:.2f}\n\n"
-        f"Step 2: Calculate the Asset Turnover Ratio for Scenario 1 (increased assets):\n"
-        f"  New Assets = ${total_assets} + ${asset_increase} = ${new_assets_scenario_1}\n"
-        f"  Asset Turnover Ratio (Scenario 1) = ${total_sales} / ${new_assets_scenario_1} = {asset_turnover_scenario_1:.2f}\n\n"
-        f"Step 3: Calculate the Asset Turnover Ratio for Scenario 2 (increased sales):\n"
-        f"  New Sales = ${new_sales}\n"
-        f"  Asset Turnover Ratio (Scenario 2) = ${new_sales} / ${total_assets} = {asset_turnover_scenario_2:.2f}"
-    )
-
-    return question, solution
-
-
-def template_asset_turnover_investment_depreciation():
-    """5:Advanced: Asset Turnover with Investment and Depreciation"""
-    company_name = random.choice(company_names)
-    industry = random.choice(industry_names)
-
-    # Generate and round sales, assets, investment, and depreciation to 2 decimal places
-    total_sales = round(random.uniform(500000, 2500000), 2)  # Total sales
-    total_assets = round(random.uniform(800000, 3000000), 2)  # Total assets
-    new_investment = round(
-        random.uniform(100000, 500000), 2
-    )  # New investment in assets
-    depreciation = round(random.uniform(50000, 200000), 2)  # Depreciation on assets
-
-    question = (
-        f"{company_name}, a leader in the {industry} industry, generated total sales of ${total_sales} and had total assets of ${total_assets}. "
-        f"This year, the company plans to invest ${new_investment} in new machinery, while also experiencing asset depreciation of ${depreciation}. "
-        f"How will the company's Asset Turnover Ratio change after accounting for the new investment and depreciation?"
-    )
-
-    # Step 1: Calculate current Asset Turnover Ratio
-    asset_turnover_before = round(total_sales / total_assets, 2)
-
-    # Step 2: Adjust total assets for new investment and depreciation
+    # Scenario 1 assets
     adjusted_assets = round(total_assets + new_investment - depreciation, 2)
 
-    # Step 3: Calculate Asset Turnover Ratio after adjustments
-    asset_turnover_after = round(total_sales / adjusted_assets, 2)
+    question = (
+        f"{company_name} in the {industry} industry reported total sales of {_usd(total_sales)} and total assets of "
+        f"{_usd(total_assets)}. The firm is evaluating two options:\n"
+        f"• Scenario 1 (CapEx with wear): Invest {_usd(new_investment)} in assets while recognizing depreciation of "
+        f"{_usd(depreciation)} on existing assets.\n"
+        f"• Scenario 2 (Sales push): Increase sales by {_pct(sales_increase_pct)} with assets held at {_usd(total_assets)}.\n"
+        "For each scenario, compute the Asset Turnover Ratio and compare to the current turnover."
+    )
+
+    t_current = round(total_sales / total_assets, 2)
+    t_s1 = round(total_sales / adjusted_assets, 2)
+    t_s2 = round(new_sales / total_assets, 2)
+
+    s1_dir = "higher" if t_s1 > t_current else ("lower" if t_s1 < t_current else "the same as")
+    s2_dir = "higher" if t_s2 > t_current else ("lower" if t_s2 < t_current else "the same as")
 
     solution = (
-        f"Step 1: Calculate the current Asset Turnover Ratio:\n"
-        f"  Asset Turnover Ratio = ${total_sales} / ${total_assets} = {asset_turnover_before:.2f}\n\n"
-        f"Step 2: Adjust total assets for new investment and depreciation:\n"
-        f"  Adjusted Assets = ${total_assets} + ${new_investment} - ${depreciation} = ${adjusted_assets}\n\n"
-        f"Step 3: Calculate Asset Turnover Ratio after adjustments:\n"
-        f"  Asset Turnover Ratio = ${total_sales} / ${adjusted_assets} = {asset_turnover_after:.2f}"
+        "Step 1 (Current benchmark):\n"
+        f"Current Turnover = {_usd(total_sales)} ÷ {_usd(total_assets)} = {t_current:.2f}\n\n"
+        "Step 2 (Scenario 1 — CapEx with wear):\n"
+        f"Adjusted Assets = {_usd(total_assets)} + {_usd(new_investment)} − {_usd(depreciation)} = {_usd(adjusted_assets)}\n"
+        f"Turnover S1 = {_usd(total_sales)} ÷ {_usd(adjusted_assets)} = {t_s1:.2f} → {s1_dir} current.\n\n"
+        "Step 3 (Scenario 2 — Sales push):\n"
+        f"New Sales = {_usd(new_sales)}\n"
+        f"Turnover S2 = {_usd(new_sales)} ÷ {_usd(total_assets)} = {t_s2:.2f} → {s2_dir} current.\n\n"
+        "Reasoning: Increasing assets (with sales fixed) typically lowers turnover; raising sales (with assets fixed) raises turnover."
     )
 
     return question, solution
 
-
-def main():
+def generate_templates(output_file: str, num_instances: int):
     """
-    Generate 10 instances of each template with different random seeds
+    Generate instances of each template with different random seeds
     and write the results to a JSON file.
     """
-    import json
-
-    # List of template functions
     templates = [
         template_asset_turnover_simple,
-        template_asset_turnover_increase_assets,
+        template_asset_turnover_compare_two_periods,
+        template_asset_turnover_average_assets,
         template_asset_turnover_with_depreciation,
-        template_asset_turnover_scenario_analysis,
-        template_asset_turnover_investment_depreciation,
+        template_asset_turnover_investment_vs_sales_push,
     ]
-
-    # List to store all generated problems
+    
     all_problems = []
-
-    # Generate 10 problems for each template
+    
     for template_func in templates:
-        id = template_func.__doc__.split(':')[0].strip()
-        level = template_func.__doc__.split(':')[1].strip()
-
-        for i in range(10):
-            # Generate a unique seed for each problem
+        doc_parts = template_func.__doc__.split(':')
+        id, level = doc_parts[0].strip(), doc_parts[1].strip()
+        
+        for i in range(num_instances):
             seed = random.randint(1000000000, 4000000000)
             random.seed(seed)
-
-            # Generate the problem and solution
+            
             question, solution = template_func()
-
-            # Create a JSON entry
+            
             problem_entry = {
                 "seed": seed,
                 "id": id,
                 "level": level,
                 "question": question,
-                "solution": solution,
+                "solution": solution
             }
-
-            # Add to the list of problems
+            
             all_problems.append(problem_entry)
-
-            # Reset the random seed
+            
             random.seed()
-
+    
     random.shuffle(all_problems)
-    # Write all problems to a .jsonl file
-    output_file = "../../testset/financial_ratios/effratio.jsonl"
+
     with open(output_file, "w") as file:
         for problem in all_problems:
             file.write(json.dumps(problem))
             file.write("\n")
+    
+    print(f"Successfully generated {len(all_problems)} problems and saved to {output_file}")
 
-    print(
-        f"Successfully generated {len(all_problems)} problems and saved to {output_file}"
-    )
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Generate efficiency ratio problems.")
+    parser.add_argument("--output_file", type=str, default="effratio_problems.jsonl", help="Output JSONL file path.")
+    parser.add_argument("--num_instances", type=int, default=10, help="Number of instances to generate per template.")
+    args = parser.parse_args()
+    
+    generate_templates(args.output_file, args.num_instances)

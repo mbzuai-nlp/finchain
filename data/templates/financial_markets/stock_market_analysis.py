@@ -52,36 +52,32 @@ def template_sma_easy1():
 
 def template_sma_easy2():
     """
-    2:Basic: Dividend Yield Calculation
-    This template calculates the dividend yield given an annual dividend 
-    and the current share price.
-    2 steps:
-      1) Use the dividend yield formula
-      2) Express result in percentage
+    2:Basic: Dividend Yield Calculation  (2 steps)
+      1) Dividend yield (decimal) = Annual Dividend ÷ Share Price
+      2) Convert decimal to percentage   (answer)
     """
-    investor_name = random.choice(investor_names)
-    company_name = random.choice(stock_names)
-    annual_dividend = round(random.uniform(1.0, 5.0), 2)
-    share_price = round(random.uniform(50, 200), 2)
+    investor_name  = random.choice(investor_names)
+    company_name   = random.choice(stock_names)
+    annual_div     = round(random.uniform(1.0, 5.0), 2)
+    share_price    = round(random.uniform(50, 200), 2)
+
+    # Step 1: decimal yield
+    yield_decimal = annual_div / share_price
+    # Step 2: percentage
+    yield_pct     = yield_decimal * 100
 
     question = (
-        f"{investor_name} is considering buying shares of {company_name}, which pays an annual dividend of "
-        f"${annual_dividend:.2f} per share. If the current share price is ${share_price:.2f}, "
-        f"what is the dividend yield?"
+        f"{investor_name} is looking at {company_name}, which pays an annual dividend of "
+        f"${annual_div:.2f} per share.  With the stock at ${share_price:.2f}, what is the dividend yield?"
     )
 
-    # Step 1: Dividend yield formula
-    dividend_yield = (annual_dividend / share_price) * 100
-
-    # Step 2: Express as a percentage
     solution = (
-        f"Step 1: Dividend Yield = (Annual Dividend / Share Price) × 100\n"
-        f"                      = (${annual_dividend:.2f} / ${share_price:.2f}) × 100\n\n"
-        f"Step 2: Calculate and express it in percentage:\n"
-        f"  Dividend Yield = {dividend_yield:.2f}%"
+        f"Step 1: Decimal yield = ${annual_div:.2f} ÷ ${share_price:.2f} = {yield_decimal:.4f}\n\n"
+        f"Step 2 (answer): Percentage yield = {yield_decimal:.4f} × 100 = {yield_pct:.2f}%"
     )
 
     return question, solution
+
 
 ###############################################################################
 # INTERMEDIATE TEMPLATES (3 Steps)

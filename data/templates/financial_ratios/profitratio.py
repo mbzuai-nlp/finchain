@@ -1,228 +1,212 @@
 import random
+import json
+import argparse
+import pathlib
 
 # Named entities for companies and industries
 company_names = ["Tesla Inc.", "Apple Inc.", "Amazon.com", "SpaceX", "Google LLC"]
-industry_names = [
-    "automotive",
-    "technology",
-    "e-commerce",
-    "aerospace",
-    "internet services",
-]
+industry_names = ["automotive", "technology", "e-commerce", "aerospace", "internet services"]
 
+# ---------- formatting helpers ----------
+def fmt_money(x: float) -> str:
+    """Format currency consistently as $ with two decimals and commas."""
+    return f"${x:,.2f}"
 
-def template_net_profit_margin():
-    """1:Basic: Net Profit Margin Calculation"""
-    company_name = random.choice(company_names)
+def fmt_pct(x: float) -> str:
+    """Format percentages consistently with two decimals and a % sign."""
+    return f"{x:.2f}%"
+
+# ---------- Easy 1: Net Profit Margin ----------
+def template_net_profit_margin_easy():
+    """1:Easy:Net Profit Margin from revenue and net income."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    revenue = random.randint(50000, 500000)  # Revenue
-    net_income = random.randint(5000, 100000)  # Net Income
+    revenue = random.randint(80_000, 400_000)
+    net_income = int(round(revenue * random.uniform(0.05, 0.25)))
 
     question = (
-        f"{company_name}, operating in the {industry} industry, reported a total revenue of ${revenue} and a net income of ${net_income}. "
-        f"Calculate the company's net profit margin."
+        f"{company}, operating in the {industry} industry, reported revenue of {fmt_money(revenue)} "
+        f"and net income of {fmt_money(net_income)}. Calculate the company's net profit margin."
     )
 
-    # Step 1: Calculate the net profit margin
-    net_profit_margin = round((net_income / revenue) * 100, 2)
+    margin = (net_income / revenue) * 100
 
     solution = (
-        f"Step 1: Calculate the net profit margin using the formula:\n"
-        f"  Net Profit Margin = (Net Income / Revenue) × 100\n"
-        f"                   = ({net_income} / {revenue}) × 100 = {net_profit_margin:.2f}%"
+        "Step 1: Use Net Profit Margin = (Net Income ÷ Revenue) × 100.\n"
+        f"Step 2: Plug in values = ({fmt_money(net_income)} ÷ {fmt_money(revenue)}) × 100.\n"
+        f"Step 3: Compute = {fmt_pct(margin)}."
     )
-
     return question, solution
 
-
-def template_return_on_equity():
-    """2:Basic: Return on Equity (ROE) Calculation"""
-    company_name = random.choice(company_names)
+# ---------- Easy 2: Gross Profit Margin ----------
+def template_gross_profit_margin_easy():
+    """2:Easy:Gross Profit Margin from revenue and COGS."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    net_income = random.randint(10000, 200000)  # Net Income
-    shareholders_equity = random.randint(50000, 300000)  # Shareholders' Equity
+    revenue = random.randint(120_000, 500_000)
+    cogs = int(round(revenue * random.uniform(0.50, 0.80)))
+    gross_profit = revenue - cogs
+    gpm = (gross_profit / revenue) * 100
 
     question = (
-        f"{company_name}, a leading firm in the {industry} sector, reported a net income of ${net_income} and total shareholders' equity "
-        f"of ${shareholders_equity}. Calculate the company's Return on Equity (ROE)."
+        f"{company}, a {industry} company, recorded revenue of {fmt_money(revenue)} and cost of goods sold (COGS) "
+        f"of {fmt_money(cogs)}. Calculate the Gross Profit Margin."
     )
-
-    # Step 1: Calculate the Return on Equity
-    return_on_equity = round((net_income / shareholders_equity) * 100, 2)
 
     solution = (
-        f"Step 1: Calculate the Return on Equity using the formula:\n"
-        f"  ROE = (Net Income / Shareholders' Equity) × 100\n"
-        f"      = ({net_income} / {shareholders_equity}) × 100 = {return_on_equity:.2f}%"
+        "Step 1: Gross Profit = Revenue − COGS.\n"
+        f"        = {fmt_money(revenue)} − {fmt_money(cogs)} = {fmt_money(gross_profit)}.\n"
+        "Step 2: Gross Profit Margin = (Gross Profit ÷ Revenue) × 100.\n"
+        f"        = ({fmt_money(gross_profit)} ÷ {fmt_money(revenue)}) × 100 = {fmt_pct(gpm)}."
     )
-
     return question, solution
 
-
-def template_combined_net_profit_and_roe():
-    """3:Intermediate: Combined Net Profit and ROE Analysis"""
-    company_name = random.choice(company_names)
+# ---------- Intermediate 1: Operating Profit (EBIT) Margin ----------
+def template_operating_margin_intermediate():
+    """3:Intermediate:Compute Operating Profit (EBIT) and Operating Margin from revenue, COGS, and Opex."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    revenue = random.randint(100000, 500000)  # Revenue
-    net_income = random.randint(10000, 100000)  # Net Income
-    shareholders_equity = random.randint(50000, 300000)  # Shareholders' Equity
+    revenue = random.randint(200_000, 800_000)
+    cogs = int(round(revenue * random.uniform(0.45, 0.70)))
+    # Opex will be 10%–25% of revenue but not exceeding (revenue - cogs - a buffer)
+    max_opex_allowed = max(10_000, revenue - cogs - 10_000)
+    opex = int(round(min(max_opex_allowed, revenue * random.uniform(0.10, 0.25))))
+    ebit = revenue - cogs - opex
+    # If randomization produced marginally low EBIT, nudge opex down to ensure positivity
+    if ebit <= 0:
+        opex = max(0, opex + ebit - 1)  # reduce opex so that ebit = 1 at least
+        ebit = revenue - cogs - opex
+    opm = (ebit / revenue) * 100
 
     question = (
-        f"{company_name}, operating in the {industry} industry, reported ${revenue} in total revenue, ${net_income} in net income, and "
-        f"shareholders' equity of ${shareholders_equity}. Calculate both the company's Net Profit Margin and Return on Equity (ROE)."
+        f"{company} in the {industry} sector reported: Revenue {fmt_money(revenue)}, COGS {fmt_money(cogs)}, "
+        f"and Operating Expenses {fmt_money(opex)}. Calculate (a) Operating Profit (EBIT) and "
+        f"(b) Operating Profit Margin."
     )
-
-    # Step 1: Calculate Net Profit Margin
-    net_profit_margin = round((net_income / revenue) * 100, 2)
-
-    # Step 2: Calculate Return on Equity
-    return_on_equity = round((net_income / shareholders_equity) * 100, 2)
 
     solution = (
-        f"Step 1: Calculate the Net Profit Margin:\n"
-        f"  Net Profit Margin = (Net Income / Revenue) × 100\n"
-        f"                   = ({net_income} / {revenue}) × 100 = {net_profit_margin:.2f}%\n\n"
-        f"Step 2: Calculate the Return on Equity:\n"
-        f"  ROE = (Net Income / Shareholders' Equity) × 100\n"
-        f"      = ({net_income} / {shareholders_equity}) × 100 = {return_on_equity:.2f}%"
+        "Step 1: EBIT = Revenue − COGS − Operating Expenses.\n"
+        f"        = {fmt_money(revenue)} − {fmt_money(cogs)} − {fmt_money(opex)} = {fmt_money(ebit)}.\n"
+        "Step 2: Operating Profit Margin = (EBIT ÷ Revenue) × 100.\n"
+        f"        = ({fmt_money(ebit)} ÷ {fmt_money(revenue)}) × 100 = {fmt_pct(opm)}."
     )
-
     return question, solution
 
-
-def template_net_profit_with_target():
-    """4:Intermediate: Net Profit Target Analysis"""
-    company_name = random.choice(company_names)
+# ---------- Intermediate 2: Compare Gross vs Net Profit Margins ----------
+def template_dual_margin_intermediate():
+    """4:Intermediate:Compute both Gross Profit Margin and Net Profit Margin."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    revenue = random.randint(100000, 400000)  # Revenue
-    net_income = random.randint(5000, 100000)  # Net Income
-    target_margin = random.uniform(10, 30)  # Target Net Profit Margin (%)
+    revenue = random.randint(250_000, 900_000)
+    cogs = int(round(revenue * random.uniform(0.50, 0.75)))
+    # Net income 5%–20% of revenue to keep realistic and below gross profit
+    net_income = int(round(revenue * random.uniform(0.05, 0.20)))
+    # Ensure net income <= gross profit
+    gross_profit = revenue - cogs
+    if net_income > gross_profit:
+        net_income = int(round(gross_profit * random.uniform(0.50, 0.90)))
+
+    gpm = (gross_profit / revenue) * 100
+    npm = (net_income / revenue) * 100
 
     question = (
-        f"{company_name}, a company in the {industry} industry, reported revenue of ${revenue} and net income of ${net_income}. "
-        f"The company has set a target net profit margin of {target_margin:.2f}%. Calculate the company's current net profit margin "
-        f"and determine the additional net income required to meet the target."
+        f"{company} ({industry}) reported revenue of {fmt_money(revenue)}, COGS of {fmt_money(cogs)}, "
+        f"and net income of {fmt_money(net_income)}. Calculate (a) the Gross Profit Margin and (b) the Net Profit Margin."
     )
-
-    # Step 1: Calculate current net profit margin
-    current_margin = round((net_income / revenue) * 100, 2)
-
-    # Step 2: Calculate additional net income required to meet target margin
-    required_net_income = round((target_margin / 100) * revenue, 2)
-    additional_income_needed = round(required_net_income - net_income, 2)
 
     solution = (
-        f"Step 1: Calculate the current net profit margin:\n"
-        f"  Net Profit Margin = (Net Income / Revenue) × 100\n"
-        f"                   = ({net_income} / {revenue}) × 100 = {current_margin:.2f}%\n\n"
-        f"Step 2: Calculate the additional net income required to meet the target margin:\n"
-        f"  Required Net Income = (Target Margin × Revenue) / 100\n"
-        f"                     = ({target_margin:.2f} × {revenue}) / 100 = {required_net_income:.2f}\n"
-        f"  Additional Income Needed = {required_net_income:.2f} - {net_income} = {additional_income_needed:.2f}"
+        "Step 1: Gross Profit = Revenue − COGS = "
+        f"{fmt_money(revenue)} − {fmt_money(cogs)} = {fmt_money(gross_profit)}.\n"
+        "Step 2: Gross Profit Margin = (Gross Profit ÷ Revenue) × 100 = "
+        f"({fmt_money(gross_profit)} ÷ {fmt_money(revenue)}) × 100 = {fmt_pct(gpm)}.\n"
+        "Step 3: Net Profit Margin = (Net Income ÷ Revenue) × 100 = "
+        f"({fmt_money(net_income)} ÷ {fmt_money(revenue)}) × 100 = {fmt_pct(npm)}."
     )
-
     return question, solution
 
-
-def template_roe_increasing_equity():
-    """5:Advanced: Analyzes ROE changes with increasing equity, involving
-    three steps: current ROE calculation, new equity determination, and
-    projected ROE calculation with consideration of equity dilution effects."""
-    company_name = random.choice(company_names)
+# ---------- Advanced: Hit a Target Net Profit Margin ----------
+def template_target_net_margin_advanced():
+    """5:Advanced:Current Net Profit Margin vs a higher target margin."""
+    company = random.choice(company_names)
     industry = random.choice(industry_names)
-    net_income = random.randint(20000, 150000)  # Net Income
-    current_equity = random.randint(100000, 500000)  # Current Shareholders' Equity
-    equity_increase = round((random.uniform(10, 30)),2)  # Percentage increase in equity
+    revenue = random.randint(300_000, 1_200_000)
+    # Current net income 6%–18% of revenue
+    net_income = int(round(revenue * random.uniform(0.06, 0.18)))
+    current_margin = (net_income / revenue) * 100
+
+    # Ensure target > current by 1–8 p.p., capped reasonably
+    lift = random.uniform(1.0, 8.0)
+    target_margin = min(current_margin + lift, 40.0)  # cap target at 40% for realism
+    required_net_income = (target_margin / 100.0) * revenue
+    additional_needed = max(0.0, required_net_income - net_income)
 
     question = (
-        f"{company_name}, a top firm in the {industry} industry, reported net income of ${net_income} and current shareholders' equity "
-        f"of ${current_equity}. The company plans to increase its equity by {equity_increase:.2f}%. Calculate the current Return on Equity "
-        f"and the expected ROE after the equity increase."
+        f"{company}, a {industry} company, reported revenue of {fmt_money(revenue)} and net income of "
+        f"{fmt_money(net_income)}. Management set a target net profit margin of {fmt_pct(target_margin)}. "
+        "Compute: (a) the current net profit margin, (b) the required net income to meet the target, and "
+        "(c) the additional net income needed."
     )
-
-    # Step 1: Calculate current ROE
-    current_roe = round((net_income / current_equity) * 100, 2)
-
-    # Step 2: Calculate expected new equity
-    new_equity = round(current_equity * (1 + equity_increase / 100), 2)
-
-    # Step 3: Calculate expected new ROE after equity increase
-    new_roe = round((net_income / new_equity) * 100, 2)
 
     solution = (
-        f"Step 1: Calculate the current ROE:\n"
-        f"  ROE = (Net Income / Shareholders' Equity) × 100\n"
-        f"      = ({net_income} / {current_equity}) × 100 = {current_roe:.2f}%\n\n"
-        f"Step 2: Calculate the expected new equity:\n"
-        f"  New Equity = Current Equity × (1 + Percentage Increase)\n"
-        f"            = {current_equity} × (1 + {equity_increase / 100:.2f}) = {new_equity:.2f}\n\n"
-        f"Step 3: Calculate the expected new ROE:\n"
-        f"  New ROE = (Net Income / New Equity) × 100\n"
-        f"         = ({net_income} / {new_equity}) × 100 = {new_roe:.2f}%"
+        "Step 1: Current Net Profit Margin = (Net Income ÷ Revenue) × 100 = "
+        f"({fmt_money(net_income)} ÷ {fmt_money(revenue)}) × 100 = {fmt_pct(current_margin)}.\n"
+        "Step 2: Required Net Income to hit target = (Target Margin × Revenue) ÷ 100 = "
+        f"({fmt_pct(target_margin)} × {fmt_money(revenue)}) ÷ 100 = {fmt_money(required_net_income)}.\n"
+        "Step 3: Additional Net Income Needed = Required − Current = "
+        f"{fmt_money(required_net_income)} − {fmt_money(net_income)} = {fmt_money(additional_needed)}."
     )
-    
     return question, solution
 
-
-def main():
+def generate_templates(output_file: str, num_instances: int):
     """
-    Generate 10 instances of each template with different random seeds
+    Generate instances of each template with different random seeds
     and write the results to a JSON file.
     """
-    import json
-
-    # List of template functions
     templates = [
-        template_net_profit_margin,
-        template_return_on_equity,
-        template_combined_net_profit_and_roe,
-        template_net_profit_with_target,
-        template_roe_increasing_equity,
+        template_net_profit_margin_easy,
+        template_gross_profit_margin_easy,
+        template_operating_margin_intermediate,
+        template_dual_margin_intermediate,
+        template_target_net_margin_advanced,
     ]
-
-    # List to store all generated problems
+    
     all_problems = []
-
-    # Generate 10 problems for each template
+    
     for template_func in templates:
-        id = template_func.__doc__.split(':')[0].strip()
-        level = template_func.__doc__.split(':')[1].strip()
-
-        for i in range(10):
-            # Generate a unique seed for each problem
+        doc_parts = template_func.__doc__.split(':')
+        id, level = doc_parts[0].strip(), doc_parts[1].strip()
+        
+        for i in range(num_instances):
             seed = random.randint(1000000000, 4000000000)
             random.seed(seed)
-
-            # Generate the problem and solution
+            
             question, solution = template_func()
-
-            # Create a JSON entry
+            
             problem_entry = {
                 "seed": seed,
                 "id": id,
                 "level": level,
                 "question": question,
-                "solution": solution,
+                "solution": solution
             }
-
-            # Add to the list of problems
+            
             all_problems.append(problem_entry)
-
-            # Reset the random seed
+            
             random.seed()
-
+    
     random.shuffle(all_problems)
-    # Write all problems to a .jsonl file
-    output_file = "../../testset/financial_ratios/profitratio.jsonl"
+
     with open(output_file, "w") as file:
         for problem in all_problems:
             file.write(json.dumps(problem))
             file.write("\n")
+    
+    print(f"Successfully generated {len(all_problems)} problems and saved to {output_file}")
 
-    print(
-        f"Successfully generated {len(all_problems)} problems and saved to {output_file}"
-    )
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Generate profitability ratio problems.")
+    parser.add_argument("--output_file", type=str, default="profitratio_problems.jsonl", help="Output JSONL file path.")
+    parser.add_argument("--num_instances", type=int, default=10, help="Number of instances to generate per template.")
+    args = parser.parse_args()
+    
+    generate_templates(args.output_file, args.num_instances)
