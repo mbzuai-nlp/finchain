@@ -33,10 +33,10 @@ def rand_rate(min_pct, max_pct):
 company_names = ["Tesla Inc.", "Apple Inc.", "Amazon.com", "SpaceX", "Google LLC"]
 
 # =========================================================
-# EASY 1: Flat income tax (single rate)
+# Basic 1: Flat income tax (single rate)
 # =========================================================
 def template_income_tax_flat_easy():
-    """1:Easy:Single-rate income tax on annual income."""
+    """1:Basic:Single-rate income tax on annual income."""
     person = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
     annual_income = random.randint(500_000, 3_000_000)  # USD cents avoided; we print 2dp anyway
     rate = rand_rate(5.00, 30.00)
@@ -58,10 +58,10 @@ def template_income_tax_flat_easy():
     return question, solution
 
 # =========================================================
-# EASY 2: Standard deduction then flat tax
+# Basic 2: Standard deduction then flat tax
 # =========================================================
 def template_income_tax_with_standard_deduction_easy():
-    """2:Easy:Apply a standard deduction, then a single tax rate."""
+    """2:Basic:Apply a standard deduction, then a single tax rate."""
     person = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
     annual_income = random.randint(800_000, 3_500_000)
     # Standard deduction capped to avoid exceeding income

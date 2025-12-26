@@ -2,7 +2,7 @@ import random
 import json
 
 def template_crypto_price_drop():
-    """Basic: Basic Crypto Price Impact from Global Event."""
+    """1:Basic: Basic Crypto Price Impact from Global Event."""
     initial_price = round(random.uniform(100, 1000), 2)
     drop_percentage = round(random.uniform(1, 10), 2)
     final_price = round(initial_price * (1 - drop_percentage / 100), 2)
@@ -14,7 +14,7 @@ def template_crypto_price_drop():
     return question, solution
 
 def template_crypto_volume_increase():
-    """Basic: Basic Crypto Volume Change Due to Global Event."""
+    """2:Basic: Basic Crypto Volume Change Due to Global Event."""
     initial_volume = round(random.uniform(50000, 200000), 2)
     increase_percentage = round(random.uniform(1, 15), 2)
     final_volume = round(initial_volume * (1 + increase_percentage / 100), 2)
@@ -26,7 +26,7 @@ def template_crypto_volume_increase():
     return question, solution
 
 def template_regulatory_event():
-    """Intermediate: Regulatory Change Impact on Crypto Price."""
+    """3:Intermediate: Regulatory Change Impact on Crypto Price."""
     initial_price = round(random.uniform(150, 1500), 2)
     impact_percentage = round(random.uniform(-5, 5), 2)
     final_price = round(initial_price * (1 + impact_percentage / 100), 2)
@@ -38,7 +38,7 @@ def template_regulatory_event():
     return question, solution
 
 def template_market_sentiment_shift():
-    """Intermediate: Market Sentiment Shift Impact on Crypto Market Cap."""
+    """4:Intermediate: Market Sentiment Shift Impact on Crypto Market Cap."""
     initial_market_cap = round(random.uniform(1000000, 5000000), 2)
     sentiment_change = round(random.uniform(-8, 8), 2)
     final_market_cap = round(initial_market_cap * (1 + sentiment_change / 100), 2)
@@ -50,7 +50,7 @@ def template_market_sentiment_shift():
     return question, solution
 
 def template_global_macro_crypto_strategy():
-    """Advanced: Multi-factor Impact on Crypto Price from Global Events."""
+    """5:Advanced: Multi-factor Impact on Crypto Price from Global Events."""
     initial_price = round(random.uniform(200, 2000), 2)
     liquidity_impact = round(random.uniform(-3, 3), 2)
     geopolitical_impact = round(random.uniform(-4, 4), 2)

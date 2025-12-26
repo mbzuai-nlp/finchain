@@ -21,11 +21,11 @@ def _years_left(current_age: int, retirement_age: int) -> int:
 # random.seed(42)
 
 # ---------------------------------------------------
-# EASY 1: Additional annual needed (NO investment returns)
+# Basic 1: Additional annual needed (NO investment returns)
 # ---------------------------------------------------
 
 def template_retirement_savings_simple():
-    """1:Easy:Additional annual savings needed to hit a target, assuming NO investment returns (pure arithmetic)."""
+    """1:Basic:Additional annual savings needed to hit a target, assuming NO investment returns (pure arithmetic)."""
     person_name = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
     age = random.randint(30, 50)
     retirement_age = random.randint(60, 65)
@@ -60,11 +60,11 @@ def template_retirement_savings_simple():
     return question, solution
 
 # ---------------------------------------------------
-# EASY 2: Years needed to hit target (NO investment returns)
+# Basic 2: Years needed to hit target (NO investment returns)
 # ---------------------------------------------------
 
 def template_retirement_years_to_target_simple():
-    """2:Easy:Years required to hit a target with current savings and constant annual savings, assuming NO investment returns."""
+    """2:Basic:Years required to hit a target with current savings and constant annual savings, assuming NO investment returns."""
     person_name = random.choice(["John", "Aisha", "Ravi", "Sara", "David"])
     age = random.randint(25, 45)
 

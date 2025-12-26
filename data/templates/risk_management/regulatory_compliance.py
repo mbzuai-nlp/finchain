@@ -5,7 +5,7 @@ def generate_random_value(low, high):
     return round(random.uniform(low, high), 2)
 
 def template_compliance_penalty():
-    """Basic: Compliance penalty for over-limit exposure."""
+    """1:Basic: Compliance penalty for over-limit exposure."""
     exposure = generate_random_value(100000, 500000)
     threshold = generate_random_value(80000, exposure - 1000)
     penalty_rate = generate_random_value(1, 10)
@@ -21,7 +21,7 @@ def template_compliance_penalty():
     return question, solution
 
 def template_capital_shortfall():
-    """Basic: Capital shortfall for regulatory compliance."""
+    """2:Basic: Capital shortfall for regulatory compliance."""
     current_capital = generate_random_value(50000, 300000)
     min_requirement = generate_random_value(current_capital + 1000, current_capital + 100000)
     question = (f"A firm has current capital of ${current_capital:.2f} but the regulatory minimum requirement is "
@@ -32,7 +32,7 @@ def template_capital_shortfall():
     return question, solution
 
 def template_capital_requirement():
-    """Intermediate: Capital requirement evaluation."""
+    """3:Intermediate: Capital requirement evaluation."""
     current_capital = generate_random_value(50000, 300000)
     min_requirement = generate_random_value(current_capital + 1000, current_capital + 100000)
     question = (f"A bank reports a current capital of ${current_capital:.2f} while the regulator demands a "
@@ -43,7 +43,7 @@ def template_capital_requirement():
     return question, solution
 
 def template_liquidity_gap():
-    """Intermediate: Liquidity gap in compliance."""
+    """4:Intermediate: Liquidity gap in compliance."""
     liquid_assets = generate_random_value(50000, 200000)
     liquidity_requirement = generate_random_value(liquid_assets + 1000, liquid_assets + 50000)
     question = (f"A financial institution holds liquid assets valued at ${liquid_assets:.2f} while the liquidity "
@@ -54,7 +54,7 @@ def template_liquidity_gap():
     return question, solution
 
 def template_multi_factor_regulatory_compliance():
-    """Advanced: Multi-factor Regulatory Compliance Assessment."""
+    """5:Advanced: Multi-factor Regulatory Compliance Assessment."""
     exposure = generate_random_value(100000, 500000)
     threshold = generate_random_value(80000, exposure - 1000)
     penalty_rate = generate_random_value(1, 10)

@@ -4,7 +4,7 @@ def generate_random_value(low, high):
     return round(random.uniform(low, high), 2)
 
 def template_transaction_fee_calculation():
-    """Basic: Transaction with percentage fee."""
+    """1:Basic: Transaction with percentage fee."""
     transaction_value = generate_random_value(1000, 5000)
     fee_percent = round(random.uniform(0.5, 5.0), 2)
     question = f"A crypto transaction of ${transaction_value:.2f} is processed with a fee of {fee_percent:.2f}%. What is the net amount received?"
@@ -16,7 +16,7 @@ def template_transaction_fee_calculation():
     return question, solution
 
 def template_fixed_fee_transaction():
-    """Basic: Transaction with fixed fee."""
+    """2:Basic: Transaction with fixed fee."""
     transaction_value = generate_random_value(500, 3000)
     fixed_fee = generate_random_value(1, 50)
     question = f"A crypto transaction worth ${transaction_value:.2f} has a fixed fee of ${fixed_fee:.2f}. What is the net amount received?"
@@ -28,7 +28,7 @@ def template_fixed_fee_transaction():
     return question, solution
 
 def template_bulk_transaction_fees():
-    """Intermediate: Batch of transactions with varying fees."""
+    """3:Intermediate: Batch of transactions with varying fees."""
     t1 = generate_random_value(1000, 5000)
     t2 = generate_random_value(1000, 5000)
     t3 = generate_random_value(1000, 5000)
@@ -51,7 +51,7 @@ def template_bulk_transaction_fees():
     return question, solution
 
 def template_cross_chain_transfer():
-    """Intermediate: Cross-chain transfer with fee and bonus."""
+    """4:Intermediate: Cross-chain transfer with fee and bonus."""
     initial_value = generate_random_value(1000, 10000)
     fee_percent = round(random.uniform(1.0, 3.0), 2)
     bonus = generate_random_value(10, 100)
@@ -66,7 +66,7 @@ def template_cross_chain_transfer():
     return question, solution
 
 def template_multi_factor_transaction():
-    """Advanced: Multi-factor transaction with split and bonus."""
+    """5:Advanced: Multi-factor transaction with split and bonus."""
     transaction_value = generate_random_value(5000, 20000)
     split_ratio = 0.60  # 60% to network 1, 40% to network 2
     fee_percent_net1 = round(random.uniform(1.0, 4.0), 2)

@@ -6,7 +6,7 @@ def generate_random_value(min_val, max_val):
     return round(random.uniform(min_val, max_val), 2)
 
 def template_single_asset_var():
-    """Basic: Single asset portfolio VaR calculation."""
+    """1:Basic: Single asset portfolio VaR calculation."""
     portfolio_value = generate_random_value(10000, 50000)
     volatility = round(random.uniform(1.00, 5.00), 2)  # Daily volatility in %
     time_horizon = random.randint(1, 5)  # in days
@@ -27,7 +27,7 @@ def template_single_asset_var():
     return question, solution
 
 def template_stock_return_var():
-    """Basic: Stock return VaR under market risk."""
+    """2:Basic: Stock return VaR under market risk."""
     asset_value = generate_random_value(5000, 20000)
     loss_percent = round(random.uniform(0.50, 3.00), 2)  # Expected loss percentage
     confidence = round(random.uniform(90.00, 95.00), 2)
@@ -44,7 +44,7 @@ def template_stock_return_var():
     return question, solution
 
 def template_multi_asset_var():
-    """Intermediate: Multi-asset portfolio VaR with diversification."""
+    """3:Intermediate: Multi-asset portfolio VaR with diversification."""
     portfolio_value = generate_random_value(50000, 200000)
     w1 = random.randint(20, 40)
     w2 = random.randint(20, 40)
@@ -74,7 +74,7 @@ def template_multi_asset_var():
     return question, solution
 
 def template_time_horizon_var():
-    """Intermediate: Correct Value at Risk (VaR) calculation using standard normal z-score."""
+    """4:Intermediate: Correct Value at Risk (VaR) calculation using standard normal z-score."""
     
     # Generate portfolio parameters
     portfolio_value = generate_random_value(20000, 100000)
@@ -110,7 +110,7 @@ def template_time_horizon_var():
     return question, solution
 
 def template_multi_factor_var():
-    """Advanced: Multi-factor portfolio VaR with market, credit, and liquidity risks."""
+    """5:Advanced: Multi-factor portfolio VaR with market, credit, and liquidity risks."""
     portfolio_value = generate_random_value(100000, 500000)
     market_vol = round(random.uniform(1.00, 4.00), 2)
     credit_risk = round(random.uniform(0.50, 2.50), 2)

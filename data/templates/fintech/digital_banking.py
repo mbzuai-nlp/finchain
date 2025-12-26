@@ -27,7 +27,7 @@ digital_banks = [
 
 
 def template_db_easy1():
-    """1:Easy – Simple‑Interest Ending Balance (single value)
+    """1:Basic: Simple‑Interest Ending Balance (single value)
     Variables:
       • Principal (P)
       • Annual simple interest (r)
@@ -61,7 +61,7 @@ def template_db_easy1():
 
 
 def template_db_easy2():
-    """2:Easy – Mobile‑Transfer Total Deduction (single value)
+    """2:Basic: Mobile‑Transfer Total Deduction (single value)
     Variables:
       • Transfer amount (A)
       • Fee rate (f)
@@ -96,7 +96,7 @@ def template_db_easy2():
 
 
 def template_db_medium1():
-    """3:Intermediate – Future Value of Monthly Deposits (single value)
+    """3:Intermediate: Future Value of Monthly Deposits (single value)
     Variables:
       • Monthly deposit (D)
       • Annual nominal rate (r)
@@ -131,7 +131,7 @@ def template_db_medium1():
     
 
 def template_db_medium2():
-    """4:Intermediate – Highest-Spend Dollar Amount  (3 steps)
+    """4:Intermediate: Highest-Spend Dollar Amount  (3 steps)
     Steps (3):
       1) Sum spending per category
       2) Identify the category with the maximum total
@@ -171,7 +171,7 @@ def template_db_medium2():
 
 
 def template_db_hard1():
-    """5:Advanced – Loan Payoff Months After Extra Payment  (4 steps)"""
+    """5:Advanced: Loan Payoff Months After Extra Payment  (4 steps)"""
     user = random.choice(user_names)
     bank = random.choice(digital_banks)
     principal     = random.randint(5_000, 15_000)

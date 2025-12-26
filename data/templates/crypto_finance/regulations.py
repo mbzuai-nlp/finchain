@@ -5,7 +5,7 @@ def generate_random_value(low, high):
     return round(random.uniform(low, high), 2)
 
 def template_crypto_tax_penalty():
-    """Basic: Crypto exchange tax penalty calculation."""
+    """1:Basic: Crypto exchange tax penalty calculation."""
     transaction_volume = generate_random_value(10000, 50000)
     penalty_rate = round(random.uniform(2, 5), 2)
     question = f"A crypto exchange processed transactions worth ${transaction_volume:.2f} USD. Due to non-compliance with tax regulations, a penalty of {penalty_rate:.2f}% is imposed. What is the penalty amount in USD?"
@@ -16,7 +16,7 @@ def template_crypto_tax_penalty():
     return question, solution
 
 def template_compliance_fee_adjustment():
-    """Basic: Crypto compliance fee adjustment."""
+    """2:Basic: Crypto compliance fee adjustment."""
     base_fee = generate_random_value(500, 2000)
     adjustment_factor = round(random.uniform(1.05, 1.20), 2)
     question = f"A crypto firm has a base compliance fee of ${base_fee:.2f} USD. Following new regulations, this fee is adjusted by a factor of {adjustment_factor:.2f}. What is the adjusted fee in USD?"
@@ -26,7 +26,7 @@ def template_compliance_fee_adjustment():
     return question, solution
 
 def template_regulatory_impact():
-    """Intermediate: Regulatory impact on listing fee."""
+    """3:Intermediate: Regulatory impact on listing fee."""
     current_fee = generate_random_value(1000, 5000)
     impact_percentage = round(random.uniform(1, 10), 2)
     question = f"A crypto exchange charges a listing fee of ${current_fee:.2f} USD. In response to new regulations, this fee is increased by {impact_percentage:.2f}%. What is the increase in the fee amount in USD?"
@@ -37,7 +37,7 @@ def template_regulatory_impact():
     return question, solution
 
 def template_trade_cost_adjustment():
-    """Intermediate: Regulatory-imposed trade cost adjustment."""
+    """3:Intermediate: Regulatory-imposed trade cost adjustment."""
     original_cost = generate_random_value(50, 300)
     regulation_multiplier = round(random.uniform(1.10, 1.50), 2)
     question = f"Due to enhanced regulatory requirements, a crypto platform adjusts its trade cost of ${original_cost:.2f} USD per transaction by a multiplier of {regulation_multiplier:.2f}. What is the additional cost per trade in USD?"
@@ -48,7 +48,7 @@ def template_trade_cost_adjustment():
     return question, solution
 
 def template_multi_factor_regulatory_risk():
-    """Advanced: Multi-factor regulatory compliance cost evaluation."""
+    """4:Advanced: Multi-factor regulatory compliance cost evaluation."""
     baseline_cost = generate_random_value(10000, 50000)
     factor_a = round(random.uniform(0.05, 0.15), 2)
     factor_b = round(random.uniform(0.02, 0.10), 2)

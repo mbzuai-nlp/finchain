@@ -157,6 +157,7 @@ def template_m2_measure():
 #    (weights → β_p → market premium → required return)
 # ------------------------------------------------------------
 def template_capm_portfolio():
+    """5: Advanced: capm portfolio"""
     investor = random.choice(investor_names)
     a1, a2, a3 = random.sample(asset_names, 3)
 

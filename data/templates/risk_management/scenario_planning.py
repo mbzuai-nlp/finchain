@@ -2,7 +2,7 @@ import random
 import json
 
 def template_market_downturn_revenue():
-    """Basic:Market downturn impact on revenue."""
+    """1:Basic:Market downturn impact on revenue."""
     initial_revenue = round(random.uniform(100000, 500000), 2)
     downturn = round(random.uniform(5, 20), 2)
     new_revenue = round(initial_revenue * (1 - downturn / 100), 2)
@@ -13,7 +13,7 @@ def template_market_downturn_revenue():
     return question, solution
 
 def template_operating_cost_increase():
-    """Basic:Operating cost sensitivity."""
+    """2:Basic:Operating cost sensitivity."""
     initial_cost = round(random.uniform(50000, 250000), 2)
     increase = round(random.uniform(3, 15), 2)
     new_cost = round(initial_cost * (1 + increase / 100), 2)
@@ -24,7 +24,7 @@ def template_operating_cost_increase():
     return question, solution
 
 def template_revenue_recovery_effect():
-    """Intermediate:Revenue recovery effect after downturn."""
+    """3:Intermediate:Revenue recovery effect after downturn."""
     initial_revenue = round(random.uniform(200000, 800000), 2)
     downturn = round(random.uniform(10, 30), 2)
     recovery = round(random.uniform(5, 20), 2)
@@ -36,7 +36,7 @@ def template_revenue_recovery_effect():
     return question, solution
 
 def template_interest_rate_impact():
-    """Intermediate:Interest rate impact on financing cost."""
+    """4:Intermediate:Interest rate impact on financing cost."""
     loan_amount = round(random.uniform(500000, 2000000), 2)
     rate_change = round(random.uniform(0.5, 3.0), 2)
     sensitivity = round(random.uniform(0.5, 2.0), 2)
@@ -48,7 +48,7 @@ def template_interest_rate_impact():
     return question, solution
 
 def template_investment_scenario_planning():
-    """Advanced:Multi-factor scenario on investment value."""
+    """5:Advanced:Multi-factor scenario on investment value."""
     initial_investment = round(random.uniform(1000000, 5000000), 2)
     market_change = round(random.uniform(-10, 10), 2)
     interest_change = round(random.uniform(-5, 5), 2)

@@ -16,11 +16,11 @@ def _pct(x: float) -> str:
     return f"{x:.2f}%"
 
 # =========================
-# EASY (2 templates)
+# Basic (2 templates)
 # =========================
 
 def template_asset_turnover_simple():
-    """1:Easy:Simple Asset Turnover Ratio from sales and total assets."""
+    """1:Basic:Simple Asset Turnover Ratio from sales and total assets."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 
@@ -46,7 +46,7 @@ def template_asset_turnover_simple():
 
 
 def template_asset_turnover_compare_two_periods():
-    """2:Easy:Compare Asset Turnover across two periods with assets changing and sales constant."""
+    """2:Basic:Compare Asset Turnover across two periods with assets changing and sales constant."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 

@@ -16,9 +16,9 @@ def fmt_pct(x: float) -> str:
     """Format percentages consistently with two decimals and a % sign."""
     return f"{x:.2f}%"
 
-# ---------- Easy 1: Net Profit Margin ----------
+# ---------- Basic 1: Net Profit Margin ----------
 def template_net_profit_margin_easy():
-    """1:Easy:Net Profit Margin from revenue and net income."""
+    """1:Basic:Net Profit Margin from revenue and net income."""
     company = random.choice(company_names)
     industry = random.choice(industry_names)
     revenue = random.randint(80_000, 400_000)
@@ -40,7 +40,7 @@ def template_net_profit_margin_easy():
 
 # ---------- Easy 2: Gross Profit Margin ----------
 def template_gross_profit_margin_easy():
-    """2:Easy:Gross Profit Margin from revenue and COGS."""
+    """2:Basic:Gross Profit Margin from revenue and COGS."""
     company = random.choice(company_names)
     industry = random.choice(industry_names)
     revenue = random.randint(120_000, 500_000)

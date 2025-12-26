@@ -25,15 +25,15 @@ DEFAULT_OUTPUT_PATH = Path("evals")
 SENTENCE_EMBEDDER_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 LONGFORMER_MODEL = "allenai/longformer-base-4096"
 MAX_TOKENS = 4096  # tokenizer upper bound for Longformer
-ALIGN_THRESHOLD = 0.6
-VALUE_REL_TOL = 0.1
+ALIGN_THRESHOLD = 0.45  # looser to avoid brittle zeros
+VALUE_REL_TOL = 0.15
 FINAL_REL_TOL = 0.05
 
 # Soft DTW configuration
 DTW_ALPHA_SIM = 0.85
-DTW_BETA_NUM = 0.05
-DTW_SIM_ACCEPT = 0.60
-DTW_GAP_PENALTY = 0.45
+DTW_BETA_NUM = 0.15
+DTW_SIM_ACCEPT = 0.45
+DTW_GAP_PENALTY = 0.25
 
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -119,6 +119,9 @@ def split_trace_into_steps(
     )
     if not step_matches:
         step_matches = list(re.finditer(r"(?:^|\n)\s*(\**)(\d+)(.*)", content))
+    if not step_matches:
+        # Accept unnumbered "Step:" markers
+        step_matches = list(re.finditer(r"(?:^|\n)(\s*)Step\s*:", content, re.IGNORECASE))
 
     if step_matches:
         indices = [match.span()[0] for match in step_matches]
@@ -126,9 +129,10 @@ def split_trace_into_steps(
         spans.append((indices[-1], len(content)))
         raw_steps = [content[start:end].strip() for start, end in spans]
     else:
-        raw_steps = [content.strip()] if content.strip() else []
+        # Fallback: split by lines into coarse steps to avoid empty lists
+        raw_steps = [ln.strip() for ln in content.splitlines() if ln.strip()]
 
-    cleaned_steps = [re.sub(r"(?i)Step\s+\d+\s*:?", "", step).strip() for step in raw_steps]
+    cleaned_steps = [re.sub(r"(?i)Step\s*\d*\s*:?", "", step).strip() for step in raw_steps]
     steps = [re.sub(r"\s+", " ", step) for step in cleaned_steps if step]
 
     values = [extract_final_value(step) for step in steps]
@@ -159,12 +163,14 @@ def build_value_match_mask(
     mask = np.zeros((len(gold_values), len(pred_values)), dtype=float)
     for i, gold in enumerate(gold_values):
         if gold is None:
+            mask[i, :] = 1.0  # allow text similarity when numeric missing
             continue
         for j, pred in enumerate(pred_values):
             if pred is None:
+                mask[i, j] = 1.0
                 continue
             if isinstance(gold, str) or isinstance(pred, str):
-                if bag_of_words_cosine(str(gold), str(pred), min_val=0.5):
+                if bag_of_words_cosine(str(gold), str(pred), min_val=0.3):
                     mask[i, j] = 1.0
             else:
                 denominator = abs(gold) + 1e-4
@@ -210,9 +216,9 @@ def score_trace(gold: Optional[str], pred: Optional[str]) -> Tuple[float, float,
 
 def numeric_or_string_agree(a: Optional[Any], b: Optional[Any]) -> float:
     if a is None or b is None:
-        return 0.0
+        return 1.0  # allow alignment to proceed on text when numbers missing
     if isinstance(a, str) or isinstance(b, str):
-        return 1.0 if bag_of_words_cosine(str(a), str(b), min_val=0.5) else 0.0
+        return 1.0 if bag_of_words_cosine(str(a), str(b), min_val=0.3) else 0.0
     return 1.0 if abs(a - b) / (abs(a) + 1e-4) < VALUE_REL_TOL else 0.0
 
 

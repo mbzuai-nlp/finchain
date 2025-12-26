@@ -161,7 +161,7 @@ def template_leveraged_buyout_adjusted_shares_calculation():
 # ------------------------------------------------------------------
 # Advanced Scenario: Multi-step Calculation Involving Control Premium, Debt, and Earnout
 def template_control_premium_debt_earnout_calculation():
-    """5 : Advanced – Control premium, earn‑out, debt financing (asks for equity value only)."""
+    """5: Advanced: Control premium, earn‑out, debt financing (asks for equity value only)."""
     investor = random.choice(investor_names)
     company  = random.choice(company_names)
 

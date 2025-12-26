@@ -88,7 +88,7 @@ def template_basel_intermediate_capital_buffer_requirement():
 
 
 def template_basel_intermediate_rwa_increase_effect():
-    """4:Intermediate+: Analyze capital adequacy with changes in both capital and RWA, and interpret the direction and cause of change"""
+    """4:Intermediate: Analyze capital adequacy with changes in both capital and RWA, and interpret the direction and cause of change"""
 
     investor = random.choice(investor_names)
     company = random.choice(company_names)

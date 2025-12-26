@@ -10,7 +10,7 @@ def get_random_entities():
 
 ### ========== BASIC QUESTIONS (1-2 step) ==========
 def template_kyc_basic_customer_type():
-    """1:Intermediate: Classify customer type for KYC based on account nature"""
+    """1:Basic: Classify customer type for KYC based on account nature"""
     investor, company = get_random_entities()
 
     # Expanded account types for KYC realism
@@ -57,7 +57,7 @@ def template_kyc_basic_customer_type():
 
 
 def template_kyc_basic_id_required():
-    """2:Intermediate: Evaluate whether a KYC document is valid for identity or address verification"""
+    """2:Basic: Evaluate whether a KYC document is valid for identity or address verification"""
     investor, company = get_random_entities()
 
     # Expanded document set

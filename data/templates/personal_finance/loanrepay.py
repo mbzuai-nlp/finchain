@@ -30,10 +30,10 @@ company_names = ["Tesla Inc.", "Apple Inc.", "Amazon.com", "SpaceX", "Google LLC
 industry_names = ["automotive", "technology", "e-commerce", "aerospace", "internet services"]
 
 # ------------------------------------------------ #
-# Easy 1: Loan Repayment with Simple Interest      #
+# Basic 1: Loan Repayment with Simple Interest      #
 # ------------------------------------------------ #
 def template_loan_repayment_simple():
-    """1:Easy:Simple interest, single repayment at maturity."""
+    """1:Basic:Simple interest, single repayment at maturity."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 
@@ -63,10 +63,10 @@ def template_loan_repayment_simple():
     return question, solution
 
 # ------------------------------------------------------- #
-# Easy 2: Level-payment mortgage-style monthly installment #
+# Basic 2: Level-payment mortgage-style monthly installment #
 # ------------------------------------------------------- #
 def template_loan_repayment_monthly_installments():
-    """2:Easy:Standard amortization monthly payment (no extras)."""
+    """2:Basic:Standard amortization monthly payment (no extras)."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 

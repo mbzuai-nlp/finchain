@@ -25,10 +25,10 @@ def _fmt_pct(p: float) -> str:
 _PEOPLE = ["John", "Aisha", "Ravi", "Sara", "David"]
 
 # ============================================================
-# EASY 1 — Simple compound growth (compounded annually)
+# Basic 1 — Simple compound growth (compounded annually)
 # ============================================================
 def template_compound_growth_easy() -> Tuple[str, str]:
-    """1:Easy:future value given principal, annual rate (%), and years."""
+    """1:Basic:future value given principal, annual rate (%), and years."""
     person = random.choice(_PEOPLE)
     P = _rand_money(100_000, 500_000)          # USD
     r_pct = _rand_pct(5.0, 15.0)               # % per year
@@ -52,10 +52,10 @@ def template_compound_growth_easy() -> Tuple[str, str]:
     return question, solution
 
 # ============================================================
-# EASY 2 — Portfolio allocation amounts summing to 100%
+# Basic 2 — Portfolio allocation amounts summing to 100%
 # ============================================================
 def template_portfolio_allocation_easy() -> Tuple[str, str]:
-    """2:Easy:allocate a lump sum across stocks/bonds/real estate by % weights."""
+    """2:Basic:allocate a lump sum across stocks/bonds/real estate by % weights."""
     person = random.choice(_PEOPLE)
     age = random.randint(25, 55)
     total = _rand_money(1_000_000, 5_000_000)  # USD

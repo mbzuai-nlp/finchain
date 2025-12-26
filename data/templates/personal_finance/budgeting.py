@@ -19,10 +19,10 @@ def _fmt_pct(x: float) -> str:
     return f"{x:.2f}%"
 
 # ----------------------------
-# EASY 1: Budget Allocation Simple
+# Basic 1: Budget Allocation Simple
 # ----------------------------
 def template_budget_allocation_simple():
-    """1:Easy:Split a quarterly budget between Marketing (given %) and Operations (remainder)."""
+    """1:Basic:Split a quarterly budget between Marketing (given %) and Operations (remainder)."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
     total_budget = float(random.randint(500_000, 5_000_000))  # quarterly USD
@@ -50,10 +50,10 @@ def template_budget_allocation_simple():
     return question, solution
 
 # ----------------------------
-# EASY 2: Budget Reallocation Due to Costs
+# Basic 2: Budget Reallocation Due to Costs
 # ----------------------------
 def template_budget_reallocation_due_to_costs():
-    """2:Easy:Move a given % of Marketing to Operations; report new budgets."""
+    """2:Basic:Move a given % of Marketing to Operations; report new budgets."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
     marketing_budget = float(random.randint(500_000, 3_000_000))

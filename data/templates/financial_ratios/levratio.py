@@ -54,14 +54,14 @@ def sample_liab_equity(
     return round_money(L_mid), round_money(E_mid)
 
 # ---------------------------------------------------
-# EASY 1 — Debt-to-Equity Ratio (simple, single step)
+# Basic 1 — Debt-to-Equity Ratio (simple, single step)
 # ---------------------------------------------------
 def template_debt_to_equity_simple():
-    """1:Easy:Compute basic D/E = Total Liabilities / Shareholders' Equity."""
+    """1:Basic:Compute basic D/E = Total Liabilities / Shareholders' Equity."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 
-    # Smaller ranges for 'easy'
+    # Smaller ranges for 'Basic'
     total_liabilities, shareholders_equity = sample_liab_equity(
         L_range=(10_000, 50_000),
         E_range=(8_000, 30_000),
@@ -88,10 +88,10 @@ def template_debt_to_equity_simple():
     return question, solution
 
 # ----------------------------------------------------------------
-# EASY 2 — D/E with Convertible Debt converting fully into equity
+# Basic 2 — D/E with Convertible Debt converting fully into equity
 # ----------------------------------------------------------------
 def template_debt_to_equity_convertible_debt():
-    """2:Easy:Compute current D/E and D/E after ALL convertible debt converts to equity."""
+    """2:Basic:Compute current D/E and D/E after ALL convertible debt converts to equity."""
     company_name = random.choice(company_names)
     industry = random.choice(industry_names)
 

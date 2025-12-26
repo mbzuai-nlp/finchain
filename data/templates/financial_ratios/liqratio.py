@@ -36,11 +36,11 @@ company_names = ["Tesla Inc.", "Apple Inc.", "Amazon.com", "SpaceX", "Google LLC
 industry_names = ["automotive", "technology", "e-commerce", "aerospace", "internet services"]
 
 # ==========================================================
-# EASY (2): Current Ratio; Quick Ratio
+# Basic (2): Current Ratio; Quick Ratio
 # ==========================================================
 
 def template_current_ratio_simple():
-    """1:Easy:Simple Current Ratio using current assets and current liabilities."""
+    """1:Basic:Simple Current Ratio using current assets and current liabilities."""
     company = random.choice(company_names)
     industry = random.choice(industry_names)
     ca = random.randint(5_000, 50_000)
@@ -61,7 +61,7 @@ def template_current_ratio_simple():
 
 
 def template_quick_ratio_simple():
-    """2:Easy:Quick Ratio (acid-test) = (Current Assets − Inventories) ÷ Current Liabilities."""
+    """2:Basic:Quick Ratio (acid-test) = (Current Assets − Inventories) ÷ Current Liabilities."""
     company = random.choice(company_names)
     industry = random.choice(industry_names)
     ca = random.randint(10_000, 100_000)
