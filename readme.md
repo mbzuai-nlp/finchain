@@ -171,6 +171,11 @@ For questions or collaborations, contact: **zhuohan.xie@mbzuai.ac.ae**
 
 ## ⚖️ License
 
+Copyright © FINCHAIN contributors.
+
+The original source code in this repository, including ChainEval and the executable templates, is licensed under the [Apache License 2.0](LICENSE). Commercial use is permitted under the terms of this license.
+
+Third-party code, assets, and dependencies retain their original licenses and notices.
 
 ---
 
